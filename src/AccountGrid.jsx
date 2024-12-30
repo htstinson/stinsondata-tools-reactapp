@@ -87,14 +87,12 @@ const AccountGrid = () => {
   const handleSubmit = async (account) => {
     try {
       const token = localStorage.getItem('token');
-      const method = account.id ? 'PUT' : 'POST';
-      const url = account.id 
-        ? `https://stinsondata.tools/api/v1/accounts/${account.id}`
+      const method = account.Id ? 'PATCH' : 'POST';
+      const url = account.Id 
+        ? `https://stinsondata.tools/api/v1/accounts/${account.Id}`
         : 'https://stinsondata.tools/api/v1/accounts';
 
-      console.log(account)
-
-      const response = await fetch(url, {
+       const response = await fetch(url, {
         method,
         headers: {
           'Authorization': `Bearer ${token}`,

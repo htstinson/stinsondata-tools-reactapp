@@ -30,3 +30,5 @@ yarn-error.log*
 
 tempnpm
 package-lock.json
+
+update.sh
