@@ -4,6 +4,7 @@ import { Button } from '@progress/kendo-react-buttons';
 import { Input } from '@progress/kendo-react-inputs';
 import { IntlProvider, LocalizationProvider } from '@progress/kendo-react-intl';
 import Dashboard from './Dashboard';
+import './App.css';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {

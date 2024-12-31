@@ -200,11 +200,9 @@ const AccountGrid = () => {
             pageSize: 10
           }}
         >
-          <GridColumn field="Id" title="ID" width="250px" />
           <GridColumn field="Name" title="Name" />
-          <GridColumn field="CreatedDate" title="Created Date" format="{0:yyyy-MM-dd}" width="200px" />
           <GridColumn field="Phone" title="Phone" />
-          <GridColumn field="AccountType" title="Type" />
+          <GridColumn field="Type" title="Type" />
           <GridColumn field="AccountSource" title="Source" />
           <GridColumn title="Actions" cell={ActionCell} width="200px" />
         </Grid>

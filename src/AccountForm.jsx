@@ -6,10 +6,11 @@ export const AccountForm = ({ account, onSubmit, onCancel }) => {
   const [name, setName] = useState(account?.Name || ''); //name = account name
   const [phone, setPhone] = useState(account?.Phone || '');
   const [accountsource, setAccountSource] = useState(account?.AccountSource || '');
+  const [type, setAccountType] = useState(account?.Type || '');
  
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...account, name, phone, accountsource });
+    onSubmit({ ...account, name, phone, accountsource, type });
   };
 
   return (
@@ -31,6 +32,7 @@ export const AccountForm = ({ account, onSubmit, onCancel }) => {
             placeholder="(555) 555-5555"
           />
         </div>
+
         <div>
         <label className="block text-sm font-medium text-gray-700">Source</label>
         <Input 
@@ -39,6 +41,16 @@ export const AccountForm = ({ account, onSubmit, onCancel }) => {
           className="mt-1"
         />
         </div>
+
+        <div>
+        <label className="block text-sm font-medium text-gray-700">Type</label>
+        <Input 
+          value={type} 
+          onChange={(e) => setAccountType(e.value)} 
+          className="mt-1"
+        />
+        </div>
+
         <div className="flex justify-end space-x-2">
           <Button onClick={onCancel} themeColor="light">
           Cancel

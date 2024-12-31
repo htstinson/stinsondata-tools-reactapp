@@ -200,14 +200,7 @@ const UserGrid = () => {
             pageSize: 10
           }}
         >
-          <GridColumn field="id" title="ID" width="250px" />
           <GridColumn field="username" title="Name" />
-          <GridColumn 
-            field="created_at" 
-            title="Created At" 
-            format="{0:yyyy-MM-dd HH:mm}"
-            width="200px"
-          />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
