@@ -26,7 +26,7 @@ const UserGrid = () => {
         throw new Error('No authentication token found');
       }
 
-      let url = 'https://stinsondata.tools/api/v1/users';
+      let url = 'https://stinsondemo.com/api/v1/users';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -89,8 +89,8 @@ const UserGrid = () => {
       const token = localStorage.getItem('token');
       const method = user.id ? 'PUT' : 'POST';
       const url = user.id 
-        ? `https://stinsondata.tools/api/v1/users/${user.id}`
-        : 'https://stinsondata.tools/api/v1/users';
+        ? `https://stinsondemo.com/api/v1/users/${user.id}`
+        : 'https://stinsondemo.com/api/v1/users';
 
       const response = await fetch(url, {
         method,
@@ -116,7 +116,7 @@ const UserGrid = () => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondata.tools/api/v1/users/${dataItem.id}`, {
+        const response = await fetch(`https://stinsondemo.com/api/v1/users/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

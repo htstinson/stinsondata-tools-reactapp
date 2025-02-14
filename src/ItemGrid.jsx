@@ -26,7 +26,7 @@ const ItemGrid = () => {
         throw new Error('No authentication token found');
       }
 
-      let url = 'https://stinsondata.tools/api/v1/items';
+      let url = 'https://stinsondemo.com/api/v1/items';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -89,8 +89,8 @@ const ItemGrid = () => {
       const token = localStorage.getItem('token');
       const method = item.id ? 'PUT' : 'POST';
       const url = item.id 
-        ? `https://stinsondata.tools/api/v1/items/${item.id}`
-        : 'https://stinsondata.tools/api/v1/items';
+        ? `https://stinsondemo.com/api/v1/items/${item.id}`
+        : 'https://stinsondemo.com/api/v1/items';
 
       const response = await fetch(url, {
         method,
@@ -116,7 +116,7 @@ const ItemGrid = () => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondata.tools/api/v1/items/${dataItem.id}`, {
+        const response = await fetch(`https://stinsondemo.com/api/v1/items/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
