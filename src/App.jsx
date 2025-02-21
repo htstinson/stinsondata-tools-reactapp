@@ -4,6 +4,9 @@ import { Button } from '@progress/kendo-react-buttons';
 import { Input } from '@progress/kendo-react-inputs';
 import { IntlProvider, LocalizationProvider } from '@progress/kendo-react-intl';
 import Dashboard from './Dashboard';
+import ContactUs from './components/ContactUs';
+import Users from './components/Users';
+
 import './App.css';
 
 // Protected Route Component
@@ -22,6 +25,8 @@ const ItemForm = ({ item, onSubmit, onCancel }) => {
   };
 
   return (
+    
+    
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -71,6 +76,9 @@ const Login = () => {
       });
 
       if (!response.ok) {
+        console.log(username)
+        console.log(response.status)
+        console.log(response.headers)
         throw new Error('Invalid credentials');
       }
 
@@ -141,6 +149,7 @@ const PublicLayout = () => {
   const navigate = useNavigate();
 
   return (
+    
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-white shadow mb-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -149,6 +158,7 @@ const PublicLayout = () => {
               <h1 className="text-xl font-bold">Stinson Data LLC</h1>
             </div>
             <div className="flex items-center">
+            
               <Button
                 onClick={() => navigate('/login')}
                 themeColor="primary"
@@ -179,16 +189,11 @@ const App = () => {
             {/* Public Routes */}
             <Route path="/" element={<PublicLayout />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/contact" element={<ContactUs />} />
             
             {/* Protected Routes */}
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
 
             {/* Catch all unmatched routes */}
             <Route path="*" element={<Navigate to="/" replace />} />

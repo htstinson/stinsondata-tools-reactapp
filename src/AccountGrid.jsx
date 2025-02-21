@@ -57,6 +57,7 @@ const AccountGrid = () => {
       }
       
       const jsonData = await response.json();
+     
       setData(jsonData);
     } catch (err) {
       setError(err.message);

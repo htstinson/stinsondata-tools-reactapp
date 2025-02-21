@@ -2,8 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@progress/kendo-react-buttons';
 import ItemGrid from './ItemGrid';
-import UserGrid from './UserGrid';
 import AccountGrid from './AccountGrid';
+import Navbar from './components/Navbar';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -14,7 +14,9 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Navbar />
       <nav className="bg-white shadow mb-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -30,7 +32,6 @@ const Dashboard = () => {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <ItemGrid />
-        <UserGrid/>
         <AccountGrid/>
       </main>
     </div>
