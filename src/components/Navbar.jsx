@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Home, Info, Phone, BarChart, Users } from 'lucide-react';
+import Admin from '../Admin';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,7 +26,8 @@ const Navbar = () => {
     { name: 'About', href: '/about', icon: Info },
     { name: 'Dashboard', href: '/dashboard', icon: BarChart },
     { name: 'Contact', href: '/contact', icon: Phone },
-    { name: 'Users', href: '/users', icon: Users }
+    { name: 'Users', href: '/users', icon: Users },
+    { name: 'Admin', href: '/admin', icon: Admin }
   ];
 
   return (
