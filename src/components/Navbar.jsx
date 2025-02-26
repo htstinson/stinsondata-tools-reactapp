@@ -27,7 +27,7 @@ const Navbar = () => {
     { name: 'Dashboard', href: '/dashboard', icon: BarChart },
     { name: 'Contact', href: '/contact', icon: Phone },
     { name: 'Users', href: '/users', icon: Users },
-    { name: 'Admin', href: '/admin' }
+    { name: 'Admin', href: '/admin'}
   ];
 
   return (
