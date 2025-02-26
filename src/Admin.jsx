@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@progress/kendo-react-buttons';
-import BlockedGrid from './components/BlockedGrid';
+import BlockedGrid from './components/BlockedGrid.jsx';
 import Navbar from './components/Navbar';
 
 const Admin = () => {
@@ -30,7 +30,7 @@ const Admin = () => {
       </nav>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <ItemGrid />
+        <BlockedGrid />
       </main>
     </div>
   );
