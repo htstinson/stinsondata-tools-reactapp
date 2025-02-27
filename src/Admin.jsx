@@ -20,7 +20,7 @@ const Admin = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold">Dashboard</h1>
+              <h1 className="text-xl font-bold">Admin</h1>
             </div>
             <div className="flex items-center">
               <Button onClick={handleLogout} themeColor="primary">Logout</Button>

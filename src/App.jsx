@@ -6,6 +6,7 @@ import { IntlProvider, LocalizationProvider } from '@progress/kendo-react-intl';
 import Dashboard from './Dashboard';
 import ContactUs from './components/ContactUs';
 import Users from './components/Users';
+import Admin from './Admin';
 
 import './App.css';
 
@@ -194,6 +195,7 @@ const App = () => {
             {/* Protected Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
 
             {/* Catch all unmatched routes */}
             <Route path="*" element={<Navigate to="/" replace />} />

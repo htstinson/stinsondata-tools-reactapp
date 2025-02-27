@@ -46,7 +46,7 @@ const BlockedGrid = () => {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.removeItem('token');
@@ -200,12 +200,10 @@ const BlockedGrid = () => {
             pageSize: 10
           }}
         >
-          <GridColumn field="name" title="Name" />
-          <GridColumn 
-            title="Actions" 
-            cell={ActionCell}
-            width="200px"
-          />
+          <GridColumn field="ip" title="IP" />
+          <GridColumn field="ip" title="Notes" />
+          <GridColumn title="Actions" cell={ActionCell} width="200px"/>
+          
         </Grid>
       )}
 
