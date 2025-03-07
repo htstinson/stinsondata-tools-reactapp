@@ -201,7 +201,7 @@ const BlockedGrid = () => {
           }}
         >
           <GridColumn field="ip" title="IP" />
-          <GridColumn field="ip" title="Notes" />
+          <GridColumn field="notes" title="Notes" />
           <GridColumn title="Actions" cell={ActionCell} width="200px"/>
           
         </Grid>
