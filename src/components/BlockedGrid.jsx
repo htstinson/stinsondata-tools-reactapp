@@ -16,6 +16,9 @@ const BlockedGrid = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [dateFilter, setDateFilter] = useState(null);
 
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -99,7 +102,18 @@ const BlockedGrid = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(item)
-      });
+    
+      }
+    
+    );
+
+    console.log(response.status)
+
+    if (response.status === 409) {
+      setErrorMessage('A user with this information already exists.');
+      setShowError(true);
+      return;
+    }
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -208,8 +222,8 @@ const BlockedGrid = () => {
       )}
 
       {showDialog && (
-        <Dialog title={editItem ? "Edit Item" : "Create New Item"} onClose={() => setShowDialog(false)}>
-          <ItemForm 
+        <Dialog title={editItem ? "Edit Item" : "Create New Blocked IP"} onClose={() => setShowDialog(false)}>
+          <BlockedForm 
             item={editItem}
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}
