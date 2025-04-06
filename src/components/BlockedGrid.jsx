@@ -13,13 +13,24 @@ const BlockedGrid = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sort, setSort] = useState([]);
+  const [sort, setSort] = useState([
+    {
+      field: 'ip',
+      dir: 'asc'
+    }
+  ]);
   const [editItem, setEditItem] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [dateFilter, setDateFilter] = useState(null);
 
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  
+  // Add pagination state
+  const [page, setPage] = useState({
+    skip: 0,
+    take: 10
+  });
 
   const fetchData = async () => {
     try {
@@ -41,6 +52,10 @@ const BlockedGrid = () => {
       if (dateFilter) {
         params.append('date', dateFilter.toISOString());
       }
+      // Add pagination parameters if your API supports server-side pagination
+      // params.append('skip', page.skip);
+      // params.append('take', page.take);
+      
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
@@ -77,6 +92,14 @@ const BlockedGrid = () => {
     fetchData();
   }, [sort, dateFilter]);
 
+  // Reset page when filters change
+  useEffect(() => {
+    setPage({
+      skip: 0,
+      take: page.take
+    });
+  }, [sort, dateFilter]);
+
   const handleSortChange = (e) => {
     // Update the sort state with the new sort configuration
     setSort(e.sort);
@@ -88,6 +111,14 @@ const BlockedGrid = () => {
     console.log('Sort changed to:', e.sort);
   };
 
+  // Add page change handler
+  const handlePageChange = (e) => {
+    setPage({
+      skip: e.page.skip,
+      take: e.page.take
+    });
+  };
+
   const handleEdit = (dataItem) => {
     setEditItem(dataItem);
     setShowDialog(true);
@@ -96,9 +127,15 @@ const BlockedGrid = () => {
   const handleCreate = () => {
     setEditItem(null);
     setShowDialog(true);
+    // Reset any error messages when creating a new item
+    setShowError(false);
+    setErrorMessage('');
   };
 
   const handleSubmit = async (item) => {
+    // Reset any previous error states
+    setShowError(false);
+    setErrorMessage('');
     try {
       const token = localStorage.getItem('token');
       const method = item.id ? 'PUT' : 'POST';
@@ -121,8 +158,9 @@ const BlockedGrid = () => {
     console.log(response.status)
 
     if (response.status === 409) {
-      setErrorMessage('A user with this information already exists.');
+      setErrorMessage('Duplicate: A user with this information already exists.');
       setShowError(true);
+      // Don't close the dialog so user can correct the input
       return;
     }
 
@@ -212,6 +250,9 @@ const BlockedGrid = () => {
     );
   };
 
+  // Get the current page data
+  const pageData = data.slice(page.skip, page.skip + page.take);
+
   return (
     <div className="px-4 sm:px-0">
       <div className="mb-4 flex justify-between items-center">
@@ -245,16 +286,20 @@ const BlockedGrid = () => {
         </div>
       ) : (
         <Grid
-          data={data}
+          data={pageData}
           style={{ height: '400px' }}
           sortable={true}
           sort={sort}
           onSortChange={handleSortChange}
+          skip={page.skip}
+          take={page.take}
+          total={data.length}
           pageable={{
             buttonCount: 5,
             pageSizes: [10, 20, 50],
-            pageSize: 10
+            pageSize: page.take
           }}
+          onPageChange={handlePageChange}
         >
           <GridColumn field="ip" title="IP" />
           <GridColumn field="notes" title="Notes" />
@@ -265,10 +310,16 @@ const BlockedGrid = () => {
 
       {showDialog && (
         <Dialog title={editItem ? "Edit Item" : "Create New Blocked IP"} onClose={() => setShowDialog(false)}>
+          {showError && (
+            <div className="p-3 mb-3 bg-red-50 border border-red-200 rounded">
+              <p className="text-red-600">{errorMessage}</p>
+            </div>
+          )}
           <BlockedForm 
             item={editItem}
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}
+            error={showError ? errorMessage : null}
           />
         </Dialog>
       )}
