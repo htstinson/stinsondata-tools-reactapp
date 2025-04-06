@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
-import { DatePicker } from '@progress/kendo-react-dateinputs';
 import { Dialog } from '@progress/kendo-react-dialogs';
 import { BlockedForm } from './BlockedForm.jsx';
 
@@ -214,7 +213,6 @@ const BlockedGrid = () => {
     
     );
 
-    console.log(response.status)
 
     if (!response.ok) {
        throw new Error(`HTTP error! status: ${response.status}`);
@@ -231,13 +229,6 @@ const BlockedGrid = () => {
     return (
       <td>
         <div className="flex space-x-2">
-          <Button 
-            onClick={() => handleEdit(props.dataItem)}
-            themeColor="info"
-            size="small"
-          >
-            Edit
-          </Button>
           <Button 
             onClick={() => handleDelete(props.dataItem)}
             themeColor="error"
@@ -256,14 +247,8 @@ const BlockedGrid = () => {
   return (
     <div className="px-4 sm:px-0">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Items</h2>
+        <h2 className="text-2xl font-bold">Blocked IP Addresses</h2>
         <div className="flex items-center space-x-4">
-          <DatePicker
-            placeholder="Filter by date..."
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.value)}
-            format="yyyy-MM-dd"
-          />
           <Button onClick={handleCreate} themeColor="primary">Create New Blocked IP</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
           <Button onClick={handleUpdatewAF} themeColor="primary">Update WAF</Button>
