@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Home, Info, Phone, BarChart, Users, LogOut, User, Settings } from 'lucide-react';
 import Admin from '../Admin';
-import { useUser } from './UserContext.jsx'; // Import from separate file
+import { useUser } from './UserContext.jsx'; 
 
 // User dropdown component
 const UserDropdown = () => {
@@ -14,6 +14,8 @@ const UserDropdown = () => {
   }
   
   const { currentUser, logout } = userContext;
+
+  console.log("currentUser", currentUser);
 
   if (!currentUser) {
     return (
@@ -81,6 +83,11 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  console.log("isOpen", isOpen);
+
+  const userContext = useUser();
+  console.log("userContext", userContext);
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -113,7 +120,7 @@ const Navbar = () => {
           <div className="flex-shrink-0">
             <span className="text-xl font-bold">Your Logo</span>
           </div>
-
+          
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center">
             <div className="flex space-x-8">
@@ -128,6 +135,7 @@ const Navbar = () => {
                 </a>
               ))}
             </div>
+            
             <div className="ml-8 border-l border-gray-200 pl-6">
               <UserDropdown />
             </div>

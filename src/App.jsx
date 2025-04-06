@@ -8,14 +8,22 @@ import ContactUs from './components/ContactUs';
 import Users from './components/Users';
 import Admin from './Admin';
 import Navbar from './components/Navbar';
-
+import { UserProvider, useUser } from './components/UserContext.jsx';
+import JWTDebugger from './components/JWTDebugger'; // Import the debugger component
 
 import './App.css';
 
-// Protected Route Component
+// Protected Route Component with useUser integration
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = !!localStorage.getItem('token');
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  const { currentUser, loading } = useUser();
+  
+  // Show loading state while checking authentication
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+  
+  // Redirect to login if no user found
+  return currentUser ? children : <Navigate to="/login" replace />;
 };
 
 // Item Edit Form Component
@@ -28,8 +36,6 @@ const ItemForm = ({ item, onSubmit, onCancel }) => {
   };
 
   return (
-    
-    
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700">Name</label>
@@ -52,16 +58,18 @@ const ItemForm = ({ item, onSubmit, onCancel }) => {
   );
 };
 
-// Login Component
+// Login Component with useUser integration
 const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const { login, currentUser } = useUser();
 
   useEffect(() => {
-    if (localStorage.getItem('token')) {
+    // Redirect if already logged in
+    if (currentUser) {
       navigate('/dashboard');
     }
-  }, [navigate]);
+  }, [currentUser, navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -79,14 +87,17 @@ const Login = () => {
       });
 
       if (!response.ok) {
-        console.log(username)
-        console.log(response.status)
-        console.log(response.headers)
+        console.log(username);
+        console.log(response.status);
+        console.log(response.headers);
         throw new Error('Invalid credentials');
       }
 
       const data = await response.json();
-      localStorage.setItem('token', data.token);
+      
+      // Use the login function from context instead of directly setting localStorage
+      login(data.token);
+      
       navigate('/dashboard');
     } catch (err) {
       setError(err.message);
@@ -147,13 +158,23 @@ const Login = () => {
   );
 };
 
+// Debug Page Component
+const DebugPage = () => {
+  return (
+    <div className="container mx-auto pt-20">
+      <Navbar />
+      <div className="p-4 mt-16">
+        <h1 className="text-2xl font-bold mb-4">Authentication Debugging</h1>
+        <JWTDebugger />
+      </div>
+    </div>
+  );
+};
+
 // Public Layout Component
 const PublicLayout = () => {
-  const navigate = useNavigate();
-
   return (
-    
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Navbar />
       <nav className="bg-white shadow mb-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -162,13 +183,6 @@ const PublicLayout = () => {
               <h1 className="text-xl font-bold">Stinson Data LLC</h1>
             </div>
             <div className="flex items-center">
-            
-              <Button
-                onClick={() => navigate('/login')}
-                themeColor="primary"
-              >
-                Login
-              </Button>
             </div>
           </div>
         </div>
@@ -188,22 +202,28 @@ const App = () => {
   return (
     <LocalizationProvider>
       <IntlProvider locale="en">
-        <BrowserRouter>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<PublicLayout />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/contact" element={<ContactUs />} />
-            
-            {/* Protected Routes */}
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+        {/* Wrap everything with UserProvider */}
+        <UserProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<PublicLayout />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/contact" element={<ContactUs />} />
+              
+              {/* Debug Route */}
+              <Route path="/debug" element={<DebugPage />} />
+              
+              {/* Protected Routes */}
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
 
-            {/* Catch all unmatched routes */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
+              {/* Catch all unmatched routes */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </UserProvider>
       </IntlProvider>
     </LocalizationProvider>
   );

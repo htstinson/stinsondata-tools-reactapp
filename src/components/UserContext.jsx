@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import * as jwtDecode from 'jwt-decode';
+import { current } from '@reduxjs/toolkit';
 
 // Create a context to hold the user information
 export const UserContext = createContext(null);
@@ -11,7 +12,9 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     // Get the token from localStorage on component mount
-    const token = localStorage.getItem('jwt_token');
+    const token = localStorage.getItem('token');
+
+    console.log("token", token)
     
     if (token) {
       try {
@@ -22,7 +25,7 @@ export const UserProvider = ({ children }) => {
         const currentTime = Date.now() / 1000;
         if (decodedToken.exp && decodedToken.exp < currentTime) {
           // Token is expired, clear it from localStorage
-          localStorage.removeItem('jwt_token');
+          localStorage.removeItem('token');
           setCurrentUser(null);
         } else {
           // Token is valid, set the user information
@@ -30,7 +33,7 @@ export const UserProvider = ({ children }) => {
         }
       } catch (error) {
         console.error('Error decoding token:', error);
-        localStorage.removeItem('jwt_token');
+        localStorage.removeItem('jtoken');
       }
     }
     
@@ -39,15 +42,17 @@ export const UserProvider = ({ children }) => {
 
   // Function to handle user logout
   const logout = () => {
-    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('token');
     setCurrentUser(null);
     window.location.href = '/login'; // Redirect to login page after logout
   };
 
   // Function to handle user login
   const login = (token) => {
-    localStorage.setItem('jwt_token', token);
+    localStorage.setItem('token', token);
     const decodedToken = jwtDecode.jwtDecode(token);
+    
+    console.log('decodedToken', decodedToken);
     setCurrentUser(decodedToken);
   };
 
