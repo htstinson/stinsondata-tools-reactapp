@@ -1,6 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Home, Info, Phone, BarChart, Users } from 'lucide-react';
+import { Menu, X, Home, Info, Phone, BarChart, Users, LogOut, User, Settings } from 'lucide-react';
 import Admin from '../Admin';
+import { useUser } from './UserContext.jsx'; // Import from separate file
+
+// User dropdown component
+const UserDropdown = () => {
+  const userContext = useUser();
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Handle case where context is not yet available
+  if (!userContext) {
+    return null;
+  }
+  
+  const { currentUser, logout } = userContext;
+
+  if (!currentUser) {
+    return (
+      <a 
+        href="/login" 
+        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+      >
+        Login
+      </a>
+    );
+  }
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  // Get user display name from JWT token
+  const displayName = currentUser.name || currentUser.username || currentUser.email || 'User';
+  
+  // Get first letter of display name for avatar
+  const initials = displayName.charAt(0).toUpperCase();
+
+  return (
+    <div className="relative">
+      <button 
+        onClick={toggleDropdown}
+        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+      >
+        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
+          {initials}
+        </div>
+        <span>{displayName}</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+          <a
+            href="/profile"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+          >
+            <User size={16} />
+            Profile
+          </a>
+          <a
+            href="/settings"
+            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+          >
+            <Settings size={16} />
+            Settings
+          </a>
+          <button
+            onClick={logout}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,24 +115,30 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex space-x-12">
-            {navItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
-              >
-                {item.icon && <item.icon size={18} />}
-                {item.name}
-              </a>
-            ))}
+          <div className="hidden md:flex items-center">
+            <div className="flex space-x-8">
+              {navItems.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+                >
+                  {item.icon && <item.icon size={18} />}
+                  {item.name}
+                </a>
+              ))}
+            </div>
+            <div className="ml-8 border-l border-gray-200 pl-6">
+              <UserDropdown />
+            </div>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center">
+            <UserDropdown />
             <button
               onClick={toggleMenu}
-              className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
+              className="ml-4 p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>

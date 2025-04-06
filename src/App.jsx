@@ -7,6 +7,8 @@ import Dashboard from './Dashboard';
 import ContactUs from './components/ContactUs';
 import Users from './components/Users';
 import Admin from './Admin';
+import Navbar from './components/Navbar';
+
 
 import './App.css';
 
@@ -152,6 +154,7 @@ const PublicLayout = () => {
   return (
     
     <div className="min-h-screen bg-gray-100">
+      <Navbar />
       <nav className="bg-white shadow mb-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">

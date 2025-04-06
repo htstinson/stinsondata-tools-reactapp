@@ -201,6 +201,7 @@ const UserGrid = () => {
           }}
         >
           <GridColumn field="username" title="Name" />
+          <GridColumn field="roles" title="Roles" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
