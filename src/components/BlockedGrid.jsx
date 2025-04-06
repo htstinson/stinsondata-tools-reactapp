@@ -6,6 +6,8 @@ import { DatePicker } from '@progress/kendo-react-dateinputs';
 import { Dialog } from '@progress/kendo-react-dialogs';
 import { BlockedForm } from './BlockedForm.jsx';
 
+import { orderBy } from '@progress/kendo-data-query';
+
 const BlockedGrid = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -43,6 +45,8 @@ const BlockedGrid = () => {
         url += `?${params.toString()}`;
       }
 
+      console.log(url)
+
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -74,7 +78,14 @@ const BlockedGrid = () => {
   }, [sort, dateFilter]);
 
   const handleSortChange = (e) => {
+    // Update the sort state with the new sort configuration
     setSort(e.sort);
+    
+    // Note: We don't need to manually sort the data here since 
+    // you're fetching sorted data from the server based on the sort state
+    // The useEffect will trigger a new fetch with the updated sort parameters
+    
+    console.log('Sort changed to:', e.sort);
   };
 
   const handleEdit = (dataItem) => {
@@ -148,6 +159,36 @@ const BlockedGrid = () => {
     }
   };
 
+  const handleUpdatewAF = () => {
+    
+    try {
+      const token = localStorage.getItem('token');
+      const method = 'GET';
+      const url = 'https://stinsondemo.com/api/v1/blocked/update';
+
+      const response = fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    
+    );
+
+    console.log(response.status)
+
+    if (!response.ok) {
+       throw new Error(`HTTP error! status: ${response.status}`);
+     }
+
+    } catch (err) {
+      setError(err.message);
+    }
+
+
+  };
+
   const ActionCell = (props) => {
     return (
       <td>
@@ -184,6 +225,7 @@ const BlockedGrid = () => {
           />
           <Button onClick={handleCreate} themeColor="primary">Create New Blocked IP</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
+          <Button onClick={handleUpdatewAF} themeColor="primary">Update WAF</Button>
         </div>
       </div>
 
