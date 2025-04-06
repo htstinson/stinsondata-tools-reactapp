@@ -22,9 +22,6 @@ const Admin = () => {
             <div className="flex items-center">
               <h1 className="text-xl font-bold">Admin</h1>
             </div>
-            <div className="flex items-center">
-              <Button onClick={handleLogout} themeColor="primary">Logout</Button>
-            </div>
           </div>
         </div>
       </nav>

@@ -162,12 +162,6 @@ const UserGrid = () => {
       <div className="mb-4 flex justify-between users-center">
         <h2 className="text-2xl font-bold">Users</h2>
         <div className="flex users-center space-x-4">
-          <DatePicker
-            placeholder="Filter by date..."
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.value)}
-            format="yyyy-MM-dd"
-          />
           <Button onClick={handleCreate} themeColor="primary">Create New User</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
