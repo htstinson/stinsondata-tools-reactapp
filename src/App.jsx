@@ -67,7 +67,7 @@ const Login = () => {
   useEffect(() => {
     // Redirect if already logged in
     if (currentUser) {
-      navigate('/dashboard');
+      navigate('/');
     }
   }, [currentUser, navigate]);
 
@@ -98,7 +98,7 @@ const Login = () => {
       // Use the login function from context instead of directly setting localStorage
       login(data.token);
       
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.message);
     }

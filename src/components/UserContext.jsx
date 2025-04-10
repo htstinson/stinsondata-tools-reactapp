@@ -13,8 +13,6 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     // Get the token from localStorage on component mount
     const token = localStorage.getItem('token');
-
-    console.log("token", token)
     
     if (token) {
       try {

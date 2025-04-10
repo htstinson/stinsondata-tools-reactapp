@@ -196,6 +196,7 @@ const UserGrid = () => {
         >
           <GridColumn field="username" title="Name" />
           <GridColumn field="roles" title="Roles" />
+          <GridColumn field="ip_address" title="IP Address" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}

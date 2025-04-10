@@ -82,11 +82,7 @@ const UserDropdown = () => {
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
-  console.log("isOpen", isOpen);
-
   const userContext = useUser();
-  console.log("userContext", userContext);
 
   useEffect(() => {
     const handleResize = () => {
@@ -103,14 +99,34 @@ const Navbar = () => {
     setIsOpen(!isOpen);
   };
 
+
   const navItems = [
-    { name: 'Home', href: '/', icon: Home },
+    { name: 'Home', href: '/', icon: Home, access: "public" },
     { name: 'About', href: '/about', icon: Info },
-    { name: 'Dashboard', href: '/dashboard', icon: BarChart },
+    { name: 'Dashboard', href: '/dashboard', icon: BarChart, requiredRole: "{Standard_User}" },
     { name: 'Contact', href: '/contact', icon: Phone },
-    { name: 'Users', href: '/users', icon: Users },
-    { name: 'Admin', href: '/admin'}
+    { name: 'Users', href: '/users', icon: Users, requiredRole: "{Root}" },
+    { name: 'Admin', href: '/admin', requiredRole: "{Root}"}
   ];
+
+  const currentUser = userContext.currentUser;
+
+  const shouldShowNavItem = (item, currentUser) => {
+    console.log(currentUser)
+    // Public items are always visible
+    if (item.access === "public") return true;
+    
+    // If no user is logged in, only show public items
+    if (!currentUser) return false;
+    
+    // Check for role-specific items
+    if (item.requiredRole) return currentUser.roles === item.requiredRole;
+    
+    // Show authenticated items to any logged-in user
+    if (item.access === "authenticated") return true;
+    
+    return false;
+  };
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
@@ -124,7 +140,9 @@ const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center">
             <div className="flex space-x-8">
-              {navItems.map((item) => (
+            {navItems
+              .filter(item => shouldShowNavItem(item, currentUser))
+              .map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
