@@ -3,10 +3,10 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import { Button } from '@progress/kendo-react-buttons';
 import { Input } from '@progress/kendo-react-inputs';
 import { IntlProvider, LocalizationProvider } from '@progress/kendo-react-intl';
-import Dashboard from '/Users/stinson_data/Kendo/my-login-app/src/components/dashboard/Dashboard.jsx';
+import Dashboard from './components/dashboard/Dashboard.jsx';
 import ContactUs from './components/ContactUs';
 import Users from './components/user/Users';
-import Roles from '/Users/stinson_data/Kendo/my-login-app/src/components/roles/Roles.jsx';
+import Roles from './components/roles/Roles.jsx';
 
 import Admin from './components/admin/Admin';
 import Navbar from './components/Navbar';

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@progress/kendo-react-buttons';
-import BlockedGrid from '/Users/stinson_data/Kendo/my-login-app/src/components/blocked/BlockedGrid.jsx';
-import Navbar from '/Users/stinson_data/Kendo/my-login-app/src/components/Navbar.jsx';
+import BlockedGrid from '../../components/blocked/BlockedGrid.jsx';
+import Navbar from '../../components/Navbar.jsx';
 
 const Admin = () => {
   const navigate = useNavigate();

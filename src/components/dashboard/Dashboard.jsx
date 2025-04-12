@@ -1,9 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@progress/kendo-react-buttons';
-import ItemGrid from '/Users/stinson_data/Kendo/my-login-app/src/components/item/ItemGrid.jsx';
-import AccountGrid from '/Users/stinson_data/Kendo/my-login-app/src/components/account/AccountGrid.jsx';
-import Navbar from '/Users/stinson_data/Kendo/my-login-app/src/components/Navbar.jsx';
+import ItemGrid from '../../components/item/ItemGrid.jsx';
+import AccountGrid from '../../components/account/AccountGrid.jsx';
+import Navbar from '../../components/Navbar.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
