@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
-import { DatePicker } from '@progress/kendo-react-dateinputs';
 import { Dialog } from '@progress/kendo-react-dialogs';
-import { UserForm } from '../UserForm';
+import { CustomerForm } from './CustomerForm';
 
-const UserGrid = () => {
+
+const CustomerGrid = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sort, setSort] = useState([]);
-  const [editUser, setEditUser] = useState(null);
+  const [editCustomer, setEditCustomer] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [dateFilter, setDateFilter] = useState(null);
 
@@ -25,8 +25,8 @@ const UserGrid = () => {
       if (!token) {
         throw new Error('No authentication token found');
       }
-
-      let url = 'https://stinsondemo.com/api/v1/users';
+  
+      let url = 'https://stinsondemo.com/api/v1/customers';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -39,7 +39,7 @@ const UserGrid = () => {
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
-
+  
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -49,7 +49,7 @@ const UserGrid = () => {
       
       if (!response.ok) {
         if (response.status === 401) {
-          localStorage.removeUser('token');
+          localStorage.removeItem('token'); // Fixed from removeUser to removeItem
           navigate('/login');
           throw new Error('Session expired. Please login again.');
         }
@@ -75,22 +75,22 @@ const UserGrid = () => {
   };
 
   const handleEdit = (dataItem) => {
-    setEditUser(dataItem);
+    setEditCustomer(dataItem);
     setShowDialog(true);
   };
 
   const handleCreate = () => {
-    setEditUser(null);
+    setEditCustomer(null);
     setShowDialog(true);
   };
 
-  const handleSubmit = async (user) => {
+  const handleSubmit = async (customer) => {
     try {
       const token = localStorage.getItem('token');
-      const method = user.id ? 'PUT' : 'POST';
-      const url = user.id 
-        ? `https://stinsondemo.com/api/v1/users/${user.id}`
-        : 'https://stinsondemo.com/api/v1/users';
+      const method = customer.id ? 'PUT' : 'POST';
+      const url = customer.id 
+        ? `https://stinsondemo.com/api/v1/customers/${customer.id}`
+        : 'https://stinsondemo.com/api/v1/customers';
 
       const response = await fetch(url, {
         method,
@@ -98,7 +98,7 @@ const UserGrid = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(user)
+        body: JSON.stringify(customer)
       });
 
       if (!response.ok) {
@@ -113,10 +113,10 @@ const UserGrid = () => {
   };
 
   const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+    if (window.confirm('Are you sure you want to delete this customer?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/users/${dataItem.id}`, {
+        const response = await fetch(`https://stinsondemo.com/api/v1/customers/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -157,18 +157,20 @@ const UserGrid = () => {
     );
   };
 
+
+
   return (
     <div className="px-4 sm:px-0">
-      <div className="mb-4 flex justify-between users-center">
-        <h2 className="text-2xl font-bold">Users</h2>
-        <div className="flex users-center space-x-4">
-          <Button onClick={handleCreate} themeColor="primary">Create New User</Button>
+      <div className="mb-4 flex justify-between customers-center">
+        <h2 className="text-2xl font-bold">Customers</h2>
+        <div className="flex customers-center space-x-4">
+          <Button onClick={handleCreate} themeColor="primary">Create New Customer</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center users-center h-64">
+        <div className="flex justify-center customers-center h-64">
           <div className="text-gray-600">Loading...</div>
         </div>
       ) : error ? (
@@ -194,8 +196,7 @@ const UserGrid = () => {
             pageSize: 10
           }}
         >
-          <GridColumn field="username" title="Name" />
-          <GridColumn field="ip_address" title="IP Address" />
+          <GridColumn field="name" title="Name" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
@@ -205,9 +206,9 @@ const UserGrid = () => {
       )}
 
       {showDialog && (
-        <Dialog title={editUser ? "Edit User" : "Create New User"} onClose={() => setShowDialog(false)}>
-          <UserForm 
-            user={editUser}
+        <Dialog title={editCustomer ? "Edit Customer" : "Create New Customer"} onClose={() => setShowDialog(false)}>
+          <CustomerForm 
+            customer={editCustomer}
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}
           />
@@ -217,4 +218,4 @@ const UserGrid = () => {
   );
 };
 
-export default UserGrid;
+export default CustomerGrid;

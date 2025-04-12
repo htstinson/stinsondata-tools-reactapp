@@ -103,10 +103,11 @@ const Navbar = () => {
   const navItems = [
     { name: 'Home', href: '/', icon: Home, access: "public" },
     { name: 'About', href: '/about', icon: Info },
-    { name: 'Dashboard', href: '/dashboard', icon: BarChart, requiredRole: "{Standard_User}" },
-    { name: 'Contact', href: '/contact', icon: Phone },
-    { name: 'Users', href: '/users', icon: Users, requiredRole: "{Root}" },
-    { name: 'Admin', href: '/admin', requiredRole: "{Root}"}
+    { name: 'Dashboard', href: '/dashboard', icon: BarChart, requiredRole: "Standard_User" },
+    { name: 'Contact', href: '/contact', icon: Phone, access: "public" },
+    { name: 'Users', href: '/users', icon: Users, requiredRole: "Root" },
+    { name: 'Customers', href: '/customers', access: "public" },
+    { name: 'Admin', href: '/admin', requiredRole: "Root"}
   ];
 
   const currentUser = userContext.currentUser;
