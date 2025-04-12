@@ -14,5 +14,14 @@ export default defineConfig({
     alias: {
       '@progress/kendo-licensing': '@progress/kendo-licensing'
     }
+  },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://stinsondemo.com',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   }
 });
