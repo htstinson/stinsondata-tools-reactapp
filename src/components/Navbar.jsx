@@ -107,7 +107,8 @@ const Navbar = () => {
     { name: 'Contact', href: '/contact', icon: Phone, access: "public" },
     { name: 'Users', href: '/users', icon: Users, requiredRole: "Root" },
     { name: 'Customers', href: '/customers', requiredRole: "Standard_User" },
-    { name: 'Admin', href: '/admin', requiredRole: "Root"}
+    { name: 'Admin', href: '/admin', requiredRole: "Root"},
+    { name: 'Roles', href: '/roles', requiredRole: "Root"}
   ];
 
   const currentUser = userContext.currentUser;
