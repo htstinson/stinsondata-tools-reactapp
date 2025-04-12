@@ -89,7 +89,7 @@ const RoleGrid = () => {
         ? `https://stinsondemo.com/api/v1/roles/${role.id}`
         : 'https://stinsondemo.com/api/v1/roles';
 
-        console.log("url", url)
+      console.log("url", url)
 
       const response = await fetch(url, {
         method,
