@@ -1,20 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from '@progress/kendo-react-buttons';
 import { Input } from '@progress/kendo-react-inputs';
-import { Error } from '@progress/kendo-react-labels';
 
-export const RoleForm = ({ user, onSubmit, onCancel }) => {
-  const [username, setName] = useState(user?.username || '');
-  
-    const handleNameChange = (e) => {
-    const value = e.value;
-    setName(value);
-  };
+export const RoleForm = ({ role, onSubmit, onCancel }) => {
+  const [name, setName] = useState(role?.name || '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    onSubmit({ ...role, name});
+    onSubmit({ ...role, name });
   };
 
   return (
@@ -28,7 +21,6 @@ export const RoleForm = ({ user, onSubmit, onCancel }) => {
           className="mt-1"
         />
       </div>
-     
       <div className="flex justify-end space-x-2">
         <Button onClick={onCancel} themeColor="light">
           Cancel

@@ -50,7 +50,6 @@ export const UserProvider = ({ children }) => {
     localStorage.setItem('token', token);
     const decodedToken = jwtDecode.jwtDecode(token);
     
-    console.log('decodedToken', decodedToken);
     setCurrentUser(decodedToken);
   };
 

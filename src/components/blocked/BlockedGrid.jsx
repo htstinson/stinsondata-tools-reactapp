@@ -59,8 +59,6 @@ const BlockedGrid = () => {
         url += `?${params.toString()}`;
       }
 
-      console.log(url)
-
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -153,8 +151,6 @@ const BlockedGrid = () => {
       }
     
     );
-
-    console.log(response.status)
 
     if (response.status === 409) {
       setErrorMessage('Duplicate: A user with this information already exists.');

@@ -80,13 +80,16 @@ const RoleGrid = () => {
     setShowDialog(true);
   };
 
-  const handleSubmit = async (user) => {
+  const handleSubmit = async (role) => {
     try {
       const token = localStorage.getItem('token');
       const method = role.id ? 'PUT' : 'POST';
+      
       const url = role.id 
         ? `https://stinsondemo.com/api/v1/roles/${role.id}`
         : 'https://stinsondemo.com/api/v1/roles';
+
+        console.log("url", url)
 
       const response = await fetch(url, {
         method,
@@ -94,7 +97,7 @@ const RoleGrid = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(user)
+        body: JSON.stringify(role)
       });
 
       if (!response.ok) {
@@ -201,7 +204,7 @@ const RoleGrid = () => {
       )}
 
       {showDialog && (
-        <Dialog title={editUser ? "Edit ROle" : "Create New Role"} onClose={() => setShowDialog(false)}>
+        <Dialog title={editRole ? "Edit Role" : "Create New Role"} onClose={() => setShowDialog(false)}>
           <RoleForm 
             role={editRole}
             onSubmit={handleSubmit}

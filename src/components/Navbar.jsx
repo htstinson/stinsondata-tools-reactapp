@@ -15,8 +15,6 @@ const UserDropdown = () => {
   
   const { currentUser, logout } = userContext;
 
-  console.log("currentUser", currentUser);
-
   if (!currentUser) {
     return (
       <a 
@@ -114,7 +112,7 @@ const Navbar = () => {
   const currentUser = userContext.currentUser;
 
   const shouldShowNavItem = (item, currentUser) => {
-    console.log(currentUser)
+    
     // Public items are always visible
     if (item.access === "public") return true;
     
