@@ -1,6 +1,6 @@
 import React from 'react';
 import { Users as UsersIcon } from 'lucide-react';
-import Navbar from './Navbar';
+import Navbar from '../Navbar';
 import UserGrid from './UserGrid';
 
 const Users = () => {

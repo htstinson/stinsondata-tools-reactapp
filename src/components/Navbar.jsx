@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Home, Info, Phone, BarChart, Users, LogOut, User, Settings } from 'lucide-react';
-import Admin from '../Admin';
+
 import { useUser } from './UserContext.jsx'; 
 
 // User dropdown component
@@ -106,7 +106,7 @@ const Navbar = () => {
     { name: 'Dashboard', href: '/dashboard', icon: BarChart, requiredRole: "Standard_User" },
     { name: 'Contact', href: '/contact', icon: Phone, access: "public" },
     { name: 'Users', href: '/users', icon: Users, requiredRole: "Root" },
-    { name: 'Customers', href: '/customers', access: "public" },
+    { name: 'Customers', href: '/customers', requiredRole: "Standard_User" },
     { name: 'Admin', href: '/admin', requiredRole: "Root"}
   ];
 

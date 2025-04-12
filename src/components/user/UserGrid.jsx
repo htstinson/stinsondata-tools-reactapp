@@ -4,7 +4,7 @@ import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { DatePicker } from '@progress/kendo-react-dateinputs';
 import { Dialog } from '@progress/kendo-react-dialogs';
-import { UserForm } from '../UserForm';
+import { UserForm } from './UserForm';
 
 const UserGrid = () => {
   const navigate = useNavigate();

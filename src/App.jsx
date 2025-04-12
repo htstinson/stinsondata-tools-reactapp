@@ -5,10 +5,13 @@ import { Input } from '@progress/kendo-react-inputs';
 import { IntlProvider, LocalizationProvider } from '@progress/kendo-react-intl';
 import Dashboard from './Dashboard';
 import ContactUs from './components/ContactUs';
-import Users from './components/Users';
-import Customers from './components/Customers';
-import Admin from './Admin';
+import Users from './components/user/Users';
+
+import Admin from './components/admin/Admin';
 import Navbar from './components/Navbar';
+
+import Customers from './components/customer/Customers';
+
 import { UserProvider, useUser } from './components/UserContext.jsx';
 import JWTDebugger from './components/JWTDebugger'; // Import the debugger component
 
