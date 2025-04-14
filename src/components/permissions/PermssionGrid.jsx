@@ -89,7 +89,10 @@ const PermissionGrid = () => {
         ? `https://stinsondemo.com/api/v1/permissions/${permission.id}`
         : 'https://stinsondemo.com/api/v1/permissions';
 
-      const response = await fetch(url, {
+      console.log("method", method)
+      console.log("url", url)
+      
+        const response = await fetch(url, {
         method,
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -192,6 +195,7 @@ const PermissionGrid = () => {
           }}
         >
           <GridColumn field="name" title="Name" />
+          <GridColumn field="description" title="Description" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}

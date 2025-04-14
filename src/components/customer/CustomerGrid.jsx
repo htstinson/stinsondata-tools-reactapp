@@ -14,8 +14,7 @@ const CustomerGrid = () => {
   const [sort, setSort] = useState([]);
   const [editCustomer, setEditCustomer] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
-  const [dateFilter, setDateFilter] = useState(null);
-
+  
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -33,9 +32,7 @@ const CustomerGrid = () => {
         params.append('sort', sort[0].field);
         params.append('order', sort[0].dir);
       }
-      if (dateFilter) {
-        params.append('date', dateFilter.toISOString());
-      }
+
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
@@ -68,7 +65,7 @@ const CustomerGrid = () => {
 
   useEffect(() => {
     fetchData();
-  }, [sort, dateFilter]);
+  }, [sort]);
 
   const handleSortChange = (e) => {
     setSort(e.sort);
