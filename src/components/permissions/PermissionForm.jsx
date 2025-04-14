@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@progress/kendo-react-buttons';
 import { Input } from '@progress/kendo-react-inputs';
 
-export const PermssionForm = ({ permission, onSubmit, onCancel }) => {
+export const PermissionForm = ({ permission, onSubmit, onCancel }) => {
   const [name, setName] = useState(permission?.name || '');
 
   const handleSubmit = (e) => {
