@@ -3,15 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
-import { RoleForm } from './RoleForm';
+import { PermissionForm } from './PermissionForm';
 
-const RoleGrid = () => {
+
+const PermissionGrid = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sort, setSort] = useState([]);
-  const [editRole, setEditRole] = useState(null);
+  const [editPermission, setEditPermission] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
 
   const fetchData = async () => {
@@ -23,19 +24,19 @@ const RoleGrid = () => {
       if (!token) {
         throw new Error('No authentication token found');
       }
-
-      let url = 'https://stinsondemo.com/api/v1/roles';
+  
+      let url = 'https://stinsondemo.com/api/v1/permissions';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
         params.append('sort', sort[0].field);
         params.append('order', sort[0].dir);
       }
-
+   
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
-
+  
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -45,7 +46,7 @@ const RoleGrid = () => {
       
       if (!response.ok) {
         if (response.status === 401) {
-          localStorage.removeUser('token');
+          localStorage.removeItem('token'); // Fixed from removeUser to removeItem
           navigate('/login');
           throw new Error('Session expired. Please login again.');
         }
@@ -71,27 +72,22 @@ const RoleGrid = () => {
   };
 
   const handleEdit = (dataItem) => {
-    setEditRole(dataItem);
+    setEditPermission(dataItem);
     setShowDialog(true);
   };
 
   const handleCreate = () => {
-    setEditRole(null);
+    setEditPermission(null);
     setShowDialog(true);
   };
 
-  const handleSubmit = async (role) => {
+  const handleSubmit = async (permission) => {
     try {
       const token = localStorage.getItem('token');
-      const method = role.id ? 'PUT' : 'POST';
-
-      console.log("method", method)
-      
-      const url = role.id 
-        ? `https://stinsondemo.com/api/v1/roles/${role.id}`
-        : 'https://stinsondemo.com/api/v1/roles';
-
-      console.log("url", url)
+      const method = permission.id ? 'PUT' : 'POST';
+      const url = permission.id 
+        ? `https://stinsondemo.com/api/v1/permissions/${permission.id}`
+        : 'https://stinsondemo.com/api/v1/permissions';
 
       const response = await fetch(url, {
         method,
@@ -99,10 +95,8 @@ const RoleGrid = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(role)
+        body: JSON.stringify(permission)
       });
-
-      console.log("status", response.status)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -116,10 +110,10 @@ const RoleGrid = () => {
   };
 
   const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this role?')) {
+    if (window.confirm('Are you sure you want to delete this permission?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/roles/${dataItem.id}`, {
+        const response = await fetch(`https://stinsondemo.com/api/v1/permissions/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -162,16 +156,16 @@ const RoleGrid = () => {
 
   return (
     <div className="px-4 sm:px-0">
-      <div className="mb-4 flex justify-between users-center">
-        <h2 className="text-2xl font-bold">Roles</h2>
-        <div className="flex users-center space-x-4">
-          <Button onClick={handleCreate} themeColor="primary">Create New Role</Button>
+      <div className="mb-4 flex justify-between customers-center">
+        <h2 className="text-2xl font-bold">Permissions</h2>
+        <div className="flex customers-center space-x-4">
+          <Button onClick={handleCreate} themeColor="primary">Create New Permission</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center users-center h-64">
+        <div className="flex justify-center customers-center h-64">
           <div className="text-gray-600">Loading...</div>
         </div>
       ) : error ? (
@@ -198,7 +192,6 @@ const RoleGrid = () => {
           }}
         >
           <GridColumn field="name" title="Name" />
-          
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
@@ -208,16 +201,12 @@ const RoleGrid = () => {
       )}
 
       {showDialog && (
-        <Dialog title={editRole ? "Edit Role" : "Create New Role"} onClose={() => setShowDialog(false)}>
-          <RoleForm 
-            role={editRole}
-            onSubmit={handleSubmit}
-            onCancel={() => setShowDialog(false)}
-          />
+        <Dialog title={editPermission ? "Edit Permission" : "Create New Permission"} onClose={() => setShowDialog(false)}>
+          <PermissionForm permission={editPermission} onSubmit={handleSubmit} onCancel={() => setShowDialog(false)}/>
         </Dialog>
       )}
     </div>
   );
 };
 
-export default RoleGrid;
+export default PermissionGrid;
