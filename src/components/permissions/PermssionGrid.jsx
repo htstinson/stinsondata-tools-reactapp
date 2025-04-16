@@ -5,7 +5,6 @@ import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
 import { PermissionForm } from './PermissionForm';
 
-
 const PermissionGrid = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -37,6 +36,8 @@ const PermissionGrid = () => {
         url += `?${params.toString()}`;
       }
   
+      console.log("url", url)
+
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -194,12 +195,10 @@ const PermissionGrid = () => {
             pageSize: 10
           }}
         >
-          <GridColumn field="name" title="Name" />
+          
           <GridColumn field="description" title="Description" />
-          <GridColumn 
-            title="Actions" 
-            cell={ActionCell}
-            width="200px"
+          <GridColumn field="v_object_type" title="Type" />
+          <GridColumn title="Actions" cell={ActionCell} width="200px"
           />
         </Grid>
       )}

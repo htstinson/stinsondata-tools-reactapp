@@ -5,10 +5,11 @@ import { Input } from '@progress/kendo-react-inputs';
 export const PermissionForm = ({ permission, onSubmit, onCancel }) => {
   const [name, setName] = useState(permission?.name || '');
   const [description, setDescription] = useState(permission?.description || '');
+  const [object_id, setObject_Id] = useState(permission?.object_id || '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...permission, name, description });
+    onSubmit({ ...permission, name, description, object_id });
   };
 
   return (
@@ -27,6 +28,15 @@ export const PermissionForm = ({ permission, onSubmit, onCancel }) => {
         <Input
           value={description}
           onChange={(e) => setDescription(e.value)}
+          required
+          className="mt-1"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Object Id</label>
+        <Input
+          value={object_id}
+          onChange={(e) => setObject_Id(e.value)}
           required
           className="mt-1"
         />
