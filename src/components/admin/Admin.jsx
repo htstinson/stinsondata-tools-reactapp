@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@progress/kendo-react-buttons';
 import BlockedGrid from '../../components/blocked/BlockedGrid.jsx';
+import UserGrid from '../../components/user/UserGrid.jsx';
 import RoleGrid from '../../components/roles/RoleGrid';
 import PermissionGrid from '../../components/permissions/PermssionGrid';
 
@@ -30,6 +31,7 @@ const Admin = () => {
       </nav>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <UserGrid />
         <RoleGrid />
         <PermissionGrid />
         <BlockedGrid />

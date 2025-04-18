@@ -6,7 +6,8 @@ import { IntlProvider, LocalizationProvider } from '@progress/kendo-react-intl';
 import Dashboard from './components/dashboard/Dashboard.jsx';
 import ContactUs from './components/ContactUs';
 import Users from './components/user/Users';
-import Roles from './components/roles/Roles.jsx';
+//import Roles from './components/roles/Roles.jsx';
+import Profile from './components/user/Profile';
 
 import Admin from './components/admin/Admin';
 import Navbar from './components/Navbar';
@@ -222,7 +223,7 @@ const App = () => {
               {/* Protected Routes */}
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-              <Route path="/roles" element={<ProtectedRoute><Roles /></ProtectedRoute>} />
+              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/permissions" element={<ProtectedRoute><Permissions /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
               <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />

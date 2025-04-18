@@ -20,8 +20,6 @@ const BlockedGrid = () => {
   ]);
   const [editItem, setEditItem] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
-  const [dateFilter, setDateFilter] = useState(null);
-
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   
@@ -48,9 +46,7 @@ const BlockedGrid = () => {
         params.append('sort', sort[0].field);
         params.append('order', sort[0].dir);
       }
-      if (dateFilter) {
-        params.append('date', dateFilter.toISOString());
-      }
+
       // Add pagination parameters if your API supports server-side pagination
       // params.append('skip', page.skip);
       // params.append('take', page.take);
@@ -85,17 +81,22 @@ const BlockedGrid = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [sort, dateFilter]);
-
   // Reset page when filters change
   useEffect(() => {
     setPage({
       skip: 0,
       take: page.take
     });
-  }, [sort, dateFilter]);
+  }, [sort]);
+
+  // Add this useEffect hook to fetch data when the component mounts
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [sort, page]);
 
   const handleSortChange = (e) => {
     // Update the sort state with the new sort configuration
@@ -221,6 +222,32 @@ const BlockedGrid = () => {
 
   };
 
+  const handleParseLogs = () => {
+    
+    try {
+      const token = localStorage.getItem('token');
+      const method = 'GET';
+      const url = 'https://stinsondemo.com/api/v1/blocked/parse';
+
+      const response = fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    
+    );
+
+    if (!response.ok) {
+       throw new Error(`HTTP error! status: ${response.status}`);
+     }
+
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const ActionCell = (props) => {
     return (
       <td>
@@ -246,8 +273,9 @@ const BlockedGrid = () => {
         <h2 className="text-2xl font-bold">Blocked IP Addresses</h2>
         <div className="flex items-center space-x-4">
           <Button onClick={handleCreate} themeColor="primary">Create New Blocked IP</Button>
-          <Button onClick={fetchData} themeColor="light">Refresh</Button>
           <Button onClick={handleUpdatewAF} themeColor="primary">Update WAF</Button>
+          <Button onClick={handleParseLogs} themeColor="primary">Parse Logs</Button>
+          <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
 

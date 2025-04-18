@@ -4,9 +4,14 @@ import { Menu, X, Home, Info, Phone, BarChart, Users, LogOut, User, Settings } f
 import { useUser } from './UserContext.jsx'; 
 
 // User dropdown component
+// Debug component state
 const UserDropdown = () => {
+  console.log("UserDropdown rendered");
   const userContext = useUser();
   const [isOpen, setIsOpen] = useState(false);
+  const [userIp, setUserIp] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   
   // Handle case where context is not yet available
   if (!userContext) {
@@ -14,6 +19,53 @@ const UserDropdown = () => {
   }
   
   const { currentUser, logout } = userContext;
+
+  // Fetch user's IP address when component mounts and user is logged in
+  useEffect(() => {
+    const fetchUserIp = async () => {
+      if (!currentUser) return;
+      
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // Use a more reliable IP API with JSONP to avoid CORS issues
+        // Option 1: Using ipify API (might have CORS issues)
+        console.log("Fetching IP address...");
+        const response = await fetch('https://api.ipify.org?format=json');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch IP address');
+        }
+        
+        const data = await response.json();
+        console.log("IP fetched successfully:", data.ip);
+        setUserIp(data.ip);
+      } catch (err) {
+        console.error('Error fetching IP:', err);
+        
+        // Fallback method if the first one fails
+        try {
+          console.log("Trying alternative IP API...");
+          const response = await fetch('https://api64.ipify.org?format=json');
+          if (!response.ok) {
+            throw new Error('Failed to fetch IP address from backup API');
+          }
+          
+          const data = await response.json();
+          console.log("IP fetched successfully from backup API:", data.ip);
+          setUserIp(data.ip);
+        } catch (fallbackErr) {
+          setError('Could not retrieve IP address');
+          console.error('Error fetching IP from backup API:', fallbackErr);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchUserIp();
+  }, [currentUser]);
 
   if (!currentUser) {
     return (
@@ -49,7 +101,17 @@ const UserDropdown = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-50">
+          <div className="px-4 py-2 border-b border-gray-100">
+            <p className="text-sm font-medium text-gray-700">IP Address:</p>
+            {isLoading ? (
+              <p className="text-xs text-gray-500">Loading...</p>
+            ) : error ? (
+              <p className="text-xs text-red-500">{error}</p>
+            ) : (
+              <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center">{userIp || 'Not available'}</p>
+            )}
+          </div>
           <a
             href="/profile"
             className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
@@ -103,10 +165,8 @@ const Navbar = () => {
     { name: 'About', href: '/about', icon: Info },
     { name: 'Dashboard', href: '/dashboard', icon: BarChart, requiredRole: "Standard_User" },
     { name: 'Contact', href: '/contact', icon: Phone, access: "public" },
-    { name: 'Users', href: '/users', icon: Users, requiredRole: "Root" },
     { name: 'Customers', href: '/customers', requiredRole: "Standard_User" },
-    { name: 'Admin', href: '/admin', requiredRole: "Root"},
-    { name: 'Roles', href: '/roles', requiredRole: "Root"}
+    { name: 'Admin', href: '/admin', requiredRole: "Root"}
   ];
 
   const currentUser = userContext.currentUser;
