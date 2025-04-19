@@ -5,6 +5,7 @@ import BlockedGrid from '../../components/blocked/BlockedGrid.jsx';
 import UserGrid from '../../components/user/UserGrid.jsx';
 import RoleGrid from '../../components/roles/RoleGrid';
 import PermissionGrid from '../../components/permissions/PermssionGrid';
+import UserCustomerGrid from '../../components/usercustomer/UserCustomerGrid.jsx'
 
 import Navbar from '../../components/Navbar.jsx';
 
@@ -32,6 +33,7 @@ const Admin = () => {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <UserGrid />
+        <UserCustomerGrid />
         <RoleGrid />
         <PermissionGrid />
         <BlockedGrid />

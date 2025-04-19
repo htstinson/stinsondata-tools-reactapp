@@ -18,7 +18,7 @@ export const UserProvider = ({ children }) => {
       try {
         // Decode the JWT token to get user information
         const decodedToken = jwtDecode.jwtDecode(token);
-        
+       
         // Check if token is expired
         const currentTime = Date.now() / 1000;
         if (decodedToken.exp && decodedToken.exp < currentTime) {
@@ -49,7 +49,7 @@ export const UserProvider = ({ children }) => {
   const login = (token) => {
     localStorage.setItem('token', token);
     const decodedToken = jwtDecode.jwtDecode(token);
-    
+    console.log('ip_address', decodedToken.ip_address);
     setCurrentUser(decodedToken);
   };
 

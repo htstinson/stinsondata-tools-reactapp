@@ -1,36 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Home, Info, Phone, BarChart, Users, LogOut, User, Settings } from 'lucide-react';
 
-import { useUser } from './UserContext.jsx'; 
+import { UserContext, useUser } from './UserContext.jsx'; 
 
-// User dropdown component
-// Debug component state
-const UserDropdown = () => {
-  console.log("UserDropdown rendered");
-  const userContext = useUser();
-  const [isOpen, setIsOpen] = useState(false);
+// Create a new context for the user IP
+const UserIpContext = React.createContext(null);
+
+// Custom hook to use the user IP context
+export const useUserIp = () => React.useContext(UserIpContext);
+
+// User IP provider component
+export const UserIpProvider = ({ children }) => {
   const [userIp, setUserIp] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const userContext = useUser();
   
-  // Handle case where context is not yet available
-  if (!userContext) {
-    return null;
-  }
-  
-  const { currentUser, logout } = userContext;
-
   // Fetch user's IP address when component mounts and user is logged in
   useEffect(() => {
     const fetchUserIp = async () => {
+      const currentUser = userContext?.currentUser;
       if (!currentUser) return;
       
       setIsLoading(true);
       setError(null);
       
       try {
-        // Use a more reliable IP API with JSONP to avoid CORS issues
-        // Option 1: Using ipify API (might have CORS issues)
         console.log("Fetching IP address...");
         const response = await fetch('https://api.ipify.org?format=json');
         
@@ -65,7 +60,27 @@ const UserDropdown = () => {
     };
     
     fetchUserIp();
-  }, [currentUser]);
+  }, [userContext]);
+  
+  return (
+    <UserIpContext.Provider value={{ userIp, isLoading, error }}>
+      {children}
+    </UserIpContext.Provider>
+  );
+};
+
+// User dropdown component
+const UserDropdown = () => {
+  const userContext = useUser();
+  const [isOpen, setIsOpen] = useState(false);
+  const { userIp, isLoading, error } = useUserIp();
+  
+  // Handle case where context is not yet available
+  if (!userContext) {
+    return null;
+  }
+  
+  const { currentUser, logout } = userContext;
 
   if (!currentUser) {
     return (
@@ -87,6 +102,17 @@ const UserDropdown = () => {
   
   // Get first letter of display name for avatar
   const initials = displayName.charAt(0).toUpperCase();
+
+  // Get user role(s)
+  let userRole = 'No Role Assigned';
+  
+  if (currentUser.roles) {
+    if (Array.isArray(currentUser.roles)) {
+      userRole = currentUser.roles.join(', ');
+    } else {
+      userRole = currentUser.roles;
+    }
+  }
 
   return (
     <div className="relative">
@@ -111,6 +137,9 @@ const UserDropdown = () => {
             ) : (
               <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center">{userIp || 'Not available'}</p>
             )}
+            
+            <p className="text-sm font-medium text-gray-700 mt-2">Role:</p>
+            <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center">{userRole}</p>
           </div>
           <a
             href="/profile"
@@ -143,6 +172,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const userContext = useUser();
+  const { userIp } = useUserIp();
 
   useEffect(() => {
     const handleResize = () => {
@@ -159,28 +189,78 @@ const Navbar = () => {
     setIsOpen(!isOpen);
   };
 
-
   const navItems = [
     { name: 'Home', href: '/', icon: Home, access: "public" },
     { name: 'About', href: '/about', icon: Info },
-    { name: 'Dashboard', href: '/dashboard', icon: BarChart, requiredRole: "Standard_User" },
+    { name: 'Dashboard', href: '/dashboard', icon: BarChart, requiredRoles: ["Root","Global_Admin","Standard_User"] },
     { name: 'Contact', href: '/contact', icon: Phone, access: "public" },
-    { name: 'Customers', href: '/customers', requiredRole: "Standard_User" },
-    { name: 'Admin', href: '/admin', requiredRole: "Root"}
+    { name: 'Customers', href: '/customers', requiredRoles: ["Root","Global_Admin"] },
+    { name: 'Admin', href: '/admin', requiredRoles: ["Root"]}
   ];
 
   const currentUser = userContext.currentUser;
 
   const shouldShowNavItem = (item, currentUser) => {
-    
     // Public items are always visible
     if (item.access === "public") return true;
     
     // If no user is logged in, only show public items
-    if (!currentUser) return false;
-    
+    if (!currentUser) { 
+      return false; 
+    } else {
+      // Log the IP address for debugging
+      if (currentUser.ip_address) {
+        console.log("navbar user context ip address", currentUser.ip_address);
+      }
+      console.log("userIp from context:", userIp);
+      
+      // You can now use userIp in your logic here
+      // For example, you might want to add it to the currentUser object
+      if (userIp && !currentUser.ip_address) {
+        // This is just for the current render, not persisted
+        currentUser.ip_address = userIp;
+      }
+      
+      // Special case for 'Admin' item - it requires IP address verification
+      if (item.name === 'Admin') {
+        // If we don't have both IPs to compare, don't show the Admin item
+        if (!userIp || !currentUser.ip_address) {
+          return false;
+        }
+        // Only show Admin item if IPs match
+        if (userIp !== currentUser.ip_address) {
+          console.log('IP addresses do not match. Not showing Admin item.');
+          return false;
+        }
+      }
+    }
+  
     // Check for role-specific items
-    if (item.requiredRole) return currentUser.roles === item.requiredRole;
+    if (item.requiredRoles) {
+      // Handle case where currentUser.roles is a string (single role)
+      if (typeof currentUser.roles === 'string') {
+        return item.requiredRoles.includes(currentUser.roles);
+      }
+      
+      // Handle case where currentUser.roles is an array (multiple roles)
+      if (Array.isArray(currentUser.roles)) {
+        // Return true if any of the user's roles are in the required roles array
+        return currentUser.roles.some(role => item.requiredRoles.includes(role));
+      }
+      
+      return false;
+    }
+    
+    // Backward compatibility with old requiredRole property
+    if (item.requiredRole) {
+      if (typeof currentUser.roles === 'string') {
+        return currentUser.roles === item.requiredRole;
+      }
+      if (Array.isArray(currentUser.roles)) {
+        return currentUser.roles.includes(item.requiredRole);
+      }
+      return false;
+    }
     
     // Show authenticated items to any logged-in user
     if (item.access === "authenticated") return true;
@@ -253,4 +333,11 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+// Export the wrapped components
+export default function NavbarWithProviders() {
+  return (
+    <UserIpProvider>
+      <Navbar />
+    </UserIpProvider>
+  );
+}
