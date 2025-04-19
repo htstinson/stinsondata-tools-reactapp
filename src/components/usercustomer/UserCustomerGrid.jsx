@@ -85,7 +85,7 @@ const UserCustomerGrid = () => {
   };
 
   const handleSubmit = async (usercustomer) => {
-    console.log(usercustomer)
+    console.log(usercustomer.customer_name)
     try {
       const token = localStorage.getItem('token');
       const method = editUserCustomer?.id ? 'PUT' : 'POST';
