@@ -54,9 +54,6 @@ const UserCustomerGrid = () => {
       }
       
       const jsonData = await response.json();
-
-      console.log(jsonData)
-
       setData(jsonData);
     } catch (err) {
       setError(err.message);
@@ -85,7 +82,6 @@ const UserCustomerGrid = () => {
   };
 
   const handleSubmit = async (usercustomer) => {
-    console.log(usercustomer.customer_name)
     try {
       const token = localStorage.getItem('token');
       const method = editUserCustomer?.id ? 'PUT' : 'POST';
@@ -93,13 +89,22 @@ const UserCustomerGrid = () => {
         ? `https://stinsondemo.com/api/v1/usercustomer/${editUserCustomer.id}`
         : 'https://stinsondemo.com/api/v1/usercustomer';
 
+      console.log("Submitting user-customer data:");
+      console.log("id:", usercustomer.id || "New");
+      console.log("user_id:", usercustomer.user_id);
+      console.log("customer_id:", usercustomer.customer_id);
+
       const response = await fetch(url, {
         method,
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(usercustomer)
+        body: JSON.stringify({
+          id: usercustomer.id,
+          user_id: usercustomer.user_id,
+          customer_id: usercustomer.customer_id
+        })
       });
 
       if (!response.ok) {
@@ -114,7 +119,7 @@ const UserCustomerGrid = () => {
   };
 
   const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
+    if (window.confirm('Are you sure you want to delete this user-customer association?')) {
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`https://stinsondemo.com/api/v1/usercustomer/${dataItem.id}`, {
@@ -160,16 +165,16 @@ const UserCustomerGrid = () => {
 
   return (
     <div className="px-4 sm:px-0">
-      <div className="mb-4 flex justify-between customers-center">
+      <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-bold">User-Customers</h2>
-        <div className="flex customers-center space-x-4">
+        <div className="flex items-center space-x-4">
           <Button onClick={handleCreate} themeColor="primary">Create New User-Customer</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center customers-center h-64">
+        <div className="flex justify-center items-center h-64">
           <div className="text-gray-600">Loading...</div>
         </div>
       ) : error ? (
