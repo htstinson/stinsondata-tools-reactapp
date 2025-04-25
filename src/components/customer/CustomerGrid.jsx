@@ -81,6 +81,34 @@ const CustomerGrid = () => {
     setShowDialog(true);
   };
 
+  const handleCreateSchema = async (customer) => {
+    if (window.confirm('Are you sure you want to create the schema for this customer?')) {
+      try {
+        const token = localStorage.getItem('token');
+        const method = 'POST';
+        const url = `https://stinsondemo.com/api/v1/customers/create_schema/${customer.id}`;
+          
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(customer)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        setShowDialog(false);
+        fetchData();
+      } catch (err) {
+        setError(err.message);
+      }
+    }
+  };
+
   const handleSubmit = async (customer) => {
     try {
       const token = localStorage.getItem('token');
@@ -148,6 +176,13 @@ const CustomerGrid = () => {
             size="small"
           >
             Delete
+          </Button>
+          <Button 
+            onClick={() => handleCreateSchema(props.dataItem)}
+            themeColor="error"
+            size="small"
+          >
+            Schema
           </Button>
         </div>
       </td>
