@@ -3,15 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
-import { UserCustomerForm } from './UserCustomerRolesForm';
+import { UserSubscriberForm } from './UserSubscriberRoleForm';
 
-const UserCustomerRolesGrid = () => {
+const UserSubscriberRolesGrid = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sort, setSort] = useState([]);
-  const [editUserCustomer, setEditUserCustomer] = useState(null);
+  const [editUserSubscriber, setEditUserSubscriber] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   
   const fetchData = async () => {
@@ -24,7 +24,7 @@ const UserCustomerRolesGrid = () => {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://stinsondemo.com/api/v1/usercustomerrolesview';
+      let url = 'https://stinsondemo.com/api/v1/usersubscriberroleview';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -72,27 +72,27 @@ const UserCustomerRolesGrid = () => {
   };
 
   const handleEdit = (dataItem) => {
-    setEditUserCustomer(dataItem);
+    setEditUserSubscriber(dataItem);
     setShowDialog(true);
   };
 
   const handleCreate = () => {
-    setEditUserCustomer(null);
+    setEditUserSubscriber(null);
     setShowDialog(true);
   };
 
-  const handleSubmit = async (usercustomer) => {
+  const handleSubmit = async (usersubscriber) => {
     try {
       const token = localStorage.getItem('token');
-      const method = editUserCustomer?.id ? 'PUT' : 'POST';
-      const url = editUserCustomer?.id 
-        ? `https://stinsondemo.com/api/v1/usercustomerroles/${editUserCustomer.id}`
-        : 'https://stinsondemo.com/api/v1/usercustomerroles';
+      const method = editUserSubscriber?.id ? 'PUT' : 'POST';
+      const url = editUserSubscriber?.id 
+        ? `https://stinsondemo.com/api/v1/usersubscriberrole/${editUserSubscriber.id}`
+        : 'https://stinsondemo.com/api/v1/usersubscriberrole';
 
-      console.log("Submitting user-customer data:");
-      console.log("id:", usercustomer.id || "New");
-      console.log("user_id:", usercustomer.user_id);
-      console.log("customer_id:", usercustomer.customer_id);
+      console.log("Submitting user-subscriber data:");
+      console.log("id:", usersubscriber.id || "New");
+      console.log("user_id:", usersubscriber.user_id);
+      console.log("subscriber_id:", usersubscriber.subscriber_id);
 
       const response = await fetch(url, {
         method,
@@ -101,9 +101,9 @@ const UserCustomerRolesGrid = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          id: usercustomer.id,
-          user_id: usercustomer.user_id,
-          customer_id: usercustomer.customer_id
+          id: usersubscriber.id,
+          user_id: usersubscriber.user_id,
+          subscriber_id: usersubscriber.subscriber_id
         })
       });
 
@@ -119,10 +119,10 @@ const UserCustomerRolesGrid = () => {
   };
 
   const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this user-customer association?')) {
+    if (window.confirm('Are you sure you want to delete this user-subscriber association?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/usercustomerroles/${dataItem.id}`, {
+        const response = await fetch(`https://stinsondemo.com/api/v1/usersubscriberrole/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -166,9 +166,9 @@ const UserCustomerRolesGrid = () => {
   return (
     <div className="px-4 sm:px-0">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">User Customer Roles</h2>
+        <h2 className="text-2xl font-bold">User Subscriber Roles</h2>
         <div className="flex items-center space-x-4">
-          <Button onClick={handleCreate} themeColor="primary">Create New User-Customer-Role</Button>
+          <Button onClick={handleCreate} themeColor="primary">Create New User-Subscriber-Role</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
@@ -201,7 +201,7 @@ const UserCustomerRolesGrid = () => {
           }}
         >
           <GridColumn field="user_username" title="User Name" />
-          <GridColumn field="customer_name" title="Customer Name" />
+          <GridColumn field="subscriber_name" title="Subscriber Name" />
           <GridColumn field="role_name" title="Role Name" />
           <GridColumn 
             title="Actions" 
@@ -212,9 +212,9 @@ const UserCustomerRolesGrid = () => {
       )}
 
       {showDialog && (
-        <Dialog title={editUserCustomer ? "Edit User-Customer-Role" : "Create New User-Customer-Role"} onClose={() => setShowDialog(false)}>
-          <UserCustomerForm 
-            usercustomer={editUserCustomer}
+        <Dialog title={editUserSubscriber ? "Edit User-Subscriber-Role" : "Create New User-Subscriber-Role"} onClose={() => setShowDialog(false)}>
+          <UserSubscriberForm 
+            usersubscriber={editUserSubscriber}
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}
           />
@@ -224,4 +224,4 @@ const UserCustomerRolesGrid = () => {
   );
 };
 
-export default UserCustomerRolesGrid;
+export default UserSubscriberRolesGrid;

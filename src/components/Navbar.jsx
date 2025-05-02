@@ -192,9 +192,8 @@ const Navbar = () => {
   const navItems = [
     { name: 'Home', href: '/', icon: Home, access: "public" },
     { name: 'About', href: '/about', icon: Info },
-    { name: 'Dashboard', href: '/dashboard', icon: BarChart, requiredRoles: ["Root","Global_Admin","Standard_User"] },
+    { name: 'Dashboard', href: '/dashboard', icon: BarChart, requiredRoles: ["Root","Global_Admin","Org_Admin","Standard_User"] },
     { name: 'Contact', href: '/contact', icon: Phone, access: "public" },
-    { name: 'Customers', href: '/customers', requiredRoles: ["Root","Global_Admin"] },
     { name: 'Admin', href: '/admin', requiredRoles: ["Root"]}
   ];
 

@@ -7,8 +7,9 @@ import RoleGrid from '../../components/roles/RoleGrid';
 import PermissionGrid from '../../components/permissions/PermssionGrid';
 import RolePermissionGrid from '../../components/rolepermissions/RolePermssionGrid';
 
-import UserCustomerGrid from '../../components/usercustomer/UserCustomerGrid.jsx'
-import UserCustomerRolesGrid from '../../components/usercustomerroles/UserCustomerRolesGrid.jsx'
+import UserSubscriberGrid from '../user_subsriber/UserSubscriberGrid.jsx'
+import UserSubscriberRoleGrid from '../user_subscriber_role/UserSubscriberRoleGrid.jsx'
+import SubscriberGrid from '../subscriber/SubscriberGrid.jsx';
                                         
 import Navbar from '../../components/Navbar.jsx';
 
@@ -36,8 +37,9 @@ const Admin = () => {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <UserGrid />
-        <UserCustomerGrid />
-        <UserCustomerRolesGrid />
+        <SubscriberGrid />
+        <UserSubscriberGrid />
+        <UserSubscriberRoleGrid />
         <RoleGrid />
         <PermissionGrid />
         <RolePermissionGrid/>

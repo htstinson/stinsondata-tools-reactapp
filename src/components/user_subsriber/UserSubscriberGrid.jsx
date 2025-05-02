@@ -3,16 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
-import { CustomerForm } from './CustomerForm';
+import { UserSubscriberForm } from './UserSubscriberForm';
 
-
-const CustomerGrid = () => {
+const UserSubscriberGrid = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sort, setSort] = useState([]);
-  const [editCustomer, setEditCustomer] = useState(null);
+  const [editUserSubscriber, setEditUserSubscriber] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   
   const fetchData = async () => {
@@ -25,7 +24,7 @@ const CustomerGrid = () => {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://stinsondemo.com/api/v1/customers';
+      let url = 'https://stinsondemo.com/api/v1/usersubscriberview';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -38,15 +37,16 @@ const CustomerGrid = () => {
       }
   
       const response = await fetch(url, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (!response.ok) {
         if (response.status === 401) {
-          localStorage.removeItem('token'); // Fixed from removeUser to removeItem
+          localStorage.removeItem('token');
           navigate('/login');
           throw new Error('Session expired. Please login again.');
         }
@@ -72,22 +72,27 @@ const CustomerGrid = () => {
   };
 
   const handleEdit = (dataItem) => {
-    setEditCustomer(dataItem);
+    setEditUserSubscriber(dataItem);
     setShowDialog(true);
   };
 
   const handleCreate = () => {
-    setEditCustomer(null);
+    setEditUserSubscriber(null);
     setShowDialog(true);
   };
 
-  const handleSubmit = async (customer) => {
+  const handleSubmit = async (usersubscriber) => {
     try {
       const token = localStorage.getItem('token');
-      const method = customer.id ? 'PUT' : 'POST';
-      const url = customer.id 
-        ? `https://stinsondemo.com/api/v1/customers/${customer.id}`
-        : 'https://stinsondemo.com/api/v1/customers';
+      const method = editUserSubscriber?.id ? 'PUT' : 'POST';
+      const url = editUserSubscriber?.id 
+        ? `https://stinsondemo.com/api/v1/usersubscriber/${editUserSubscriber.id}`
+        : 'https://stinsondemo.com/api/v1/usersubscriber';
+
+      console.log("Submitting user-subscriber data:");
+      console.log("id:", usersubscriber.id || "New");
+      console.log("user_id:", usersubscriber.user_id);
+      console.log("subscriber_id:", usersubscriber.subscriber_id);
 
       const response = await fetch(url, {
         method,
@@ -95,7 +100,11 @@ const CustomerGrid = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(customer)
+        body: JSON.stringify({
+          id: usersubscriber.id,
+          user_id: usersubscriber.user_id,
+          subscriber_id: usersubscriber.subscriber_id
+        })
       });
 
       if (!response.ok) {
@@ -110,10 +119,10 @@ const CustomerGrid = () => {
   };
 
   const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
+    if (window.confirm('Are you sure you want to delete this user-subscriber association?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/customers/${dataItem.id}`, {
+        const response = await fetch(`https://stinsondemo.com/api/v1/usersubscriber/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -156,16 +165,16 @@ const CustomerGrid = () => {
 
   return (
     <div className="px-4 sm:px-0">
-      <div className="mb-4 flex justify-between customers-center">
-        <h2 className="text-2xl font-bold">Customers</h2>
-        <div className="flex customers-center space-x-4">
-          <Button onClick={handleCreate} themeColor="primary">Create New Customer</Button>
+      <div className="mb-4 flex justify-between items-center">
+        <h2 className="text-2xl font-bold">User-Subscriber</h2>
+        <div className="flex items-center space-x-4">
+          <Button onClick={handleCreate} themeColor="primary">Create New User-Subscriber</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center customers-center h-64">
+        <div className="flex justify-center items-center h-64">
           <div className="text-gray-600">Loading...</div>
         </div>
       ) : error ? (
@@ -191,7 +200,8 @@ const CustomerGrid = () => {
             pageSize: 10
           }}
         >
-          <GridColumn field="name" title="Name" />
+          <GridColumn field="user_username" title="User Name" />
+          <GridColumn field="subscriber_name" title="Subscriber Name" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
@@ -201,9 +211,9 @@ const CustomerGrid = () => {
       )}
 
       {showDialog && (
-        <Dialog title={editCustomer ? "Edit Customer" : "Create New Customer"} onClose={() => setShowDialog(false)}>
-          <CustomerForm 
-            customer={editCustomer}
+        <Dialog title={editUserSubscriber ? "Edit User-Subscriber" : "Create New User-Subscriber"} onClose={() => setShowDialog(false)}>
+          <UserSubscriberForm 
+            usersubscriber={editUserSubscriber}
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}
           />
@@ -213,4 +223,4 @@ const CustomerGrid = () => {
   );
 };
 
-export default CustomerGrid;
+export default UserSubscriberGrid;

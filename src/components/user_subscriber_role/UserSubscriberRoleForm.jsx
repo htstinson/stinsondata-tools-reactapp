@@ -2,21 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@progress/kendo-react-buttons';
 import { DropDownList } from '@progress/kendo-react-dropdowns';
 
-export const UserCustomerForm = ({ usercustomer, onSubmit, onCancel }) => {
-  const [customers, setCustomers] = useState([]);
+export const UserSubscriberForm = ({ usercustomer, onSubmit, onCancel }) => {
+  const [customers, setSubscribers] = useState([]);
   const [users, setUsers] = useState([]);
-  const [selectedCustomer, setSelectedCustomer] = useState(undefined);
+  const [selectedSubscriber, setSelectedSubscriber] = useState(undefined);
   const [selectedUser, setSelectedUser] = useState(undefined);
-  const [isLoadingCustomers, setIsLoadingCustomers] = useState(false);
+  const [isLoadingSubscribers, setIsLoadingSubscribers] = useState(false);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-  const [errorCustomers, setErrorCustomers] = useState(null);
+  const [errorSubscribers, setErrorSubscribers] = useState(null);
   const [errorUsers, setErrorUsers] = useState(null);
  
   // Fetch customers from the API on component mount
   useEffect(() => {
-    const fetchCustomers = async () => {
-      setIsLoadingCustomers(true);
-      setErrorCustomers(null);
+    const fetchSubscribers = async () => {
+      setIsLoadingSubscribers(true);
+      setErrorSubscribers(null);
       
       try {
         // Get authentication token from localStorage
@@ -38,10 +38,10 @@ export const UserCustomerForm = ({ usercustomer, onSubmit, onCancel }) => {
         }
         
         const data = await response.json();
-        console.log('Customer data from API:', data);
+        console.log('Subscriber data from API:', data);
         
         // Adjust mapping based on actual API response structure
-        const formattedCustomers = Array.isArray(data) 
+        const formattedSubscribers = Array.isArray(data) 
           ? data.map(customer => ({
               id: customer.id,
               name: customer.name,
@@ -49,29 +49,29 @@ export const UserCustomerForm = ({ usercustomer, onSubmit, onCancel }) => {
             }))
           : [];
         
-        console.log('Formatted customers:', formattedCustomers);
-        setCustomers(formattedCustomers);
+        console.log('Formatted customers:', formattedSubscribers);
+        setSubscribers(formattedSubscribers);
         
         // Set selected customer after data has loaded
-        if (usercustomer?.customer_id && formattedCustomers.length > 0) {
-          const existingCustomer = formattedCustomers.find(
+        if (usercustomer?.customer_id && formattedSubscribers.length > 0) {
+          const existingSubscriber = formattedSubscribers.find(
             c => c.id.toString() === usercustomer.customer_id.toString()
           );
           
-          console.log('Found existing customer:', existingCustomer);
-          if (existingCustomer) {
-            setSelectedCustomer(existingCustomer);
+          console.log('Found existing customer:', existingSubscriber);
+          if (existingSubscriber) {
+            setSelectedSubscriber(existingSubscriber);
           }
         }
       } catch (err) {
-        setErrorCustomers('Failed to load customers. Please try again later.');
+        setErrorSubscribers('Failed to load customers. Please try again later.');
         console.error('Error fetching customers:', err);
       } finally {
-        setIsLoadingCustomers(false);
+        setIsLoadingSubscribers(false);
       }
     };
     
-    fetchCustomers();
+    fetchSubscribers();
   }, [usercustomer]);
 
   // Fetch users from the API on component mount
@@ -146,8 +146,8 @@ export const UserCustomerForm = ({ usercustomer, onSubmit, onCancel }) => {
   }, [users]);
 
   useEffect(() => {
-    console.log('Current selectedCustomer state:', selectedCustomer);
-  }, [selectedCustomer]);
+    console.log('Current selectedSubscriber state:', selectedSubscriber);
+  }, [selectedSubscriber]);
 
   useEffect(() => {
     console.log('Current selectedUser state:', selectedUser);
@@ -156,15 +156,15 @@ export const UserCustomerForm = ({ usercustomer, onSubmit, onCancel }) => {
   const onFormSubmit = (e) => {
     e.preventDefault();
     
-    if (!selectedCustomer || !selectedUser) {
+    if (!selectedSubscriber || !selectedUser) {
       return;
     }
     
     // Pass both the selected customer and user data to the parent component's onSubmit
     onSubmit({
       id: usercustomer?.id, // Pass the ID if it exists (for updates)
-      customer_id: selectedCustomer.id,
-      customer_name: selectedCustomer.name,
+      customer_id: selectedSubscriber.id,
+      customer_name: selectedSubscriber.name,
       user_id: selectedUser.id,
       user_username: selectedUser.username
     });
@@ -173,12 +173,12 @@ export const UserCustomerForm = ({ usercustomer, onSubmit, onCancel }) => {
   return (
     <form onSubmit={onFormSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Customer</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Subscriber</label>
         
-        {isLoadingCustomers ? (
+        {isLoadingSubscribers ? (
           <div className="mt-1">Loading customers...</div>
-        ) : errorCustomers ? (
-          <div className="text-red-500 mt-1">{errorCustomers}</div>
+        ) : errorSubscribers ? (
+          <div className="text-red-500 mt-1">{errorSubscribers}</div>
         ) : (
           <div>
             {customers.length > 0 ? (
@@ -188,10 +188,10 @@ export const UserCustomerForm = ({ usercustomer, onSubmit, onCancel }) => {
                   data={customers}
                   textField="text"
                   dataItemKey="id"
-                  value={selectedCustomer}
+                  value={selectedSubscriber}
                   onChange={(e) => {
-                    console.log("Customer selected:", e.value);
-                    setSelectedCustomer(e.value);
+                    console.log("Subscriber selected:", e.value);
+                    setSelectedSubscriber(e.value);
                   }}
                   placeholder="Select a customer..."
                   required
@@ -245,7 +245,7 @@ export const UserCustomerForm = ({ usercustomer, onSubmit, onCancel }) => {
         <Button 
           type="submit" 
           themeColor="primary"
-          disabled={!selectedCustomer || !selectedUser || isLoadingCustomers || isLoadingUsers}
+          disabled={!selectedSubscriber || !selectedUser || isLoadingSubscribers || isLoadingUsers}
         >
           Save
         </Button>
