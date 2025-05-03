@@ -140,6 +140,27 @@ const UserSubscriberGrid = () => {
     }
   };
 
+  const fetchCustomers = async (dataItem) => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`https://stinsondemo.com/api/v1/customers/subscriber/${dataItem.subscriber_id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        fetchCustomers();
+      } catch (err) {
+        setError(err.message);
+      }
+    
+  };
+
   const ActionCell = (props) => {
     return (
       <td>
@@ -157,6 +178,13 @@ const UserSubscriberGrid = () => {
             size="small"
           >
             Delete
+          </Button>
+          <Button 
+            onClick={() => fetchCustomers(props.dataItem)}
+            themeColor="error"
+            size="small"
+          >
+            Fetch Customers
           </Button>
         </div>
       </td>

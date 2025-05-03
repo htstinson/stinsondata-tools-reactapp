@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@progress/kendo-react-buttons';
-import BlockedGrid from '../blocked/BlockedGrid.jsx';
 import Navbar from '../Navbar.jsx';
 import SubscriberGrid from './SubscriberGrid.jsx';
 

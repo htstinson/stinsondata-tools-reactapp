@@ -140,6 +140,19 @@ const UserDropdown = () => {
             
             <p className="text-sm font-medium text-gray-700 mt-2">Role:</p>
             <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center">{userRole}</p>
+
+            <p className="text-sm font-medium text-gray-700 mt-2">Subscribed:</p>
+            <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center">
+              {currentUser.subscribed && Array.isArray(currentUser.subscribed) && 
+                currentUser.subscribed.map((subscription, index) => (
+                  <React.Fragment key={index}>
+                    {subscription.subscriber_name}
+                    {index < currentUser.subscribed.length - 1 && <br />}
+                  </React.Fragment>
+                ))
+              }
+            </p>
+
           </div>
           <a
             href="/profile"
@@ -208,6 +221,11 @@ const Navbar = () => {
       return false; 
     } else {
       // Log the IP address for debugging
+      
+      currentUser.subscribed.forEach(subscription => {
+        console.log(subscription.subscriber_name);
+      });
+      
       if (currentUser.ip_address) {
         console.log("navbar user context ip address", currentUser.ip_address);
       }

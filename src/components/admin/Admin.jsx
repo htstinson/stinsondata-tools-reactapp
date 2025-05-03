@@ -7,7 +7,7 @@ import RoleGrid from '../../components/roles/RoleGrid';
 import PermissionGrid from '../../components/permissions/PermssionGrid';
 import RolePermissionGrid from '../../components/rolepermissions/RolePermssionGrid';
 
-import UserSubscriberGrid from '../user_subsriber/UserSubscriberGrid.jsx'
+import UserSubscriberGrid from '../user_subscriber/UserSubscriberGrid.jsx'
 import UserSubscriberRoleGrid from '../user_subscriber_role/UserSubscriberRoleGrid.jsx'
 import SubscriberGrid from '../subscriber/SubscriberGrid.jsx';
                                         

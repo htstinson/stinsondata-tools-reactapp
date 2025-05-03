@@ -81,13 +81,13 @@ const SubscriberGrid = () => {
     setShowDialog(true);
   };
 
-  const handleSubmit = async (customer) => {
+  const handleSubmit = async (subscriber) => {
     try {
       const token = localStorage.getItem('token');
-      const method = customer.id ? 'PUT' : 'POST';
-      const url = customer.id 
-        ? `https://stinsondemo.com/api/v1/customers/${customer.id}`
-        : 'https://stinsondemo.com/api/v1/customers';
+      const method = subscriber.id ? 'PUT' : 'POST';
+      const url = subscriber.id 
+        ? `https://stinsondemo.com/api/v1/subscribers/${subscriber.id}`
+        : 'https://stinsondemo.com/api/v1/subscribers';
 
       const response = await fetch(url, {
         method,
@@ -95,7 +95,7 @@ const SubscriberGrid = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(customer)
+        body: JSON.stringify(subscriber)
       });
 
       if (!response.ok) {
@@ -110,10 +110,10 @@ const SubscriberGrid = () => {
   };
 
   const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
+    if (window.confirm('Are you sure you want to delete this subscriber?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/customers/${dataItem.id}`, {
+        const response = await fetch(`https://stinsondemo.com/api/v1/subscribers/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -156,16 +156,16 @@ const SubscriberGrid = () => {
 
   return (
     <div className="px-4 sm:px-0">
-      <div className="mb-4 flex justify-between customers-center">
+      <div className="mb-4 flex justify-between subscribers-center">
         <h2 className="text-2xl font-bold">Subscribers</h2>
-        <div className="flex customers-center space-x-4">
+        <div className="flex subscribers-center space-x-4">
           <Button onClick={handleCreate} themeColor="primary">Create New Subscriber</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center customers-center h-64">
+        <div className="flex justify-center subscribers-center h-64">
           <div className="text-gray-600">Loading...</div>
         </div>
       ) : error ? (
@@ -203,7 +203,7 @@ const SubscriberGrid = () => {
       {showDialog && (
         <Dialog title={editSubscriber ? "Edit Subscriber" : "Create New Subscriber"} onClose={() => setShowDialog(false)}>
           <SubscriberForm 
-            customer={editSubscriber}
+            subscriber={editSubscriber}
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}
           />

@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Button } from '@progress/kendo-react-buttons';
 import { Input } from '@progress/kendo-react-inputs';
 
-export const SubscriberForm = ({ customer, onSubmit, onCancel }) => {
-  const [name, setName] = useState(customer?.name || '');
+export const SubscriberForm = ({ subscriber, onSubmit, onCancel }) => {
+  const [name, setName] = useState(subscriber?.name || '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...customer, name });
+    onSubmit({ ...subscriber, name });
   };
 
   return (
