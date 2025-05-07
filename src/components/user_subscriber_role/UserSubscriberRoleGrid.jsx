@@ -83,16 +83,20 @@ const UserSubscriberRolesGrid = () => {
 
   const handleSubmit = async (usersubscriber) => {
     try {
+      console.log("Received from form:", usersubscriber);
+      
       const token = localStorage.getItem('token');
-      const method = editUserSubscriber?.id ? 'PUT' : 'POST';
-      const url = editUserSubscriber?.id 
-        ? `https://stinsondemo.com/api/v1/usersubscriberrole/${editUserSubscriber.id}`
+      const method = usersubscriber.id ? 'PUT' : 'POST';
+      const url = usersubscriber.id 
+        ? `https://stinsondemo.com/api/v1/usersubscriberrole/${usersubscriber.id}`
         : 'https://stinsondemo.com/api/v1/usersubscriberrole';
 
-      console.log("Submitting user-subscriber data:");
+      console.log("Submitting user-subscriber-role data:");
       console.log("id:", usersubscriber.id || "New");
+      console.log("user_subscriber_id:", usersubscriber.user_subscriber_id);
       console.log("user_id:", usersubscriber.user_id);
       console.log("subscriber_id:", usersubscriber.subscriber_id);
+      console.log("role_id:", usersubscriber.role_id);
 
       const response = await fetch(url, {
         method,
@@ -102,9 +106,10 @@ const UserSubscriberRolesGrid = () => {
         },
         body: JSON.stringify({
           id: usersubscriber.id,
-          user_id: usersubscriber.user_id,
-          subscriber_id: usersubscriber.subscriber_id
+          user_subscriber_id: usersubscriber.user_subscriber_id,
+          role_id: usersubscriber.role_id
         })
+        
       });
 
       if (!response.ok) {
@@ -115,11 +120,12 @@ const UserSubscriberRolesGrid = () => {
       fetchData();
     } catch (err) {
       setError(err.message);
+      console.error('Error submitting form:', err);
     }
   };
 
   const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this user-subscriber association?')) {
+    if (window.confirm('Are you sure you want to delete this user-subscriber-role association?')) {
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`https://stinsondemo.com/api/v1/usersubscriberrole/${dataItem.id}`, {

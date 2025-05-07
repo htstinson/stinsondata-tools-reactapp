@@ -2,21 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@progress/kendo-react-buttons';
 import { DropDownList } from '@progress/kendo-react-dropdowns';
 
-export const UserSubscriberForm = ({ usercustomer, onSubmit, onCancel }) => {
-  const [customers, setSubscribers] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [selectedSubscriber, setSelectedSubscriber] = useState(undefined);
-  const [selectedUser, setSelectedUser] = useState(undefined);
-  const [isLoadingSubscribers, setIsLoadingSubscribers] = useState(false);
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-  const [errorSubscribers, setErrorSubscribers] = useState(null);
-  const [errorUsers, setErrorUsers] = useState(null);
+export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
+  const [usersubscribers, setUserSubscribers] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [selectedUserSubscriber, setSelectedUserSubscriber] = useState(undefined);
+  const [selectedRole, setSelectedRole] = useState(undefined);
+  const [isLoadingUserSubscribers, setIsLoadingUserSubscribers] = useState(false);
+  const [isLoadingRoles, setIsLoadingRoles] = useState(false);
+  const [errorUserSubscribers, setErrorUserSubscribers] = useState(null);
+  const [errorRoles, setErrorRoles] = useState(null);
  
-  // Fetch customers from the API on component mount
+  // Fetch user subscribers from the API on component mount
   useEffect(() => {
-    const fetchSubscribers = async () => {
-      setIsLoadingSubscribers(true);
-      setErrorSubscribers(null);
+    const fetchUserSubscribers = async () => {
+      setIsLoadingUserSubscribers(true);
+      setErrorUserSubscribers(null);
       
       try {
         // Get authentication token from localStorage
@@ -26,7 +26,7 @@ export const UserSubscriberForm = ({ usercustomer, onSubmit, onCancel }) => {
           throw new Error('Authentication token not found');
         }
         
-        const response = await fetch('https://stinsondemo.com/api/v1/customers', {
+        const response = await fetch('https://stinsondemo.com/api/v1/usersubscriberview', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -38,47 +38,49 @@ export const UserSubscriberForm = ({ usercustomer, onSubmit, onCancel }) => {
         }
         
         const data = await response.json();
-        console.log('Subscriber data from API:', data);
+        console.log('User_Subscriber data from API:', data);
         
         // Adjust mapping based on actual API response structure
-        const formattedSubscribers = Array.isArray(data) 
-          ? data.map(customer => ({
-              id: customer.id,
-              name: customer.name,
-              text: customer.name
+        const formattedUserSubscribers = Array.isArray(data) 
+          ? data.map(userSubscriber => ({
+              id: userSubscriber.id,
+              user_id: userSubscriber.user_id,         // Keep original fields for the API
+              subscriber_id: userSubscriber.subscriber_id, // Keep original fields for the API
+              name: userSubscriber.subscriber_name + " - " + userSubscriber.user_username,
+              text: userSubscriber.subscriber_name + " - " + userSubscriber.user_username,
             }))
           : [];
         
-        console.log('Formatted customers:', formattedSubscribers);
-        setSubscribers(formattedSubscribers);
+        console.log('Formatted user subscribers:', formattedUserSubscribers);
+        setUserSubscribers(formattedUserSubscribers);
         
-        // Set selected customer after data has loaded
-        if (usercustomer?.customer_id && formattedSubscribers.length > 0) {
-          const existingSubscriber = formattedSubscribers.find(
-            c => c.id.toString() === usercustomer.customer_id.toString()
+        // Set selected user subscriber after data has loaded
+        if (usersubscriber?.id && formattedUserSubscribers.length > 0) {
+          const existingUserSubscriber = formattedUserSubscribers.find(
+            us => us.id.toString() === usersubscriber.user_subscriber_id?.toString()
           );
           
-          console.log('Found existing customer:', existingSubscriber);
-          if (existingSubscriber) {
-            setSelectedSubscriber(existingSubscriber);
+          console.log('Found existing user subscriber:', existingUserSubscriber);
+          if (existingUserSubscriber) {
+            setSelectedUserSubscriber(existingUserSubscriber);
           }
         }
       } catch (err) {
-        setErrorSubscribers('Failed to load customers. Please try again later.');
-        console.error('Error fetching customers:', err);
+        setErrorUserSubscribers('Failed to load user subscribers. Please try again later.');
+        console.error('Error fetching user subscribers:', err);
       } finally {
-        setIsLoadingSubscribers(false);
+        setIsLoadingUserSubscribers(false);
       }
     };
     
-    fetchSubscribers();
-  }, [usercustomer]);
+    fetchUserSubscribers();
+  }, [usersubscriber]);
 
-  // Fetch users from the API on component mount
+  // Fetch roles from the API on component mount
   useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoadingUsers(true);
-      setErrorUsers(null);
+    const fetchRoles = async () => {
+      setIsLoadingRoles(true);
+      setErrorRoles(null);
       
       try {
         // Get authentication token from localStorage
@@ -88,7 +90,7 @@ export const UserSubscriberForm = ({ usercustomer, onSubmit, onCancel }) => {
           throw new Error('Authentication token not found');
         }
         
-        const response = await fetch('https://stinsondemo.com/api/v1/users', {
+        const response = await fetch('https://stinsondemo.com/api/v1/roles', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -100,139 +102,137 @@ export const UserSubscriberForm = ({ usercustomer, onSubmit, onCancel }) => {
         }
         
         const data = await response.json();
-        console.log('User data from API:', data);
+        console.log('Role data from API:', data);
         
         // Adjust mapping based on actual API response structure
-        const formattedUsers = Array.isArray(data) 
-          ? data.map(user => ({
-              id: user.id,
-              username: user.username,
-              text: user.username
+        const formattedRoles = Array.isArray(data) 
+          ? data.map(role => ({
+              id: role.id,
+              name: role.name,
+              text: role.name
             }))
           : [];
         
-        console.log('Formatted users:', formattedUsers);
-        setUsers(formattedUsers);
+        console.log('Formatted roles:', formattedRoles);
+        setRoles(formattedRoles);
         
-        // Set selected user after data has loaded
-        if (usercustomer?.user_id && formattedUsers.length > 0) {
-          const existingUser = formattedUsers.find(
-            u => u.id.toString() === usercustomer.user_id.toString()
+        // Set selected role after data has loaded
+        if (usersubscriber?.role_id && formattedRoles.length > 0) {
+          const existingRole = formattedRoles.find(
+            r => r.id.toString() === usersubscriber.role_id.toString()
           );
           
-          console.log('Found existing user:', existingUser);
-          if (existingUser) {
-            setSelectedUser(existingUser);
+          console.log('Found existing role:', existingRole);
+          if (existingRole) {
+            setSelectedRole(existingRole);
           }
         }
       } catch (err) {
-        setErrorUsers('Failed to load users. Please try again later.');
-        console.error('Error fetching users:', err);
+        setErrorRoles('Failed to load roles. Please try again later.');
+        console.error('Error fetching roles:', err);
       } finally {
-        setIsLoadingUsers(false);
+        setIsLoadingRoles(false);
       }
     };
     
-    fetchUsers();
-  }, [usercustomer]);
+    fetchRoles();
+  }, [usersubscriber]);
 
   // Log state changes for debugging
   useEffect(() => {
-    console.log('Current customers state:', customers);
-  }, [customers]);
+    console.log('Current user subscribers state:', usersubscribers);
+  }, [usersubscribers]);
 
   useEffect(() => {
-    console.log('Current users state:', users);
-  }, [users]);
+    console.log('Current roles state:', roles);
+  }, [roles]);
 
   useEffect(() => {
-    console.log('Current selectedSubscriber state:', selectedSubscriber);
-  }, [selectedSubscriber]);
+    console.log('Current selectedUserSubscriber state:', selectedUserSubscriber);
+  }, [selectedUserSubscriber]);
 
   useEffect(() => {
-    console.log('Current selectedUser state:', selectedUser);
-  }, [selectedUser]);
+    console.log('Current selectedRole state:', selectedRole);
+  }, [selectedRole]);
 
   const onFormSubmit = (e) => {
     e.preventDefault();
     
-    if (!selectedSubscriber || !selectedUser) {
+    if (!selectedUserSubscriber || !selectedRole) {
       return;
     }
     
-    // Pass both the selected customer and user data to the parent component's onSubmit
+    // Pass both the selected user subscriber and role data to the parent component's onSubmit
     onSubmit({
-      id: usercustomer?.id, // Pass the ID if it exists (for updates)
-      customer_id: selectedSubscriber.id,
-      customer_name: selectedSubscriber.name,
-      user_id: selectedUser.id,
-      user_username: selectedUser.username
+      id: usersubscriber?.id, // Pass the ID if it exists (for updates)
+      user_subscriber_id: selectedUserSubscriber.id,
+      role_id: selectedRole.id,
     });
   };
 
   return (
     <form onSubmit={onFormSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Subscriber</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">User Subscriber</label>
         
-        {isLoadingSubscribers ? (
-          <div className="mt-1">Loading customers...</div>
-        ) : errorSubscribers ? (
-          <div className="text-red-500 mt-1">{errorSubscribers}</div>
+        {isLoadingUserSubscribers ? (
+          <div className="mt-1">Loading user subscribers...</div>
+        ) : errorUserSubscribers ? (
+          <div className="text-red-500 mt-1">{errorUserSubscribers}</div>
         ) : (
           <div>
-            {customers.length > 0 ? (
+            {usersubscribers.length > 0 ? (
               <>
-                <p className="text-xs text-gray-500 mb-1">Available customers: {customers.length}</p>
+                <p className="text-xs text-gray-500 mb-1">Available user subscribers: {usersubscribers.length}</p>
                 <DropDownList
-                  data={customers}
+                  data={usersubscribers}
                   textField="text"
                   dataItemKey="id"
-                  value={selectedSubscriber}
+                  value={selectedUserSubscriber}
                   onChange={(e) => {
-                    console.log("Subscriber selected:", e.value);
-                    setSelectedSubscriber(e.value);
+                    console.log("User subscriber selected:", e.value);
+                    setSelectedUserSubscriber(e.value);
                   }}
-                  placeholder="Select a customer..."
+                  placeholder="Select a user subscriber..."
                   required
                   className="w-full"
                 />
               </>
             ) : (
-              <div>No customers available</div>
+              <div>No user subscribers available</div>
             )}
           </div>
         )}
       </div>
       
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">User</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
         
-        {isLoadingUsers ? (
-          <div className="mt-1">Loading users...</div>
-        ) : errorUsers ? (
-          <div className="text-red-500 mt-1">{errorUsers}</div>
+        {isLoadingRoles ? (
+          <div className="mt-1">Loading roles...</div>
+        ) : errorRoles ? (
+          <div className="text-red-500 mt-1">{errorRoles}</div>
         ) : (
           <div>
-            {users.length > 0 ? (
+            {roles.length > 0 ? (
               <>
-                <p className="text-xs text-gray-500 mb-1">Available users: {users.length}</p>
+                <p className="text-xs text-gray-500 mb-1">Available roles: {roles.length}</p>
                 <DropDownList
-                  data={users}
+                  data={roles}
                   textField="text"
                   dataItemKey="id"
-                  value={selectedUser}
+                  value={selectedRole}
                   onChange={(e) => {
-                    console.log("User selected:", e.value);
-                    setSelectedUser(e.value);
+                    console.log("Role selected:", e.value);
+                    setSelectedRole(e.value);
                   }}
-                  placeholder="Select a user..."
+                  placeholder="Select a role..."
                   required
                   className="w-full"
                 />
               </>
             ) : (
-              <div>No users available</div>
+              <div>No roles available</div>
             )}
           </div>
         )}
@@ -245,7 +245,7 @@ export const UserSubscriberForm = ({ usercustomer, onSubmit, onCancel }) => {
         <Button 
           type="submit" 
           themeColor="primary"
-          disabled={!selectedSubscriber || !selectedUser || isLoadingSubscribers || isLoadingUsers}
+          disabled={!selectedUserSubscriber || !selectedRole || isLoadingUserSubscribers || isLoadingRoles}
         >
           Save
         </Button>
