@@ -81,34 +81,6 @@ const SubscriberGrid = () => {
     setShowDialog(true);
   };
 
-  const handleCreateSchema = async (subscriber) => {
-    if (window.confirm('Are you sure you want to create a schema for this subscriber?')) {
-      try {
-        const token = localStorage.getItem('token');
-        const method = 'POST';
-        const url = `https://stinsondemo.com/subscribers/create_schema/${subscriber.id}`;
-
-        const response = await fetch(url, {
-          method,
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(subscriber)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      setShowDialog(false);
-      
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-  };
-
   const handleSubmit = async (subscriber) => {
     try {
       const token = localStorage.getItem('token');
@@ -141,12 +113,17 @@ const SubscriberGrid = () => {
     if (window.confirm('Are you sure you want to delete this subscriber?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/subscribers/${dataItem.id}`, {
+        const response = await fetch(`https://stinsondemo.com/api/v1/subscribers`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(dataItem)
           }
-        });
+        );
+
+     
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -220,6 +197,7 @@ const SubscriberGrid = () => {
           }}
         >
           <GridColumn field="name" title="Name" />
+          <GridColumn field="schema_name" title="Schema" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
