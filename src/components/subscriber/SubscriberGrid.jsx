@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
-import { SubscriberForm } from './SubscriberForm';
+import { useRefresh } from '../../context/RefreshContext';
 
+// Assuming you have a SubscriberForm component similar to other forms
+import { SubscriberForm } from './SubscriberForm';
 
 const SubscriberGrid = () => {
   const navigate = useNavigate();
@@ -14,6 +16,9 @@ const SubscriberGrid = () => {
   const [sort, setSort] = useState([]);
   const [editSubscriber, setEditSubscriber] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  
+  // Get the refresh context
+  const { refreshTriggers, triggerMultipleRefresh } = useRefresh();
   
   const fetchData = async () => {
     try {
@@ -38,15 +43,16 @@ const SubscriberGrid = () => {
       }
   
       const response = await fetch(url, {
+        method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (!response.ok) {
         if (response.status === 401) {
-          localStorage.removeItem('token'); // Fixed from removeUser to removeItem
+          localStorage.removeItem('token');
           navigate('/login');
           throw new Error('Session expired. Please login again.');
         }
@@ -63,9 +69,10 @@ const SubscriberGrid = () => {
     }
   };
 
+  // Update useEffect to include the refresh trigger
   useEffect(() => {
     fetchData();
-  }, [sort]);
+  }, [sort, refreshTriggers.subscriber]);
 
   const handleSortChange = (e) => {
     setSort(e.sort);
@@ -84,9 +91,9 @@ const SubscriberGrid = () => {
   const handleSubmit = async (subscriber) => {
     try {
       const token = localStorage.getItem('token');
-      const method = subscriber.id ? 'PUT' : 'POST';
-      const url = subscriber.id 
-        ? `https://stinsondemo.com/api/v1/subscribers/${subscriber.id}`
+      const method = editSubscriber?.id ? 'PUT' : 'POST';
+      const url = editSubscriber?.id 
+        ? `https://stinsondemo.com/api/v1/subscribers/${editSubscriber.id}`
         : 'https://stinsondemo.com/api/v1/subscribers';
 
       const response = await fetch(url, {
@@ -103,7 +110,9 @@ const SubscriberGrid = () => {
       }
 
       setShowDialog(false);
-      fetchData();
+      
+      // Trigger refresh for this grid only
+      triggerMultipleRefresh(['subscriber']);
     } catch (err) {
       setError(err.message);
     }
@@ -117,19 +126,17 @@ const SubscriberGrid = () => {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify(dataItem)
-          }
-        );
-
-     
-
+        });
+        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        fetchData();
+        // Trigger refresh for this grid and related grids that depend on subscriber data
+        triggerMultipleRefresh(['subscriber', 'userSubscriber', 'userSubscriberRole']);
       } catch (err) {
         setError(err.message);
       }
@@ -161,16 +168,16 @@ const SubscriberGrid = () => {
 
   return (
     <div className="px-4 sm:px-0">
-      <div className="mb-4 flex justify-between subscribers-center">
+      <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-bold">Subscribers</h2>
-        <div className="flex subscribers-center space-x-4">
+        <div className="flex items-center space-x-4">
           <Button onClick={handleCreate} themeColor="primary">Create New Subscriber</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center subscribers-center h-64">
+        <div className="flex justify-center items-center h-64">
           <div className="text-gray-600">Loading...</div>
         </div>
       ) : error ? (
@@ -196,8 +203,8 @@ const SubscriberGrid = () => {
             pageSize: 10
           }}
         >
-          <GridColumn field="name" title="Name" />
-          <GridColumn field="schema_name" title="Schema" />
+          <GridColumn field="name" title="Subscriber Name" />
+          {/* Add additional columns based on your subscriber data structure */}
           <GridColumn 
             title="Actions" 
             cell={ActionCell}

@@ -4,6 +4,7 @@ import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
 import { UserSubscriberForm } from './UserSubscriberRoleForm';
+import { useRefresh } from '../../context/RefreshContext'; // Import the refresh context
 
 const UserSubscriberRolesGrid = () => {
   const navigate = useNavigate();
@@ -13,6 +14,9 @@ const UserSubscriberRolesGrid = () => {
   const [sort, setSort] = useState([]);
   const [editUserSubscriber, setEditUserSubscriber] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  
+  // Get the refresh context
+  const { refreshTriggers, triggerRefresh } = useRefresh();
   
   const fetchData = async () => {
     try {
@@ -63,9 +67,10 @@ const UserSubscriberRolesGrid = () => {
     }
   };
 
+  // Update useEffect to include the refresh trigger
   useEffect(() => {
     fetchData();
-  }, [sort]);
+  }, [sort, refreshTriggers.userSubscriberRole]);
 
   const handleSortChange = (e) => {
     setSort(e.sort);
@@ -117,7 +122,9 @@ const UserSubscriberRolesGrid = () => {
       }
 
       setShowDialog(false);
-      fetchData();
+      
+      // Trigger refresh for the grid
+      triggerRefresh('userSubscriberRole');
     } catch (err) {
       setError(err.message);
       console.error('Error submitting form:', err);
@@ -139,7 +146,8 @@ const UserSubscriberRolesGrid = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        fetchData();
+        // Trigger refresh for this grid
+        triggerRefresh('userSubscriberRole');
       } catch (err) {
         setError(err.message);
       }

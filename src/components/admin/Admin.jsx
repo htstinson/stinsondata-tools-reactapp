@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@progress/kendo-react-buttons';
 import BlockedGrid from '../../components/blocked/BlockedGrid.jsx';
 import UserGrid from '../../components/user/UserGrid.jsx';
 import RoleGrid from '../../components/roles/RoleGrid';
@@ -13,6 +12,8 @@ import SubscriberGrid from '../subscriber/SubscriberGrid.jsx';
                                         
 import Navbar from '../../components/Navbar.jsx';
 
+import { RefreshProvider } from '../../context/RefreshContext.jsx';
+
 const Admin = () => {
   const navigate = useNavigate();
 
@@ -23,29 +24,31 @@ const Admin = () => {
 
   return (
     
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Navbar />
-      <nav className="bg-white shadow mb-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold">Admin</h1>
+    <RefreshProvider>
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <Navbar />
+        <nav className="bg-white shadow mb-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between h-16">
+              <div className="flex items-center">
+                <h1 className="text-xl font-bold">Admin</h1>
+              </div>
             </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <UserGrid />
-        <SubscriberGrid />
-        <UserSubscriberGrid />
-        <UserSubscriberRoleGrid />
-        <RoleGrid />
-        <PermissionGrid />
-        <RolePermissionGrid/>
-        <BlockedGrid />
-      </main>
-    </div>
+        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <UserGrid />
+          <SubscriberGrid />
+          <UserSubscriberGrid />
+          <UserSubscriberRoleGrid />
+          <RoleGrid />
+          <PermissionGrid />
+          <RolePermissionGrid/>
+          <BlockedGrid />
+        </main>
+      </div>
+    </RefreshProvider>
   );
 };
 

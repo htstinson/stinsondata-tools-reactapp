@@ -4,6 +4,7 @@ import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
 import { UserSubscriberForm } from './UserSubscriberForm';
+import { useRefresh } from '../../context/RefreshContext'; // Import the refresh context
 
 const UserSubscriberGrid = () => {
   const navigate = useNavigate();
@@ -13,6 +14,9 @@ const UserSubscriberGrid = () => {
   const [sort, setSort] = useState([]);
   const [editUserSubscriber, setEditUserSubscriber] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  
+  // Get the refresh context
+  const { refreshTriggers, triggerMultipleRefresh } = useRefresh();
   
   const fetchData = async () => {
     try {
@@ -63,9 +67,10 @@ const UserSubscriberGrid = () => {
     }
   };
 
+  // Update the useEffect to include the refresh trigger
   useEffect(() => {
     fetchData();
-  }, [sort]);
+  }, [sort, refreshTriggers.userSubscriber]);
 
   const handleSortChange = (e) => {
     setSort(e.sort);
@@ -112,7 +117,9 @@ const UserSubscriberGrid = () => {
       }
 
       setShowDialog(false);
-      fetchData();
+      
+      // Trigger refresh for this grid and userSubscriberRole grid
+      triggerMultipleRefresh(['userSubscriber', 'userSubscriberRole']);
     } catch (err) {
       setError(err.message);
     }
@@ -133,7 +140,8 @@ const UserSubscriberGrid = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        fetchData();
+        // Trigger refresh for both this grid and userSubscriberRole grid
+        triggerMultipleRefresh(['userSubscriber', 'userSubscriberRole']);
       } catch (err) {
         setError(err.message);
       }
@@ -153,12 +161,17 @@ const UserSubscriberGrid = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
-        fetchCustomers();
+        
+        // Note: The original code was calling fetchCustomers() recursively which seems like a mistake
+        // Instead, we probably want to do something with the response
+        const customersData = await response.json();
+        console.log('Customers data:', customersData);
+        
+        // If this action should refresh other grids, add them here
+        // triggerMultipleRefresh(['customerGrid']);
       } catch (err) {
         setError(err.message);
       }
-    
   };
 
   const ActionCell = (props) => {

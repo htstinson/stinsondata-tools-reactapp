@@ -4,6 +4,7 @@ import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
 import { CustomerForm } from './CustomerForm';
+import { UserContext, useUser } from '../UserContext.jsx'; 
 
 
 const CustomerGrid = () => {
@@ -14,18 +15,23 @@ const CustomerGrid = () => {
   const [sort, setSort] = useState([]);
   const [editCustomer, setEditCustomer] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  const userContext = useUser();
   
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
+
+      const currentUser = userContext?.currentUser;
+
+      console.log('currentuser', currentUser)
       
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://stinsondemo.com/api/v1/customers';
+      let url = 'https://stinsondemo.com/api/v1/subscriber/customers';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -38,10 +44,12 @@ const CustomerGrid = () => {
       }
   
       const response = await fetch(url, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(currentUser)
       });
       
       if (!response.ok) {
@@ -54,6 +62,9 @@ const CustomerGrid = () => {
       }
       
       const jsonData = await response.json();
+
+      console.log(jsonData);
+
       setData(jsonData);
     } catch (err) {
       setError(err.message);
@@ -85,9 +96,15 @@ const CustomerGrid = () => {
     try {
       const token = localStorage.getItem('token');
       const method = customer.id ? 'PUT' : 'POST';
-      const url = customer.id 
-        ? `https://stinsondemo.com/api/v1/customers/${customer.id}`
-        : 'https://stinsondemo.com/api/v1/customers';
+
+      const url = customer?.id 
+      ? `https://stinsondemo.com/api/v1/subscribers/customers`
+      : 'https://stinsondemo.com/api/v1/subscriber/customer';
+
+
+      customer.subscriber_id = userContext.currentUser.subscribed[0].subscriber_id;
+
+      console.log(customer);
 
       const response = await fetch(url, {
         method,
@@ -192,6 +209,7 @@ const CustomerGrid = () => {
           }}
         >
           <GridColumn field="name" title="Name" />
+           <GridColumn field="id" title="Id" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
