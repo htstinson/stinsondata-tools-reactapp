@@ -221,6 +221,7 @@ const CustomerGrid = ({ onCustomerSelect }) => {
         >
           <GridColumn field="name" title="Name" />
           <GridColumn field="id" title="Id" />
+          <GridColumn field="schema_name" title="Schema" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}

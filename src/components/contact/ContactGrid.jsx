@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
-//import { CustomerForm } from './CustomerForm';
+import ContactForm from '../contact/ContactForm'; // Import ContactForm instead of CustomerForm
 import { UserContext, useUser } from '../UserContext.jsx'; 
 
 const ContactGrid = ({ selectedCustomer }) => {
@@ -113,14 +113,13 @@ const ContactGrid = ({ selectedCustomer }) => {
       const method = contact.id ? 'PUT' : 'POST';
 
       const url = contact?.id 
-      ? `https://stinsondemo.com/api/v1/subscriber/customer/contacts`
+      ? `https://stinsondemo.com/api/v1/subscriber/customer/contact`
       : 'https://stinsondemo.com/api/v1/subscriber/customer/contact';
-
-      contact.subscriber_id = userContext.currentUser.subscribed[0].subscriber_id;
-      
+                  
       // Add customer_id to new contacts
       if (!contact.id && selectedCustomer) {
-        contact.customer_id = selectedCustomer.id;
+        contact.parent_id = selectedCustomer.id;
+        contact.schema_name = selectedCustomer.schema_name;
       }
 
       console.log(contact);
@@ -133,6 +132,9 @@ const ContactGrid = ({ selectedCustomer }) => {
         },
         body: JSON.stringify(contact)
       });
+
+
+      console.log(method, url, JSON.stringify(contact))
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -147,13 +149,16 @@ const ContactGrid = ({ selectedCustomer }) => {
 
   const handleDelete = async (dataItem) => {
     if (window.confirm('Are you sure you want to delete this contact?')) {
+      dataItem.schema_name = selectedCustomer.schema_name
+      console.log(JSON.stringify(dataItem))
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/contacts/${dataItem.id}`, {
-          method: 'DELETE',
+        const response = await fetch(`https://stinsondemo.com/api/v1/subscriber/customer/contactd`, {
+          method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
-          }
+          },
+          body: JSON.stringify(dataItem)
         });
 
         if (!response.ok) {
@@ -239,8 +244,12 @@ const ContactGrid = ({ selectedCustomer }) => {
             pageSize: 10
           }}
         >
-          <GridColumn field="name" title="Name" />
-          <GridColumn field="id" title="Id" />
+          <GridColumn field="last_name" title="Last Name" />
+          <GridColumn field="first_name" title="First Name" />
+          <GridColumn field="email" title="Email" />
+          <GridColumn field="phone" title="Phone" />
+          <GridColumn field="title" title="Job Title" />
+          <GridColumn field="schema_name" title="Schema" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
@@ -251,8 +260,9 @@ const ContactGrid = ({ selectedCustomer }) => {
 
       {showDialog && (
         <Dialog title={editContact ? "Edit Contact" : "Create New Contact"} onClose={() => setShowDialog(false)}>
-          <CustomerForm 
+          <ContactForm 
             contact={editContact}
+            selectedCustomer={selectedCustomer}
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}
           />
