@@ -4,7 +4,8 @@ import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
 import { UserSubscriberForm } from './UserSubscriberRoleForm';
-import { useRefresh } from '../../context/RefreshContext'; // Import the refresh context
+import { useRefresh } from '../../context/RefreshContext';
+import { useSelection } from '../../context/SelectionContext'; // Import selection context
 
 const UserSubscriberRolesGrid = () => {
   const navigate = useNavigate();
@@ -15,8 +16,9 @@ const UserSubscriberRolesGrid = () => {
   const [editUserSubscriber, setEditUserSubscriber] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   
-  // Get the refresh context
+  // Get the refresh and selection contexts
   const { refreshTriggers, triggerRefresh } = useRefresh();
+  const { selectedUserSubscriberId } = useSelection();
   
   const fetchData = async () => {
     try {
@@ -28,7 +30,7 @@ const UserSubscriberRolesGrid = () => {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://stinsondemo.com/api/v1/usersubscriberroleview';
+      let url = 'https://thousandhillsdigital.net/api/v1/usersubscriberroleview';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -39,13 +41,21 @@ const UserSubscriberRolesGrid = () => {
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
+
+      // Create the request body with the selected userSubscriber ID
+      const requestBody = {
+        userSubscriber: selectedUserSubscriberId || null
+      };
+
+      console.log('Fetching UserSubscriberRoles with body:', JSON.stringify(requestBody));
   
       const response = await fetch(url, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
@@ -67,10 +77,12 @@ const UserSubscriberRolesGrid = () => {
     }
   };
 
-  // Update useEffect to include the refresh trigger
+  // Remove client-side filtering since server handles it now
+  // const filteredData is no longer needed
+
   useEffect(() => {
     fetchData();
-  }, [sort, refreshTriggers.userSubscriberRole]);
+  }, [sort, refreshTriggers.userSubscriberRole, selectedUserSubscriberId]);
 
   const handleSortChange = (e) => {
     setSort(e.sort);
@@ -82,7 +94,11 @@ const UserSubscriberRolesGrid = () => {
   };
 
   const handleCreate = () => {
-    setEditUserSubscriber(null);
+    // Pre-populate with selected user-subscriber ID if available
+    const newUserSubscriber = selectedUserSubscriberId ? {
+      user_subscriber_id: parseInt(selectedUserSubscriberId)
+    } : null;
+    setEditUserSubscriber(newUserSubscriber);
     setShowDialog(true);
   };
 
@@ -93,8 +109,8 @@ const UserSubscriberRolesGrid = () => {
       const token = localStorage.getItem('token');
       const method = usersubscriber.id ? 'PUT' : 'POST';
       const url = usersubscriber.id 
-        ? `https://stinsondemo.com/api/v1/usersubscriberrole/${usersubscriber.id}`
-        : 'https://stinsondemo.com/api/v1/usersubscriberrole';
+        ? `https://thousandhillsdigital.net/api/v1/usersubscriberrole/${usersubscriber.id}`
+        : 'https://thousandhillsdigital.net/api/v1/usersubscriberrole';
 
       console.log("Submitting user-subscriber-role data:");
       console.log("id:", usersubscriber.id || "New");
@@ -135,7 +151,7 @@ const UserSubscriberRolesGrid = () => {
     if (window.confirm('Are you sure you want to delete this user-subscriber-role association?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/usersubscriberrole/${dataItem.id}`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/usersubscriberrole/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -177,12 +193,33 @@ const UserSubscriberRolesGrid = () => {
     );
   };
 
+  // Determine what data to display
+  const displayData = selectedUserSubscriberId ? filteredData : data;
+
   return (
-    <div className="px-4 sm:px-0">
+    <div className="px-4 sm:px-0 mb-8">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">User Subscriber Roles</h2>
+        <div>
+          <h2 className="text-2xl font-bold">User Subscriber Roles</h2>
+          {selectedUserSubscriberId ? (
+            <p className="text-sm text-blue-600 mt-1">
+              Showing roles for User-Subscriber ID: {selectedUserSubscriberId} ({data.length} records)
+            </p>
+          ) : (
+            <p className="text-sm text-gray-600 mt-1">
+              Select a User-Subscriber row above to filter roles ({data.length} total records)
+            </p>
+          )}
+        </div>
         <div className="flex items-center space-x-4">
-          <Button onClick={handleCreate} themeColor="primary">Create New User-Subscriber-Role</Button>
+          <Button 
+            onClick={handleCreate} 
+            themeColor="primary"
+            disabled={!selectedUserSubscriberId}
+            title={!selectedUserSubscriberId ? "Select a User-Subscriber first" : ""}
+          >
+            Create New User-Subscriber-Role
+          </Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>

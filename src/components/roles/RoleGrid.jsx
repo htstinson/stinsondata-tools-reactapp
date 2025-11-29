@@ -24,7 +24,7 @@ const RoleGrid = () => {
         throw new Error('No authentication token found');
       }
 
-      let url = 'https://stinsondemo.com/api/v1/roles';
+      let url = 'https://thousandhillsdigital.net/api/v1/roles';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -88,8 +88,8 @@ const RoleGrid = () => {
       console.log("method", method)
       
       const url = role.id 
-        ? `https://stinsondemo.com/api/v1/roles/${role.id}`
-        : 'https://stinsondemo.com/api/v1/roles';
+        ? `https://thousandhillsdigital.net/api/v1/roles/${role.id}`
+        : 'https://thousandhillsdigital.net/api/v1/roles';
 
       console.log("url", url)
 
@@ -119,7 +119,7 @@ const RoleGrid = () => {
     if (window.confirm('Are you sure you want to delete this role?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/roles/${dataItem.id}`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/roles/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

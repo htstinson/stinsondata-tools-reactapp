@@ -30,7 +30,7 @@ export const Profile = () => {
         throw new Error('No authentication token found');
       }
 
-      let url = 'https://stinsondemo.com/api/v1/profile';
+      let url = 'https://thousandhillsdigital.net/api/v1/profile';
       
       const response = await fetch(url, {
         method: 'GET',
@@ -109,7 +109,7 @@ export const Profile = () => {
         updatedUser.id = user.id;
       }
       
-      const response = await fetch(`https://stinsondemo.com/api/v1/users/${user.id}`, {
+      const response = await fetch(`https://thousandhillsdigital.net/api/v1/users/${user.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

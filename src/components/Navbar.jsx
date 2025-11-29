@@ -222,9 +222,15 @@ const Navbar = () => {
     } else {
       // Log the IP address for debugging
       
-      currentUser.subscribed.forEach(subscription => {
+      console.log("currentUser = ", currentUser);
+
+      if (currentUser.subscribed === null) {
+        console.log ("current user subscribed is null")
+      } else {
+        currentUser.subscribed.forEach(subscription => {
         console.log(subscription.subscriber_name);
-      });
+      })
+      }
       
       if (currentUser.ip_address) {
         console.log("navbar user context ip address", currentUser.ip_address);

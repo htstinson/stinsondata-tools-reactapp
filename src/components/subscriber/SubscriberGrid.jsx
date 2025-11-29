@@ -30,7 +30,7 @@ const SubscriberGrid = () => {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://stinsondemo.com/api/v1/subscribers';
+      let url = 'https://thousandhillsdigital.net/api/v1/subscribers';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -93,8 +93,8 @@ const SubscriberGrid = () => {
       const token = localStorage.getItem('token');
       const method = editSubscriber?.id ? 'PUT' : 'POST';
       const url = editSubscriber?.id 
-        ? `https://stinsondemo.com/api/v1/subscribers/${editSubscriber.id}`
-        : 'https://stinsondemo.com/api/v1/subscribers';
+        ? `https://thousandhillsdigital.net/api/v1/subscribers/${editSubscriber.id}`
+        : 'https://thousandhillsdigital.net/api/v1/subscribers';
 
       const response = await fetch(url, {
         method,
@@ -122,7 +122,7 @@ const SubscriberGrid = () => {
     if (window.confirm('Are you sure you want to delete this subscriber?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/subscribers`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/subscribers`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,

@@ -24,7 +24,7 @@ const RolePermissionGrid = () => {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://stinsondemo.com/api/v1/rolepermissionsview';
+      let url = 'https://thousandhillsdigital.net/api/v1/rolepermissionsview';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -88,8 +88,8 @@ const RolePermissionGrid = () => {
       const token = localStorage.getItem('token');
       const method = permission.id ? 'PUT' : 'POST';
       const url = permission.id 
-        ? `https://stinsondemo.com/api/v1/rolepermissions/${permission.id}`
-        : 'https://stinsondemo.com/api/v1/rolepermissions';
+        ? `https://thousandhillsdigital.net/api/v1/rolepermissions/${permission.id}`
+        : 'https://thousandhillsdigital.net/api/v1/rolepermissions';
 
       console.log("method", method)
       console.log("url", url)
@@ -118,7 +118,7 @@ const RolePermissionGrid = () => {
     if (window.confirm('Are you sure you want to delete this permission?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/rolepermissions/${dataItem.id}`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/rolepermissions/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

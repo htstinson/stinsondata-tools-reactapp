@@ -24,7 +24,7 @@ const PermissionGrid = () => {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://stinsondemo.com/api/v1/permissions';
+      let url = 'https://thousandhillsdigital.net/api/v1/permissions';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -87,8 +87,8 @@ const PermissionGrid = () => {
       const token = localStorage.getItem('token');
       const method = permission.id ? 'PUT' : 'POST';
       const url = permission.id 
-        ? `https://stinsondemo.com/api/v1/permissions/${permission.id}`
-        : 'https://stinsondemo.com/api/v1/permissions';
+        ? `https://thousandhillsdigital.net/api/v1/permissions/${permission.id}`
+        : 'https://thousandhillsdigital.net/api/v1/permissions';
 
       console.log("method", method)
       console.log("url", url)
@@ -117,7 +117,7 @@ const PermissionGrid = () => {
     if (window.confirm('Are you sure you want to delete this permission?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/permissions/${dataItem.id}`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/permissions/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

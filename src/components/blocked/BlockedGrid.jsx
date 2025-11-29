@@ -39,7 +39,7 @@ const BlockedGrid = () => {
         throw new Error('No authentication token found');
       }
 
-      let url = 'https://stinsondemo.com/api/v1/blocked';
+      let url = 'https://thousandhillsdigital.net/api/v1/blocked';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -138,8 +138,8 @@ const BlockedGrid = () => {
       const token = localStorage.getItem('token');
       const method = item.id ? 'PUT' : 'POST';
       const url = item.id 
-        ? `https://stinsondemo.com/api/v1/blocked/${item.id}`
-        : 'https://stinsondemo.com/api/v1/blocked';
+        ? `https://thousandhillsdigital.net/api/v1/blocked/${item.id}`
+        : 'https://thousandhillsdigital.net/api/v1/blocked';
 
       const response = await fetch(url, {
         method,
@@ -175,7 +175,7 @@ const BlockedGrid = () => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/blocked/${dataItem.id}`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/blocked/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -198,7 +198,7 @@ const BlockedGrid = () => {
     try {
       const token = localStorage.getItem('token');
       const method = 'GET';
-      const url = 'https://stinsondemo.com/api/v1/blocked/update';
+      const url = 'https://thousandhillsdigital.net/api/v1/blocked/update';
 
       const response = fetch(url, {
         method,
@@ -227,7 +227,7 @@ const BlockedGrid = () => {
     try {
       const token = localStorage.getItem('token');
       const method = 'GET';
-      const url = 'https://stinsondemo.com/api/v1/blocked/parse';
+      const url = 'https://thousandhillsdigital.net/api/v1/blocked/parse';
 
       const response = fetch(url, {
         method,

@@ -84,7 +84,7 @@ const Login = () => {
     const password = formData.get('password');
 
     try {
-      const response = await fetch('https://stinsondemo.com/api/v1/login', {
+      const response = await fetch('https://thousandhillsdigital.net/api/v1/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

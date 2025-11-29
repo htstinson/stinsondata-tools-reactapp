@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
-import { Dialog } from '@progress/kendo-react-dialogs';
+import { Dialog, DialogActionsBar } from '@progress/kendo-react-dialogs';
 import ContactForm from '../contact/ContactForm'; // Import ContactForm instead of CustomerForm
 import { UserContext, useUser } from '../UserContext.jsx'; 
 
@@ -14,7 +14,39 @@ const ContactGrid = ({ selectedCustomer }) => {
   const [sort, setSort] = useState([]);
   const [editContact, setEditContact] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  
+  // Notification dialog state
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationType, setNotificationType] = useState('success'); // 'success' or 'error'
+  
+  // Confirmation dialog state
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [contactToDelete, setContactToDelete] = useState(null);
+  
   const userContext = useUser();
+  
+  // Function to show notification
+  const showNotificationDialog = (message, type = 'success') => {
+    setNotificationMessage(message);
+    setNotificationType(type);
+    setShowNotification(true);
+  };
+
+  const handleNotificationClose = () => {
+    setShowNotification(false);
+  };
+
+  const handleConfirmationClose = () => {
+    setShowConfirmation(false);
+    setContactToDelete(null);
+  };
+
+  const confirmDelete = () => {
+    setShowConfirmation(false);
+    performDelete(contactToDelete);
+    setContactToDelete(null);
+  };
   
   const fetchData = async () => {
     // Don't fetch if no customer is selected
@@ -37,7 +69,7 @@ const ContactGrid = ({ selectedCustomer }) => {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://stinsondemo.com/api/v1/subscriber/customer/contacts';
+      let url = 'https://thousandhillsdigital.net/api/v1/subscriber/customer/contacts';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -83,6 +115,7 @@ const ContactGrid = ({ selectedCustomer }) => {
     } catch (err) {
       setError(err.message);
       console.error('Error fetching data:', err);
+      showNotificationDialog(`Error loading contacts: ${err.message}`, 'error');
     } finally {
       setLoading(false);
     }
@@ -111,10 +144,11 @@ const ContactGrid = ({ selectedCustomer }) => {
     try {
       const token = localStorage.getItem('token');
       const method = contact.id ? 'PUT' : 'POST';
+      const isEdit = !!contact.id;
 
       const url = contact?.id 
-      ? `https://stinsondemo.com/api/v1/subscriber/customer/contact`
-      : 'https://stinsondemo.com/api/v1/subscriber/customer/contact';
+      ? `https://thousandhillsdigital.net/api/v1/subscriber/customer/contact`
+      : 'https://thousandhillsdigital.net/api/v1/subscriber/customer/contact';
                   
       // Add customer_id to new contacts
       if (!contact.id && selectedCustomer) {
@@ -133,7 +167,6 @@ const ContactGrid = ({ selectedCustomer }) => {
         body: JSON.stringify(contact)
       });
 
-
       console.log(method, url, JSON.stringify(contact))
 
       if (!response.ok) {
@@ -142,33 +175,50 @@ const ContactGrid = ({ selectedCustomer }) => {
 
       setShowDialog(false);
       fetchData();
+      
+      // Show success notification
+      const actionText = isEdit ? 'updated' : 'created';
+      showNotificationDialog(`Contact ${actionText} successfully!`, 'success');
+      
     } catch (err) {
       setError(err.message);
+      showNotificationDialog(`Error saving contact: ${err.message}`, 'error');
     }
   };
 
-  const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this contact?')) {
-      dataItem.schema_name = selectedCustomer.schema_name
-      console.log(JSON.stringify(dataItem))
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/subscriber/customer/contactd`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(dataItem)
-        });
+  const handleDelete = (dataItem) => {
+    setContactToDelete(dataItem);
+    setShowConfirmation(true);
+  };
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+  const performDelete = async (dataItem) => {
+    dataItem.schema_name = selectedCustomer.schema_name
+    console.log(JSON.stringify(dataItem))
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://thousandhillsdigital.net/api/v1/subscriber/customer/contactd`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dataItem)
+      });
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          showNotificationDialog('Cannot delete contact - there are dependencies that prevent deletion.', 'error');
+          return;
         }
-
-        fetchData();
-      } catch (err) {
-        setError(err.message);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      fetchData();
+      showNotificationDialog('Contact deleted successfully!', 'success');
+      
+    } catch (err) {
+      setError(err.message);
+      showNotificationDialog(`Error deleting contact: ${err.message}`, 'error');
     }
   };
 
@@ -249,7 +299,6 @@ const ContactGrid = ({ selectedCustomer }) => {
           <GridColumn field="email" title="Email" />
           <GridColumn field="phone" title="Phone" />
           <GridColumn field="title" title="Job Title" />
-          <GridColumn field="schema_name" title="Schema" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
@@ -258,6 +307,7 @@ const ContactGrid = ({ selectedCustomer }) => {
         </Grid>
       )}
 
+      {/* Contact Form Dialog */}
       {showDialog && (
         <Dialog title={editContact ? "Edit Contact" : "Create New Contact"} onClose={() => setShowDialog(false)}>
           <ContactForm 
@@ -266,6 +316,63 @@ const ContactGrid = ({ selectedCustomer }) => {
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}
           />
+        </Dialog>
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirmation && (
+        <Dialog 
+          title="Confirm Delete"
+          onClose={handleConfirmationClose}
+          width={400}
+          height={200}
+        >
+          <div className="p-4 text-gray-700">
+            <p>Are you sure you want to delete this contact?</p>
+            {contactToDelete && (
+              <p className="mt-2 font-semibold">
+                Contact: {contactToDelete.first_name} {contactToDelete.last_name}
+              </p>
+            )}
+          </div>
+          <DialogActionsBar>
+            <Button 
+              onClick={handleConfirmationClose}
+              themeColor="light"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={confirmDelete}
+              themeColor="error"
+              className="ml-2"
+            >
+              Delete
+            </Button>
+          </DialogActionsBar>
+        </Dialog>
+      )}
+
+      {/* Notification Dialog */}
+      {showNotification && (
+        <Dialog 
+          title={notificationType === 'success' ? "Success" : "Error"}
+          onClose={handleNotificationClose}
+          width={400}
+          height={200}
+        >
+          <div className={`p-4 ${notificationType === 'success' ? 'text-green-700' : 'text-red-700'}`}>
+            <p>{notificationMessage}</p>
+          </div>
+          <DialogActionsBar>
+            <Button 
+              primary 
+              onClick={handleNotificationClose}
+              themeColor={notificationType === 'success' ? 'primary' : 'error'}
+            >
+              OK
+            </Button>
+          </DialogActionsBar>
         </Dialog>
       )}
     </div>

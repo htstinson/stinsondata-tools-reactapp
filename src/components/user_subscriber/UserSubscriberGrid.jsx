@@ -4,7 +4,8 @@ import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
 import { UserSubscriberForm } from './UserSubscriberForm';
-import { useRefresh } from '../../context/RefreshContext'; // Import the refresh context
+import { useRefresh } from '../../context/RefreshContext';
+import { useSelection } from '../../context/SelectionContext'; // Import selection context
 
 const UserSubscriberGrid = () => {
   const navigate = useNavigate();
@@ -14,9 +15,11 @@ const UserSubscriberGrid = () => {
   const [sort, setSort] = useState([]);
   const [editUserSubscriber, setEditUserSubscriber] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
   
-  // Get the refresh context
+  // Get the refresh and selection contexts
   const { refreshTriggers, triggerMultipleRefresh } = useRefresh();
+  const { selectUserSubscriber, selectedUserSubscriberId } = useSelection();
   
   const fetchData = async () => {
     try {
@@ -28,7 +31,7 @@ const UserSubscriberGrid = () => {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://stinsondemo.com/api/v1/usersubscriberview';
+      let url = 'https://thousandhillsdigital.net/api/v1/usersubscriberview';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -67,13 +70,26 @@ const UserSubscriberGrid = () => {
     }
   };
 
-  // Update the useEffect to include the refresh trigger
   useEffect(() => {
     fetchData();
   }, [sort, refreshTriggers.userSubscriber]);
 
   const handleSortChange = (e) => {
     setSort(e.sort);
+  };
+
+  // Handle row selection via row click
+  const handleRowClick = (e) => {
+    console.log('Row clicked:', e.dataItem);
+    
+    if (e.dataItem && e.dataItem.id) {
+      const selectedId = String(e.dataItem.id); // Convert to string as requested
+      selectUserSubscriber(selectedId);
+      console.log('Selected User-Subscriber ID:', selectedId);
+      
+      // Update selected rows for visual feedback
+      setSelectedRows([e.dataItem]);
+    }
   };
 
   const handleEdit = (dataItem) => {
@@ -91,8 +107,8 @@ const UserSubscriberGrid = () => {
       const token = localStorage.getItem('token');
       const method = editUserSubscriber?.id ? 'PUT' : 'POST';
       const url = editUserSubscriber?.id 
-        ? `https://stinsondemo.com/api/v1/usersubscriber/${editUserSubscriber.id}`
-        : 'https://stinsondemo.com/api/v1/usersubscriber';
+        ? `https://thousandhillsdigital.net/api/v1/usersubscriber/${editUserSubscriber.id}`
+        : 'https://thousandhillsdigital.net/api/v1/usersubscriber';
 
       console.log("Submitting user-subscriber data:");
       console.log("id:", usersubscriber.id || "New");
@@ -129,7 +145,7 @@ const UserSubscriberGrid = () => {
     if (window.confirm('Are you sure you want to delete this user-subscriber association?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/usersubscriber/${dataItem.id}`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/usersubscriber/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -151,7 +167,7 @@ const UserSubscriberGrid = () => {
   const fetchCustomers = async (dataItem) => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/customers/subscriber/${dataItem.subscriber_id}`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/customers/subscriber/${dataItem.subscriber_id}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -162,13 +178,9 @@ const UserSubscriberGrid = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        // Note: The original code was calling fetchCustomers() recursively which seems like a mistake
-        // Instead, we probably want to do something with the response
         const customersData = await response.json();
         console.log('Customers data:', customersData);
         
-        // If this action should refresh other grids, add them here
-        // triggerMultipleRefresh(['customerGrid']);
       } catch (err) {
         setError(err.message);
       }
@@ -205,9 +217,16 @@ const UserSubscriberGrid = () => {
   };
 
   return (
-    <div className="px-4 sm:px-0">
+    <div className="px-4 sm:px-0 mb-8">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">User-Subscriber</h2>
+        <div>
+          <h2 className="text-2xl font-bold">User-Subscriber</h2>
+          {selectedUserSubscriberId && (
+            <p className="text-sm text-gray-600 mt-1">
+              Selected ID: {selectedUserSubscriberId}
+            </p>
+          )}
+        </div>
         <div className="flex items-center space-x-4">
           <Button onClick={handleCreate} themeColor="primary">Create New User-Subscriber</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
@@ -230,11 +249,18 @@ const UserSubscriberGrid = () => {
         </div>
       ) : (
         <Grid
-          data={data}
+          data={data.map(item => ({ ...item, selected: selectedRows.some(row => row.id === item.id) }))}
           style={{ height: '400px' }}
           sortable={true}
           sort={sort}
           onSortChange={handleSortChange}
+          selectable={{
+            enabled: true,
+            drag: false,
+            cell: false,
+            mode: 'single'
+          }}
+          onRowClick={handleRowClick}
           pageable={{
             buttonCount: 5,
             pageSizes: [10, 20, 50],

@@ -26,7 +26,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
           throw new Error('Authentication token not found');
         }
         
-        const response = await fetch('https://stinsondemo.com/api/v1/subscribers', {
+        const response = await fetch('https://thousandhillsdigital.net/api/v1/subscribers', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -88,7 +88,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
           throw new Error('Authentication token not found');
         }
         
-        const response = await fetch('https://stinsondemo.com/api/v1/users', {
+        const response = await fetch('https://thousandhillsdigital.net/api/v1/users', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

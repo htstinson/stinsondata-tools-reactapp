@@ -18,7 +18,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://stinsondemo.com',
+        target: 'https://thousandhillsdigital.net',
         changeOrigin: true,
         secure: false,
       }

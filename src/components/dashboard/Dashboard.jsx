@@ -6,6 +6,7 @@ import AccountGrid from '../../components/account/AccountGrid.jsx';
 import Navbar from '../../components/Navbar.jsx';
 import CustomerGrid from '../customer/CustomerGrid.jsx';
 import ContactGrid from '../contact/ContactGrid.jsx';
+import FacebookLoginTest from './FacebookLoginTest'
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const Dashboard = () => {
       </nav>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <FacebookLoginTest />
         <ItemGrid />
         <CustomerGrid onCustomerSelect={handleCustomerSelect} />
         <ContactGrid selectedCustomer={selectedCustomer} />

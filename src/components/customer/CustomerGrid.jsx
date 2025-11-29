@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
-import { Dialog } from '@progress/kendo-react-dialogs';
+import { Dialog, DialogActionsBar } from '@progress/kendo-react-dialogs';
 import { CustomerForm } from './CustomerForm';
 import { UserContext, useUser } from '../UserContext.jsx'; 
 
@@ -15,7 +15,39 @@ const CustomerGrid = ({ onCustomerSelect }) => {
   const [editCustomer, setEditCustomer] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+  
+  // Notification dialog state
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [notificationType, setNotificationType] = useState('success'); // 'success' or 'error'
+  
+  // Confirmation dialog state
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState(null);
+  
   const userContext = useUser();
+  
+  // Function to show notification
+  const showNotificationDialog = (message, type = 'success') => {
+    setNotificationMessage(message);
+    setNotificationType(type);
+    setShowNotification(true);
+  };
+
+  const handleNotificationClose = () => {
+    setShowNotification(false);
+  };
+
+  const handleConfirmationClose = () => {
+    setShowConfirmation(false);
+    setCustomerToDelete(null);
+  };
+
+  const confirmDelete = () => {
+    setShowConfirmation(false);
+    performDelete(customerToDelete);
+    setCustomerToDelete(null);
+  };
   
   const fetchData = async () => {
     try {
@@ -31,7 +63,7 @@ const CustomerGrid = ({ onCustomerSelect }) => {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://stinsondemo.com/api/v1/subscriber/customers';
+      let url = 'https://thousandhillsdigital.net/api/v1/subscriber/customers';
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -69,6 +101,7 @@ const CustomerGrid = ({ onCustomerSelect }) => {
     } catch (err) {
       setError(err.message);
       console.error('Error fetching data:', err);
+      showNotificationDialog(`Error loading customers: ${err.message}`, 'error');
     } finally {
       setLoading(false);
     }
@@ -106,14 +139,13 @@ const CustomerGrid = ({ onCustomerSelect }) => {
     try {
       const token = localStorage.getItem('token');
       const method = customer.id ? 'PUT' : 'POST';
+      const isEdit = !!customer.id;
 
-      const url = customer?.id 
-      ? `https://stinsondemo.com/api/v1/subscribers/customers`
-      : 'https://stinsondemo.com/api/v1/subscriber/customer';
+      const url = 'https://thousandhillsdigital.net/api/v1/subscriber/customer';
 
       customer.subscriber_id = userContext.currentUser.subscribed[0].subscriber_id;
 
-      console.log(customer);
+      console.log('UPDATE',customer);
 
       const response = await fetch(url, {
         method,
@@ -130,30 +162,48 @@ const CustomerGrid = ({ onCustomerSelect }) => {
 
       setShowDialog(false);
       fetchData();
+      
+      // Show success notification
+      const actionText = isEdit ? 'updated' : 'created';
+      showNotificationDialog(`Customer ${actionText} successfully!`, 'success');
+      
     } catch (err) {
       setError(err.message);
+      showNotificationDialog(`Error saving customer: ${err.message}`, 'error');
     }
   };
 
-  const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this customer?')) {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`https://stinsondemo.com/api/v1/customers/${dataItem.id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+  const handleDelete = (customer) => {
+    setCustomerToDelete(customer);
+    setShowConfirmation(true);
+  };
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+  const performDelete = async (customer) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://thousandhillsdigital.net/api/v1/subscriber/customerd`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(customer)
+      });
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          showNotificationDialog('Cannot delete customer - there are still contacts associated with this customer. Please delete all contacts first.', 'error');
+          return;
         }
-
-        fetchData();
-      } catch (err) {
-        setError(err.message);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      fetchData();
+      showNotificationDialog('Customer deleted successfully!', 'success');
+      
+    } catch (err) {
+      setError(err.message);
+      showNotificationDialog(`Error deleting customer: ${err.message}`, 'error');
     }
   };
 
@@ -220,8 +270,6 @@ const CustomerGrid = ({ onCustomerSelect }) => {
           }}
         >
           <GridColumn field="name" title="Name" />
-          <GridColumn field="id" title="Id" />
-          <GridColumn field="schema_name" title="Schema" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
@@ -230,6 +278,7 @@ const CustomerGrid = ({ onCustomerSelect }) => {
         </Grid>
       )}
 
+      {/* Customer Form Dialog */}
       {showDialog && (
         <Dialog title={editCustomer ? "Edit Customer" : "Create New Customer"} onClose={() => setShowDialog(false)}>
           <CustomerForm 
@@ -237,6 +286,61 @@ const CustomerGrid = ({ onCustomerSelect }) => {
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}
           />
+        </Dialog>
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirmation && (
+        <Dialog 
+          title="Confirm Delete"
+          onClose={handleConfirmationClose}
+          width={400}
+          height={200}
+        >
+          <div className="p-4 text-gray-700">
+            <p>Are you sure you want to delete this customer?</p>
+            {customerToDelete && (
+              <p className="mt-2 font-semibold">Customer: {customerToDelete.name}</p>
+            )}
+          </div>
+          <DialogActionsBar>
+            <Button 
+              onClick={handleConfirmationClose}
+              themeColor="light"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={confirmDelete}
+              themeColor="error"
+              className="ml-2"
+            >
+              Delete
+            </Button>
+          </DialogActionsBar>
+        </Dialog>
+      )}
+
+      {/* Notification Dialog */}
+      {showNotification && (
+        <Dialog 
+          title={notificationType === 'success' ? "Success" : "Error"}
+          onClose={handleNotificationClose}
+          width={400}
+          height={200}
+        >
+          <div className={`p-4 ${notificationType === 'success' ? 'text-green-700' : 'text-red-700'}`}>
+            <p>{notificationMessage}</p>
+          </div>
+          <DialogActionsBar>
+            <Button 
+              primary 
+              onClick={handleNotificationClose}
+              themeColor={notificationType === 'success' ? 'primary' : 'error'}
+            >
+              OK
+            </Button>
+          </DialogActionsBar>
         </Dialog>
       )}
     </div>
