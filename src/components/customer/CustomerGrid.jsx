@@ -6,10 +6,10 @@ import { Dialog, DialogActionsBar } from '@progress/kendo-react-dialogs';
 import { CustomerForm } from './CustomerForm';
 import { UserContext, useUser } from '../UserContext.jsx'; 
 
-const CustomerGrid = ({ onCustomerSelect }) => {
+const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add selectedSubscription prop
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);  // Changed to false initially
   const [error, setError] = useState(null);
   const [sort, setSort] = useState([]);
   const [editCustomer, setEditCustomer] = useState(null);
@@ -19,7 +19,7 @@ const CustomerGrid = ({ onCustomerSelect }) => {
   // Notification dialog state
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
-  const [notificationType, setNotificationType] = useState('success'); // 'success' or 'error'
+  const [notificationType, setNotificationType] = useState('success');
   
   // Confirmation dialog state
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -50,20 +50,28 @@ const CustomerGrid = ({ onCustomerSelect }) => {
   };
   
   const fetchData = async () => {
+    // Don't fetch if no subscription is selected
+    if (!selectedSubscription) {
+      console.log('No subscription selected, clearing customer data');
+      setData([]);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
 
       const currentUser = userContext?.currentUser;
 
-      console.log('currentuser', currentUser)
+      console.log('Fetching customers for subscription:', selectedSubscription);
+      console.log('currentuser', currentUser);
       
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found');
       }
   
-      let url = 'https://thousandhillsdigital.net/api/v1/subscriber/customers';
+      const url = 'https://thousandhillsdigital.net/api/v1/subscriber/customers'
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
@@ -74,6 +82,14 @@ const CustomerGrid = ({ onCustomerSelect }) => {
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
+
+      // Include subscription info in request body
+      const requestBody = {
+       // ...currentUser,
+        id: selectedSubscription.subscriber_id || selectedSubscription.id
+      };
+
+      console.log('Request body:', requestBody);
   
       const response = await fetch(url, {
         method: 'POST',
@@ -81,7 +97,7 @@ const CustomerGrid = ({ onCustomerSelect }) => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(currentUser)
+        body: JSON.stringify(requestBody)
       });
       
       if (!response.ok) {
@@ -95,7 +111,7 @@ const CustomerGrid = ({ onCustomerSelect }) => {
       
       const jsonData = await response.json();
 
-      console.log(jsonData);
+      console.log('Customers loaded:', jsonData);
 
       setData(jsonData);
     } catch (err) {
@@ -108,8 +124,14 @@ const CustomerGrid = ({ onCustomerSelect }) => {
   };
 
   useEffect(() => {
+    console.log('selectedSubscription changed:', selectedSubscription);
     fetchData();
-  }, [sort]);
+    // Clear customer selection when subscription changes
+    setSelectedCustomerId(null);
+    if (onCustomerSelect) {
+      onCustomerSelect(null);
+    }
+  }, [selectedSubscription, sort]);  // Add selectedSubscription to dependencies
 
   const handleSortChange = (e) => {
     setSort(e.sort);
@@ -118,6 +140,8 @@ const CustomerGrid = ({ onCustomerSelect }) => {
   const handleRowClick = (e) => {
     const customer = e.dataItem;
     setSelectedCustomerId(customer.id);
+    
+    console.log('Customer selected:', customer);
     
     // Call the parent callback to update contacts
     if (onCustomerSelect) {
@@ -142,7 +166,7 @@ const CustomerGrid = ({ onCustomerSelect }) => {
       const isEdit = !!customer.id;
 
       const url = 'https://thousandhillsdigital.net/api/v1/subscriber/customer';
-
+      
       customer.subscriber_id = userContext.currentUser.subscribed[0].subscriber_id;
 
       console.log('UPDATE',customer);
@@ -230,17 +254,35 @@ const CustomerGrid = ({ onCustomerSelect }) => {
     );
   };
 
+  // Add selection to data for visual feedback
+  const dataWithSelection = data.map(item => ({
+    ...item,
+    selected: item.id === selectedCustomerId
+  }));
+
   return (
-    <div className="px-4 sm:px-0">
+    <div className="px-4 sm:px-0 mt-8">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Customers</h2>
+        <h2 className="text-2xl font-bold">
+          Customers {selectedSubscription && `for ${selectedSubscription.subscriber_name || selectedSubscription.name || 'Selected Subscription'}`}
+        </h2>
         <div className="flex items-center space-x-4">
-          <Button onClick={handleCreate} themeColor="primary">Create New Customer</Button>
+          <Button 
+            onClick={handleCreate} 
+            themeColor="primary"
+            disabled={!selectedSubscription}
+          >
+            Create New Customer
+          </Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
 
-      {loading ? (
+      {!selectedSubscription ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="text-gray-600">Select a subscription to view customers</div>
+        </div>
+      ) : loading ? (
         <div className="flex justify-center items-center h-64">
           <div className="text-gray-600">Loading...</div>
         </div>
@@ -256,7 +298,7 @@ const CustomerGrid = ({ onCustomerSelect }) => {
         </div>
       ) : (
         <Grid
-          data={data}
+          data={dataWithSelection}
           style={{ height: '400px' }}
           sortable={true}
           sort={sort}

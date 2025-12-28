@@ -222,7 +222,7 @@ const Navbar = () => {
     } else {
       // Log the IP address for debugging
       
-      console.log("currentUser = ", currentUser);
+      console.log("[1] currentUser = ", currentUser);
 
       if (currentUser.subscribed === null) {
         console.log ("current user subscribed is null")
@@ -235,7 +235,7 @@ const Navbar = () => {
       if (currentUser.ip_address) {
         console.log("navbar user context ip address", currentUser.ip_address);
       }
-      console.log("userIp from context:", userIp);
+      console.log("[2] userIp from context:", userIp);
       
       // You can now use userIp in your logic here
       // For example, you might want to add it to the currentUser object

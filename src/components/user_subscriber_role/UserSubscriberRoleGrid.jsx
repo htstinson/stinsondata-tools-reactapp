@@ -193,14 +193,12 @@ const UserSubscriberRolesGrid = () => {
     );
   };
 
-  // Determine what data to display
-  const displayData = selectedUserSubscriberId ? filteredData : data;
 
   return (
     <div className="px-4 sm:px-0 mb-8">
       <div className="mb-4 flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">User Subscriber Roles</h2>
+          <h2 className="text-2xl font-bold">User-Subscriber-Roles</h2>
           {selectedUserSubscriberId ? (
             <p className="text-sm text-blue-600 mt-1">
               Showing roles for User-Subscriber ID: {selectedUserSubscriberId} ({data.length} records)

@@ -6,19 +6,33 @@ import AccountGrid from '../../components/account/AccountGrid.jsx';
 import Navbar from '../../components/Navbar.jsx';
 import CustomerGrid from '../customer/CustomerGrid.jsx';
 import ContactGrid from '../contact/ContactGrid.jsx';
-import FacebookLoginTest from './FacebookLoginTest'
+import FacebookLoginTest from './FacebookLoginTest';
+import UserSingleSubscriberGrid from '../user_subscriber/UserSingleSubscriberGrid.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  
+  // Add state to track the selected subscription
+  const [selectedSubscription, setSelectedSubscription] = useState(null);
+  
+  // State to track the selected customer
   const [selectedCustomer, setSelectedCustomer] = useState(null);
-
+  
+  // Handler for when subscription is selected
+  const handleSubscriptionSelect = (subscription) => {
+    setSelectedSubscription(subscription);
+    // Clear customer selection when subscription changes
+    setSelectedCustomer(null);
+  };
+  
+  // Handler for when customer is selected
+  const handleCustomerSelect = (customer) => {
+    setSelectedCustomer(customer);
+  };
+  
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/');
-  };
-
-  const handleCustomerSelect = (customer) => {
-    setSelectedCustomer(customer);
   };
 
   return (
@@ -35,11 +49,17 @@ const Dashboard = () => {
       </nav>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <FacebookLoginTest />
-        <ItemGrid />
-        <CustomerGrid onCustomerSelect={handleCustomerSelect} />
+        {/* Pass callback to UserSingleSubscriberGrid */}
+        <UserSingleSubscriberGrid onSubscriptionSelect={handleSubscriptionSelect} />
+        
+        {/* Pass selected subscription to CustomerGrid */}
+        <CustomerGrid 
+          selectedSubscription={selectedSubscription}
+          onCustomerSelect={handleCustomerSelect} 
+        />
+        
+        {/* Pass selected customer to ContactGrid */}
         <ContactGrid selectedCustomer={selectedCustomer} />
-        <AccountGrid/>
       </main>
     </div>
   );
