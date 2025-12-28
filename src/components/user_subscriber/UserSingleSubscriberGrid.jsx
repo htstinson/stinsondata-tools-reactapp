@@ -99,6 +99,7 @@ const UserSingleSubscriberGrid = ({ onSubscriptionSelect }) => {  // Add this pr
       >
         <GridColumn field="user_username" title="User Name" />
         <GridColumn field="subscriber_name" title="Subscriber Name" />
+        <GridColumn field="subscriber_id" title="Subscriber Id" />
       </Grid>
     </div>
   );

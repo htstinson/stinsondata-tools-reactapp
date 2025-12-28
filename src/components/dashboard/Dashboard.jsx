@@ -6,8 +6,8 @@ import AccountGrid from '../../components/account/AccountGrid.jsx';
 import Navbar from '../../components/Navbar.jsx';
 import CustomerGrid from '../customer/CustomerGrid.jsx';
 import ContactGrid from '../contact/ContactGrid.jsx';
-import FacebookLoginTest from './FacebookLoginTest';
 import UserSingleSubscriberGrid from '../user_subscriber/UserSingleSubscriberGrid.jsx';
+import SubscriberItemGrid from '../subscriber_items/SubscriberItemGrid.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -60,6 +60,12 @@ const Dashboard = () => {
         
         {/* Pass selected customer to ContactGrid */}
         <ContactGrid selectedCustomer={selectedCustomer} />
+
+        <SubscriberItemGrid 
+          selectedSubscription={selectedSubscription}
+          onSubscriptionSelect={handleSubscriptionSelect}
+        />
+
       </main>
     </div>
   );

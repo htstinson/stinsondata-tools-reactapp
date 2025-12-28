@@ -16,6 +16,8 @@ import Navbar from '../../components/Navbar.jsx';
 import { RefreshProvider } from '../../context/RefreshContext.jsx';
 import { SelectionProvider } from '../../context/SelectionContext.jsx';
 
+import  ItemGrid  from '../../components/item/ItemGrid.jsx';
+
 const Admin = () => {
   const navigate = useNavigate();
 
@@ -47,7 +49,7 @@ const Admin = () => {
             <RoleGrid />
             <PermissionGrid />
             <RolePermissionGrid/>
-            <BlockedGrid />
+            <ItemGrid />
           </main>
         </div>
       </SelectionProvider>
