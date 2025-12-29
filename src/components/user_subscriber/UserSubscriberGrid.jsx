@@ -204,13 +204,6 @@ const UserSubscriberGrid = () => {
           >
             Delete
           </Button>
-          <Button 
-            onClick={() => fetchCustomers(props.dataItem)}
-            themeColor="error"
-            size="small"
-          >
-            Fetch Customers
-          </Button>
         </div>
       </td>
     );

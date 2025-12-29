@@ -161,10 +161,33 @@ const SubscriberItemGrid = ({ selectedSubscription, onSubscriptionSelect }) => {
     }
   };
 
-  const handleDelete = (item) => {
-    setItemToDelete(item);
-    setShowConfirmation(true);
-  };
+  const handleDelete = async (item) => {
+  console.log(`https://thousandhillsdigital.net/api/v1/subscriber/item/${item.id}`);
+
+  if (window.confirm('Are you sure you want to delete this subscriber_item?')) {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://thousandhillsdigital.net/api/v1/subscriber/item/${item.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Refresh the grid after successful deletion
+      fetchData();
+      showNotificationDialog('Subscriber item deleted successfully!', 'success');
+
+    } catch (err) {
+      setError(err.message);
+      showNotificationDialog(`Error deleting subscriber item: ${err.message}`, 'error');
+    }
+  }
+};
 
   const performDelete = async (item) => {
     try {
@@ -268,17 +291,8 @@ const SubscriberItemGrid = ({ selectedSubscription, onSubscriptionSelect }) => {
         >
           <GridColumn field="subscriber_name" title="Subscriber" width="250px" />
           <GridColumn field="item_name" title="Item" width="250px" />
-          <GridColumn 
-            field="created_at" 
-            title="Created At" 
-            width="200px"
-            cell={DateCell}
-          />
-          <GridColumn 
-            title="Actions" 
-            cell={ActionCell}
-            width="200px"
-          />
+          <GridColumn field="created_at" title="Created" width="200px" cell={DateCell} />
+          <GridColumn title="Actions"  cell={ActionCell} width="200px" />
         </Grid>
       )}
 
