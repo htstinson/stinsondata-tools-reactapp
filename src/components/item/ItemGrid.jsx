@@ -112,6 +112,30 @@ const ItemGrid = () => {
     }
   };
 
+  const handleTest = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const method = 'POST';
+      const url = `https://thousandhillsdigital.net/api/v1/test`       
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      setShowDialog(false);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const handleDelete = async (dataItem) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       try {
@@ -170,6 +194,7 @@ const ItemGrid = () => {
           />
           <Button onClick={handleCreate} themeColor="primary">Create New Item</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
+          <Button onClilck={handleTest} themeColor="light">Test</Button>
         </div>
       </div>
 
