@@ -1,47 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
+import { DatePicker } from '@progress/kendo-react-dateinputs';
 import { Dialog } from '@progress/kendo-react-dialogs';
-import { useRefresh } from '../../context/RefreshContext';
+import { SearchDefinitionForm } from './SearchDefinitionForm';
 
-// Assuming you have a SubscriberForm component similar to other forms
-import { SubscriberForm } from './SubscriberForm';
-
-const SubscriberGrid = () => {
-  const navigate = useNavigate();
+const SearchDefinitionGrid = ({ selectedSubscription }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sort, setSort] = useState([]);
-  const [editSubscriber, setEditSubscriber] = useState(null);
+  const [editItem, setEditItem] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
-  
-  // Get the refresh context
-  const { refreshTriggers, triggerMultipleRefresh } = useRefresh();
-  
+  const [dateFilter, setDateFilter] = useState(null);
+
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
+
+      if (!selectedSubscription) {
+        console.log('No subscription selected, clearing search definition data');
+        setData([]);
+        return;
+      }
       
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No authentication token found');
       }
-  
-      let url = 'https://thousandhillsdigital.net/api/v1/subscribers';
+
+      let url = `https://thousandhillsdigital.net/api/v1/searchdefinitions/${selectedSubscription.subscriber_id}`;
       
       const params = new URLSearchParams();
       if (sort.length > 0) {
         params.append('sort', sort[0].field);
         params.append('order', sort[0].dir);
       }
-
+      if (dateFilter) {
+        params.append('date', dateFilter.toISOString());
+      }
       if (params.toString()) {
         url += `?${params.toString()}`;
       }
-  
+
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -49,11 +51,10 @@ const SubscriberGrid = () => {
           'Content-Type': 'application/json'
         }
       });
-
+      
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.removeItem('token');
-          navigate('/login');
           throw new Error('Session expired. Please login again.');
         }
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -61,6 +62,7 @@ const SubscriberGrid = () => {
       
       const jsonData = await response.json();
       setData(jsonData);
+      
     } catch (err) {
       setError(err.message);
       console.error('Error fetching data:', err);
@@ -69,32 +71,31 @@ const SubscriberGrid = () => {
     }
   };
 
-  // Update useEffect to include the refresh trigger
   useEffect(() => {
     fetchData();
-  }, [sort, refreshTriggers.subscriber]);
+  }, [sort, dateFilter, selectedSubscription]);
 
   const handleSortChange = (e) => {
     setSort(e.sort);
   };
 
   const handleEdit = (dataItem) => {
-    setEditSubscriber(dataItem);
+    setEditItem(dataItem);
     setShowDialog(true);
   };
 
   const handleCreate = () => {
-    setEditSubscriber(null);
+    setEditItem(null);
     setShowDialog(true);
   };
 
-  const handleSubmit = async (subscriber) => {
+  const handleSubmit = async (searchDefinition) => {
     try {
       const token = localStorage.getItem('token');
-      const method = editSubscriber?.id ? 'PUT' : 'POST';
-      const url = editSubscriber?.id 
-        ? `https://thousandhillsdigital.net/api/v1/subscribers/${editSubscriber.id}`
-        : 'https://thousandhillsdigital.net/api/v1/subscribers';
+      const method = searchDefinition.id ? 'PUT' : 'POST';
+      const url = searchDefinition.id 
+        ? `https://thousandhillsdigital.net/api/v1/searchdefinitions/${searchDefinition.id}`
+        : 'https://thousandhillsdigital.net/api/v1/searchdefinitions';
 
       const response = await fetch(url, {
         method,
@@ -102,7 +103,7 @@ const SubscriberGrid = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(subscriber)
+        body: JSON.stringify(searchDefinition)
       });
 
       if (!response.ok) {
@@ -110,38 +111,59 @@ const SubscriberGrid = () => {
       }
 
       setShowDialog(false);
-      
-      // Trigger refresh for this grid only
-      triggerMultipleRefresh(['subscriber']);
+      fetchData();
     } catch (err) {
       setError(err.message);
     }
   };
 
   const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this subscriber?')) {
+    if (window.confirm('Are you sure you want to delete this search definition?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://thousandhillsdigital.net/api/v1/subscribers`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/searchdefinitions/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(dataItem)
+            'Authorization': `Bearer ${token}`
+          }
         });
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Trigger refresh for this grid and related grids that depend on subscriber data
-        triggerMultipleRefresh(['subscriber', 'userSubscriber', 'userSubscriberRole']);
+        fetchData();
       } catch (err) {
         setError(err.message);
       }
     }
   };
+
+    const handleTest = async (item) => {
+      try {
+        console.log('test', JSON.stringify({ id: item.id }));
+        const token = localStorage.getItem('token');
+        const method = 'POST';
+        const url = `https://thousandhillsdigital.net/api/v1/test`       
+  
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+           body: JSON.stringify({ id: item.id, subscriber_id: item.subscriber_id })
+        });
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        setShowDialog(false);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
 
   const ActionCell = (props) => {
     return (
@@ -161,6 +183,11 @@ const SubscriberGrid = () => {
           >
             Delete
           </Button>
+           <Button onClick={() => handleTest(props.dataItem)} 
+            themeColor="info"
+            size="small">
+              Test
+            </Button>
         </div>
       </td>
     );
@@ -169,9 +196,15 @@ const SubscriberGrid = () => {
   return (
     <div className="px-4 sm:px-0">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Subscribers</h2>
+        <h2 className="text-2xl font-bold">Search Definitions</h2>
         <div className="flex items-center space-x-4">
-          <Button onClick={handleCreate} themeColor="primary">Create New Subscriber</Button>
+          <DatePicker
+            placeholder="Filter by date..."
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.value)}
+            format="yyyy-MM-dd"
+          />
+          <Button onClick={handleCreate} themeColor="primary">Create New Search Definition</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
@@ -203,9 +236,13 @@ const SubscriberGrid = () => {
             pageSize: 10
           }}
         >
-          <GridColumn field="name" title="Subscriber Name" />
-          <GridColumn field="id" title="Subscriber ID" />
-          
+          <GridColumn field="name" title="Name" width="200px" />
+          <GridColumn field="query" title="Query" width="250px" />
+          <GridColumn field="start_date" title="Start"  />
+          <GridColumn field="end_date" title="End"  />
+          <GridColumn field="subscriber_id" title="Subscriber"  />                    
+          <GridColumn field="id" title="Id" />
+          <GridColumn field="comment" title="Comment" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
@@ -215,9 +252,13 @@ const SubscriberGrid = () => {
       )}
 
       {showDialog && (
-        <Dialog title={editSubscriber ? "Edit Subscriber" : "Create New Subscriber"} onClose={() => setShowDialog(false)}>
-          <SubscriberForm 
-            subscriber={editSubscriber}
+        <Dialog 
+          title={editItem ? "Edit Search Definition" : "Create New Search Definition"} 
+          onClose={() => setShowDialog(false)}
+          width={600}
+        >
+          <SearchDefinitionForm 
+            searchDefinition={editItem}
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}
           />
@@ -227,4 +268,4 @@ const SubscriberGrid = () => {
   );
 };
 
-export default SubscriberGrid;
+export default SearchDefinitionGrid;

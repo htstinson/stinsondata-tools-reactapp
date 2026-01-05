@@ -8,6 +8,10 @@ import CustomerGrid from '../customer/CustomerGrid.jsx';
 import ContactGrid from '../contact/ContactGrid.jsx';
 import UserSingleSubscriberGrid from '../user_subscriber/UserSingleSubscriberGrid.jsx';
 import SubscriberItemGrid from '../subscriber_items/SubscriberItemGrid.jsx';
+import SearchEngineGrid from '../searchengines/SearchEnginesGrid.jsx';
+import SearchDefinitionGrid from '../search_definitions/SearchDefinitionGrid.jsx';
+import SearchDefinitionEngineGrid from '../search_definition_engines/SearchDefinitionEnginesGrid.jsx';
+
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -50,7 +54,9 @@ const Dashboard = () => {
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         {/* Pass callback to UserSingleSubscriberGrid */}
-        <UserSingleSubscriberGrid onSubscriptionSelect={handleSubscriptionSelect} />
+        <UserSingleSubscriberGrid 
+          onSubscriptionSelect={handleSubscriptionSelect} 
+        />
         
         {/* Pass selected subscription to CustomerGrid */}
         <CustomerGrid 
@@ -64,6 +70,18 @@ const Dashboard = () => {
         <SubscriberItemGrid 
           selectedSubscription={selectedSubscription}
           onSubscriptionSelect={handleSubscriptionSelect}
+        />
+
+        <SearchEngineGrid
+          selectedSubscription={selectedSubscription}
+        />
+
+        <SearchDefinitionGrid
+          selectedSubscription={selectedSubscription}
+        />
+
+        <SearchDefinitionEngineGrid
+          selectedSubscription={selectedSubscription}
         />
 
       </main>
