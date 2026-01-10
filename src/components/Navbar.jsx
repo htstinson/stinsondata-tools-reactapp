@@ -297,7 +297,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <span className="text-xl font-bold">Your Logo</span>
+            <img src='/src/assets/logo.png' width="65" height="49" alt="Description"/>
           </div>
           
           {/* Desktop Menu */}

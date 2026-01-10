@@ -132,9 +132,8 @@ const SearchEngineGrid = ({ selectedSubscription }) => {
           headers: {
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify(dataItem)
         });
-
+        
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }

@@ -86,11 +86,19 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription }) => {
 
   const handleSubmit = async (searchDefinitionEngine) => {
     try {
+
+      searchDefinitionEngine.subscriber_id = selectedSubscription.subscriber_id
+
+      alert(JSON.stringify(searchDefinitionEngine))
+
       const token = localStorage.getItem('token');
       const method = searchDefinitionEngine.id ? 'PUT' : 'POST';
       const url = searchDefinitionEngine.id 
         ? `https://thousandhillsdigital.net/api/v1/searchdefinitionengines/${searchDefinitionEngine.id}`
         : 'https://thousandhillsdigital.net/api/v1/searchdefinitionengines';
+
+      alert(url)
+      alert(method)
 
       const response = await fetch(url, {
         method,
@@ -100,6 +108,7 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription }) => {
         },
         body: JSON.stringify(searchDefinitionEngine)
       });
+
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -113,10 +122,12 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription }) => {
   };
 
   const handleDelete = async (dataItem) => {
+    alert(selectedSubscription.subscriber_id)
+    alert(dataItem.id)
     if (window.confirm('Are you sure you want to delete this search definition engine?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://thousandhillsdigital.net/api/v1/searchdefinitionengines/${dataItem.id}`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/searchdefinitionengines/${selectedSubscription.subscriber_id}/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`

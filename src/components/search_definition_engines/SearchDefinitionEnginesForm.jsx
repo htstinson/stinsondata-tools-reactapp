@@ -77,7 +77,7 @@ export const SearchDefinitionEngineForm = ({ searchDefinitionEngine, subscriberI
 
     onSubmit({
       ...searchDefinitionEngine,
-      search_definition_id: selectedSearchDefinition.id,
+      search_definitions_id: selectedSearchDefinition.id,
       search_engine_id: selectedSearchEngine.id,
       subscriber_id: subscriberId
     });

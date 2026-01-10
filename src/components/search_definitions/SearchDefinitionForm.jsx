@@ -5,16 +5,25 @@ import { Input, TextArea } from '@progress/kendo-react-inputs';
 export const SearchDefinitionForm = ({ searchDefinition, onSubmit, onCancel }) => {
   const [name, setName] = useState(searchDefinition?.name || '');
   const [query, setQuery] = useState(searchDefinition?.query || '');
-  const [searchEngineId, setSearchEngineId] = useState(searchDefinition?.search_engine_id || '');
+  const [start_date, setStartDate] = useState(searchDefinition?.start_date || '');
+  const [end_date, setEndDate] = useState(searchDefinition?.end_date || '');
   const [comment, setComment] = useState(searchDefinition?.comment || '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    const [month, day, year] = dateStr.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00Z`;
+  };
+
     onSubmit({ 
       ...searchDefinition, 
       name, 
       query,
-      search_engine_id: searchEngineId,
+      start_date: formatDate(start_date),
+      end_date: formatDate(end_date),
       comment
     });
   };
@@ -44,13 +53,24 @@ export const SearchDefinitionForm = ({ searchDefinition, onSubmit, onCancel }) =
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">Search Engine ID *</label>
+        <label className="block text-sm font-medium text-gray-700">Start Date *</label>
         <Input
-          value={searchEngineId}
-          onChange={(e) => setSearchEngineId(e.value)}
+          value={start_date}
+          onChange={(e) => setStartDate(e.value)}
           required
           className="mt-1"
-          placeholder="e.g., 12345abcde"
+          placeholder="e.g., 01/01/2026"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700">End Date *</label>
+        <Input
+          value={end_date}
+          onChange={(e) => setEndDate(e.value)}
+          required
+          className="mt-1"
+          placeholder="e.g., 01/31/2026"
         />
       </div>
 

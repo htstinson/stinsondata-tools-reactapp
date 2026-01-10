@@ -91,11 +91,16 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
 
   const handleSubmit = async (searchDefinition) => {
     try {
+
       const token = localStorage.getItem('token');
       const method = searchDefinition.id ? 'PUT' : 'POST';
       const url = searchDefinition.id 
         ? `https://thousandhillsdigital.net/api/v1/searchdefinitions/${searchDefinition.id}`
         : 'https://thousandhillsdigital.net/api/v1/searchdefinitions';
+                                                   
+      searchDefinition.subscriber_id = selectedSubscription.subscriber_id
+
+      alert(JSON.stringify(searchDefinition))
 
       const response = await fetch(url, {
         method,
@@ -121,7 +126,7 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
     if (window.confirm('Are you sure you want to delete this search definition?')) {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`https://thousandhillsdigital.net/api/v1/searchdefinitions/${dataItem.id}`, {
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/searchdefinitions/${selectedSubscription.subscriber_id}/${dataItem.id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -139,31 +144,31 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
     }
   };
 
-    const handleTest = async (item) => {
-      try {
-        console.log('test', JSON.stringify({ id: item.id }));
-        const token = localStorage.getItem('token');
-        const method = 'POST';
-        const url = `https://thousandhillsdigital.net/api/v1/test`       
-  
-        const response = await fetch(url, {
-          method,
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-           body: JSON.stringify({ id: item.id, subscriber_id: item.subscriber_id })
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-  
-        setShowDialog(false);
-      } catch (err) {
-        setError(err.message);
+  const handleTest = async (item) => {
+    try {
+      console.log('test', JSON.stringify({ id: item.id }));
+      const token = localStorage.getItem('token');
+      const method = 'POST';
+      const url = `https://thousandhillsdigital.net/api/v1/test`       
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+          body: JSON.stringify({ id: item.id, subscriber_id: item.subscriber_id })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    };
+
+      setShowDialog(false);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   const ActionCell = (props) => {
     return (
@@ -193,6 +198,20 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
     );
   };
 
+  const DateCell = (props) => {
+    const value = props.dataItem[props.field];
+    if (!value) return <td></td>;
+    
+    const date = new Date(value);
+    const formatted = date.toISOString('en-US', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
+    }).split('T')[0];
+    
+    return <td>{formatted}</td>;
+  };
+  
   return (
     <div className="px-4 sm:px-0">
       <div className="mb-4 flex justify-between items-center">
@@ -236,18 +255,12 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
             pageSize: 10
           }}
         >
-          <GridColumn field="name" title="Name" width="200px" />
+          <GridColumn field="name" title="Name" width="150px" />
           <GridColumn field="query" title="Query" width="250px" />
-          <GridColumn field="start_date" title="Start"  />
-          <GridColumn field="end_date" title="End"  />
-          <GridColumn field="subscriber_id" title="Subscriber"  />                    
-          <GridColumn field="id" title="Id" />
+          <GridColumn field="start_date" title="Start" cells={{data: DateCell}} width="120px" />
+          <GridColumn field="end_date" title="End" cells={{data: DateCell}} width="120px" />
           <GridColumn field="comment" title="Comment" />
-          <GridColumn 
-            title="Actions" 
-            cell={ActionCell}
-            width="200px"
-          />
+          <GridColumn title="Actions" cells={{data: ActionCell}} width="200px" />
         </Grid>
       )}
 
