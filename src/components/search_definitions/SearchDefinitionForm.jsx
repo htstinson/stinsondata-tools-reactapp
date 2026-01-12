@@ -3,20 +3,42 @@ import { Button } from '@progress/kendo-react-buttons';
 import { Input, TextArea } from '@progress/kendo-react-inputs';
 
 export const SearchDefinitionForm = ({ searchDefinition, onSubmit, onCancel }) => {
+  // Helper function to convert ISO date to MM/DD/YYYY for display
+  const formatDateForDisplay = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr; // Return as-is if invalid
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
   const [name, setName] = useState(searchDefinition?.name || '');
   const [query, setQuery] = useState(searchDefinition?.query || '');
-  const [start_date, setStartDate] = useState(searchDefinition?.start_date || '');
-  const [end_date, setEndDate] = useState(searchDefinition?.end_date || '');
+  const [start_date, setStartDate] = useState(formatDateForDisplay(searchDefinition?.start_date) || '');
+  const [end_date, setEndDate] = useState(formatDateForDisplay(searchDefinition?.end_date) || '');
   const [comment, setComment] = useState(searchDefinition?.comment || '');
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    const [month, day, year] = dateStr.split('/');
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00Z`;
-  };
+    const formatDate = (dateStr) => {
+      if (!dateStr) return '';
+      
+      // Check if already in ISO format
+      if (dateStr.includes('T') && dateStr.includes('Z')) {
+        return dateStr;
+      }
+      
+      // Parse MM/DD/YYYY format
+      const [month, day, year] = dateStr.split('/');
+      if (!month || !day || !year) {
+        console.error('Invalid date format:', dateStr);
+        return '';
+      }
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00Z`;
+    };
 
     onSubmit({ 
       ...searchDefinition, 
@@ -59,7 +81,7 @@ export const SearchDefinitionForm = ({ searchDefinition, onSubmit, onCancel }) =
           onChange={(e) => setStartDate(e.value)}
           required
           className="mt-1"
-          placeholder="e.g., 01/01/2026"
+          placeholder="MM/DD/YYYY"
         />
       </div>
 
@@ -70,7 +92,7 @@ export const SearchDefinitionForm = ({ searchDefinition, onSubmit, onCancel }) =
           onChange={(e) => setEndDate(e.value)}
           required
           className="mt-1"
-          placeholder="e.g., 01/31/2026"
+          placeholder="MM/DD/YYYY"
         />
       </div>
 

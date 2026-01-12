@@ -94,13 +94,9 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
 
       const token = localStorage.getItem('token');
       const method = searchDefinition.id ? 'PUT' : 'POST';
-      const url = searchDefinition.id 
-        ? `https://thousandhillsdigital.net/api/v1/searchdefinitions/${searchDefinition.id}`
-        : 'https://thousandhillsdigital.net/api/v1/searchdefinitions';
+      const url = 'https://thousandhillsdigital.net/api/v1/searchdefinitions'
                                                    
       searchDefinition.subscriber_id = selectedSubscription.subscriber_id
-
-      alert(JSON.stringify(searchDefinition))
 
       const response = await fetch(url, {
         method,
@@ -123,7 +119,7 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
   };
 
   const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this search definition?')) {
+    //if (window.confirm('Are you sure you want to delete this search definition?')) {
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`https://thousandhillsdigital.net/api/v1/searchdefinitions/${selectedSubscription.subscriber_id}/${dataItem.id}`, {
@@ -141,15 +137,15 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
       } catch (err) {
         setError(err.message);
       }
-    }
+    //}
   };
 
-  const handleTest = async (item) => {
+  const handleSearch = async (item) => {
     try {
       console.log('test', JSON.stringify({ id: item.id }));
       const token = localStorage.getItem('token');
       const method = 'POST';
-      const url = `https://thousandhillsdigital.net/api/v1/test`       
+      const url = `https://thousandhillsdigital.net/api/v1/search`       
 
       const response = await fetch(url, {
         method,
@@ -188,7 +184,7 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
           >
             Delete
           </Button>
-           <Button onClick={() => handleTest(props.dataItem)} 
+           <Button onClick={() => handleSearch(props.dataItem)} 
             themeColor="info"
             size="small">
               Test

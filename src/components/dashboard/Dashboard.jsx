@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@progress/kendo-react-buttons';
-import ItemGrid from '../../components/item/ItemGrid.jsx';
-import AccountGrid from '../../components/account/AccountGrid.jsx';
 import Navbar from '../../components/Navbar.jsx';
 import CustomerGrid from '../customer/CustomerGrid.jsx';
 import ContactGrid from '../contact/ContactGrid.jsx';
@@ -11,27 +9,37 @@ import SubscriberItemGrid from '../subscriber_items/SubscriberItemGrid.jsx';
 import SearchEngineGrid from '../searchengines/SearchEnginesGrid.jsx';
 import SearchDefinitionGrid from '../search_definitions/SearchDefinitionGrid.jsx';
 import SearchDefinitionEngineGrid from '../search_definition_engines/SearchDefinitionEnginesGrid.jsx';
-
+import SearchResultsGrid from '../search_results/SearchResultsGrid.jsx'
 
 const Dashboard = () => {
   const navigate = useNavigate();
   
-  // Add state to track the selected subscription
+  // State to track the selected subscription
   const [selectedSubscription, setSelectedSubscription] = useState(null);
   
   // State to track the selected customer
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  
+  // State to track the selected search definition engine
+  const [selectedSearchDefinitionEngine, setSelectedSearchDefinitionEngine] = useState(null);
   
   // Handler for when subscription is selected
   const handleSubscriptionSelect = (subscription) => {
     setSelectedSubscription(subscription);
     // Clear customer selection when subscription changes
     setSelectedCustomer(null);
+    // Clear search definition engine selection when subscription changes
+    setSelectedSearchDefinitionEngine(null);
   };
   
   // Handler for when customer is selected
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
+  };
+  
+  // Handler for when search definition engine is selected
+  const handleSearchDefinitionEngineSelect = (searchDefinitionEngine) => {
+    setSelectedSearchDefinitionEngine(searchDefinitionEngine);
   };
   
   const handleLogout = () => {
@@ -82,6 +90,12 @@ const Dashboard = () => {
 
         <SearchDefinitionEngineGrid
           selectedSubscription={selectedSubscription}
+          onSelectionChange={handleSearchDefinitionEngineSelect}
+        />
+
+        <SearchResultsGrid
+          selectedSubscription={selectedSubscription}
+          selectedSearchDefinitionEngine={selectedSearchDefinitionEngine}
         />
 
       </main>
