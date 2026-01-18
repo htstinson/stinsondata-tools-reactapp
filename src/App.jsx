@@ -15,6 +15,7 @@ import Navbar from './components/Navbar';
 import Customers from './components/customer/Customers';
 
 import { UserProvider, useUser } from './components/UserContext.jsx';
+import { SubscriptionProvider } from './components/Navbar.jsx'; // Add this import
 import JWTDebugger from './components/JWTDebugger'; // Import the debugger component
 
 import './App.css';
@@ -210,28 +211,31 @@ const App = () => {
       <IntlProvider locale="en">
         {/* Wrap everything with UserProvider */}
         <UserProvider>
-          <BrowserRouter>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<PublicLayout />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/contact" element={<ContactUs />} />
-              
-              {/* Debug Route */}
-              <Route path="/debug" element={<DebugPage />} />
-              
-              {/* Protected Routes */}
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-              <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/permissions" element={<ProtectedRoute><Permissions /></ProtectedRoute>} />
-              <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-              <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
+          {/* Add SubscriptionProvider wrapper */}
+          <SubscriptionProvider>
+            <BrowserRouter>
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<PublicLayout />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/contact" element={<ContactUs />} />
+                
+                {/* Debug Route */}
+                <Route path="/debug" element={<DebugPage />} />
+                
+                {/* Protected Routes */}
+                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                <Route path="/permissions" element={<ProtectedRoute><Permissions /></ProtectedRoute>} />
+                <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+                <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
 
-              {/* Catch all unmatched routes */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </BrowserRouter>
+                {/* Catch all unmatched routes */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
+          </SubscriptionProvider>
         </UserProvider>
       </IntlProvider>
     </LocalizationProvider>

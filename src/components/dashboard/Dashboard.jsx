@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@progress/kendo-react-buttons';
+import { Menu, X, ChevronRight } from 'lucide-react';
 import Navbar from '../../components/Navbar.jsx';
+
 import CustomerGrid from '../customer/CustomerGrid.jsx';
 import ContactGrid from '../contact/ContactGrid.jsx';
-import UserSingleSubscriberGrid from '../user_subscriber/UserSingleSubscriberGrid.jsx';
 import SubscriberItemGrid from '../subscriber_items/SubscriberItemGrid.jsx';
 import SearchEngineGrid from '../searchengines/SearchEnginesGrid.jsx';
 import SearchDefinitionGrid from '../search_definitions/SearchDefinitionGrid.jsx';
 import SearchDefinitionEngineGrid from '../search_definition_engines/SearchDefinitionEnginesGrid.jsx';
 import SearchResultsGrid from '../search_results/SearchResultsGrid.jsx'
+import MentionsGrid from '../mentions/MentionsGrid.jsx'
+import { useSubscription } from '../../components/Navbar.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   
-  // State to track the selected subscription
-  const [selectedSubscription, setSelectedSubscription] = useState(null);
+  // Sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('customers');
+  
+  // Get selected subscription from context
+  const { selectedSubscription, selectSubscription } = useSubscription();
   
   // State to track the selected customer
   const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -23,12 +29,22 @@ const Dashboard = () => {
   // State to track the selected search definition engine
   const [selectedSearchDefinitionEngine, setSelectedSearchDefinitionEngine] = useState(null);
   
+  // Log the subscription when component mounts or when it changes
+  useEffect(() => {
+    if (selectedSubscription) {
+      console.log('Dashboard loaded with subscription:', selectedSubscription);
+      console.log('Subscriber ID:', selectedSubscription.subscriber_id);
+      console.log('Subscriber Name:', selectedSubscription.subscriber_name);
+    }
+  }, [selectedSubscription]);
+  
   // Handler for when subscription is selected
   const handleSubscriptionSelect = (subscription) => {
-    setSelectedSubscription(subscription);
-    // Clear customer selection when subscription changes
+    selectSubscription({
+      subscriber_id: subscription.subscriber_id,
+      subscriber_name: subscription.subscriber_name
+    });
     setSelectedCustomer(null);
-    // Clear search definition engine selection when subscription changes
     setSelectedSearchDefinitionEngine(null);
   };
   
@@ -41,63 +57,170 @@ const Dashboard = () => {
   const handleSearchDefinitionEngineSelect = (searchDefinitionEngine) => {
     setSelectedSearchDefinitionEngine(searchDefinitionEngine);
   };
-  
+
+  const menuItems = [
+    { id: 'customers', label: 'Customers', icon: '👥' },
+    { id: 'contacts', label: 'Contacts', icon: '📇' },
+    { id: 'subscriber-items', label: 'Subscriber Items', icon: '📦' },
+    { id: 'search-engines', label: 'Search Engines', icon: '🔍' },
+    { id: 'search-definitions', label: 'Search Definitions', icon: '📋' },
+    { id: 'search-definition-engines', label: 'Search Definition-Engines', icon: '📋' },
+    { id: 'search-results', label: 'Search Results', icon: '📊' },
+    { id: 'mentions', label: 'Mentions', icon: '💬' },
+  ];
+
+  const handleMenuClick = (itemId) => {
+    setActiveSection(itemId);
+    
+    // On mobile, close sidebar after selection
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     navigate('/');
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="bg-white shadow mb-4 pt-0 fixed top-16 left-0 right-0 z-20 transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'ml-0'}" >
+ 
+      {/* Original Navbar Component */}
       <Navbar />
-      <nav className="bg-white shadow mb-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
+      
+      {/* Dashboard Header with Sidebar Toggle - Below original navbar */}
+      <nav className={`bg-white shadow mb-4 pt-0 fixed top-16 left-0 right-0 z-20 transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'ml-0'}`}>
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-start h-16">
+            <div className="flex items-center gap-4">
+              {/* Sidebar Toggle Button */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Toggle sidebar"
+              >
+                {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+              
               <h1 className="text-xl font-bold">Dashboard</h1>
+              {selectedSubscription && (
+                <span className="ml-4 text-sm text-gray-600 hidden sm:inline">
+                  Current Subscription: <span className="font-semibold text-blue-600">{selectedSubscription.subscriber_name}</span>
+                </span>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Pass callback to UserSingleSubscriberGrid */}
-        <UserSingleSubscriberGrid 
-          onSubscriptionSelect={handleSubscriptionSelect} 
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
         />
-        
-        {/* Pass selected subscription to CustomerGrid */}
-        <CustomerGrid 
-          selectedSubscription={selectedSubscription}
-          onCustomerSelect={handleCustomerSelect} 
-        />
-        
-        {/* Pass selected customer to ContactGrid */}
-        <ContactGrid selectedCustomer={selectedCustomer} />
+      )}
 
-        <SubscriberItemGrid 
-          selectedSubscription={selectedSubscription}
-          onSubscriptionSelect={handleSubscriptionSelect}
-        />
+      {/* Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-40 transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } w-64`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Sidebar Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="text-lg font-semibold text-gray-800">Navigation</h2>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="p-1 rounded-lg hover:bg-gray-100 transition-colors lg:hidden"
+            >
+              <X size={20} />
+            </button>
+          </div>
 
-        <SearchEngineGrid
-          selectedSubscription={selectedSubscription}
-        />
+          {/* Menu Items */}
+          <nav className="flex-1 overflow-y-auto p-4">
+            <ul className="space-y-2">
+              {menuItems.map((item) => (
+                <li key={item.id}>
+                  <button
+                    onClick={() => handleMenuClick(item.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                      activeSection === item.id
+                        ? 'bg-blue-50 text-blue-600 font-medium'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <span className="text-xl">{item.icon}</span>
+                    <span className="flex-1 text-left">{item.label}</span>
+                    {activeSection === item.id && <ChevronRight size={18} />}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
-        <SearchDefinitionGrid
-          selectedSubscription={selectedSubscription}
-        />
+          {/* Sidebar Footer */}
+          <div className="p-4 border-t">
+            <div className="text-xs text-gray-500">
+              Active: <span className="font-medium text-gray-700">{menuItems.find(item => item.id === activeSection)?.label}</span>
+            </div>
+          </div>
+        </div>
+      </aside>
 
-        <SearchDefinitionEngineGrid
-          selectedSubscription={selectedSubscription}
-          onSelectionChange={handleSearchDefinitionEngineSelect}
-        />
+      {/* Main Content */}
+      <main className={`pt-12 transition-all duration-300 ${sidebarOpen ? 'lg:ml-64' : 'ml-0'}`}>
+        <div className="flex justify-start h-4 bg bg-white py-0 px-0 sm:px-6 lg:px-4">
+          
+          {/* All grids remain mounted, only display changes */}
+          <div className={`bg-green-500 ${activeSection === 'customers' ? 'block' : 'hidden'} pt-4`}>
+            <CustomerGrid 
+              selectedSubscription={selectedSubscription}
+              onCustomerSelect={handleCustomerSelect} 
+            />
+          </div>
 
-        <SearchResultsGrid
-          selectedSubscription={selectedSubscription}
-          selectedSearchDefinitionEngine={selectedSearchDefinitionEngine}
-        />
+          <div className={`${activeSection === 'contacts' ? 'block' : 'hidden'} pt-4`}>
+            <ContactGrid selectedCustomer={selectedCustomer} />
+          </div>
 
+          <div className={`${activeSection === 'subscriber-items' ? 'block' : 'hidden'} pt-4`}>
+            <SubscriberItemGrid 
+              selectedSubscription={selectedSubscription}
+              onSubscriptionSelect={handleSubscriptionSelect}
+            />
+          </div>
+
+          <div className={`${activeSection === 'search-engines' ? 'block' : 'hidden'} pt-4`}>
+            <SearchEngineGrid selectedSubscription={selectedSubscription} />
+          </div>
+
+          <div className={`${activeSection === 'search-definitions' ? 'block' : 'hidden'} pt-4`}>
+            <SearchDefinitionGrid selectedSubscription={selectedSubscription} />
+          </div>
+
+          <div className={`${activeSection === 'search-definition-engines' ? 'block' : 'hidden'} pt-4`}>
+            <SearchDefinitionEngineGrid 
+              selectedSubscription={selectedSubscription}
+              onSelectionChange={handleSearchDefinitionEngineSelect} 
+            />
+          </div>
+
+          <div className={`${activeSection === 'search-results' ? 'block' : 'hidden'} pt-4`}>
+            <SearchResultsGrid
+              selectedSubscription={selectedSubscription}
+              selectedSearchDefinitionEngine={selectedSearchDefinitionEngine}
+            />
+          </div>
+
+          <div className={`${activeSection === 'mentions' ? 'block' : 'hidden'} pt-4`}>
+            <MentionsGrid />
+          </div>
+          
+        </div>
       </main>
     </div>
   );

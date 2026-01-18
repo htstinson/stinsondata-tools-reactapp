@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, Home, Info, Phone, BarChart, Users, LogOut, User, Settings } from 'lucide-react';
+import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import { Megaphone, Ruler, Menu, X, Home, Info, Phone, BarChart, Users, LogOut, User, Settings, ChevronDown, Shield, Database, FileText, UserCog, Package, BadgePlus, Sprout, Box, Layers } from 'lucide-react';
 
 import { UserContext, useUser } from './UserContext.jsx'; 
 
@@ -66,6 +66,343 @@ export const UserIpProvider = ({ children }) => {
     <UserIpContext.Provider value={{ userIp, isLoading, error }}>
       {children}
     </UserIpContext.Provider>
+  );
+};
+
+// Create Subscription Context
+const SubscriptionContext = createContext(null);
+
+// Custom hook to use subscription context
+export const useSubscription = () => useContext(SubscriptionContext);
+
+// Subscription provider component
+export const SubscriptionProvider = ({ children }) => {
+  const [selectedSubscription, setSelectedSubscription] = useState(null);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('selectedSubscription');
+    if (saved) {
+      try {
+        setSelectedSubscription(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error loading saved subscription:', e);
+      }
+    }
+  }, []);
+
+  // Save to localStorage whenever it changes
+  const selectSubscription = (subscription) => {
+    setSelectedSubscription(subscription);
+    if (subscription) {
+      localStorage.setItem('selectedSubscription', JSON.stringify(subscription));
+    } else {
+      localStorage.removeItem('selectedSubscription');
+    }
+  };
+
+  return (
+    <SubscriptionContext.Provider value={{ selectedSubscription, selectSubscription }}>
+      {children}
+    </SubscriptionContext.Provider>
+  );
+};
+
+// Subscriptions Dropdown Component with Dynamic Loading
+const SubscriptionsDropdown = ({ isMobile = false }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [subscriptions, setSubscriptions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const dropdownRef = useRef(null);
+  const userContext = useUser();
+  const { selectSubscription } = useSubscription();
+
+  // Handle subscription selection
+  const handleSubscriptionClick = (subscription) => {
+    setIsOpen(false);
+    
+    // Save the entire subscription object to context
+    selectSubscription({
+      subscriber_id: subscription.id,
+      subscriber_name: subscription.name
+    });
+    
+    console.log('Subscription selected:', subscription);
+    
+    // Navigate to dashboard
+    window.location.href = '/dashboard';
+  };
+
+  // Fetch subscriptions from API
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      const currentUser = userContext?.currentUser;
+      if (!currentUser) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
+        // Fetch subscriptions for the current user
+        const response = await fetch(`https://thousandhillsdigital.net/api/v1/usersubscriberview/user/${currentUser.user_id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Subscriptions loaded:', data);
+        
+        // Transform the data to match the dropdown format
+        const subscriptionLinks = data.map(sub => ({
+          name: sub.subscriber_name,
+          icon: Layers,
+          id: sub.subscriber_id
+        }));
+
+        setSubscriptions(subscriptionLinks);
+      } catch (err) {
+        console.error('Error fetching subscriptions:', err);
+        setError(err.message);
+        setSubscriptions([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubscriptions();
+  }, [userContext]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  if (isMobile) {
+    return (
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 w-full px-3 py-2 rounded-md text-base font-medium flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <Layers size={18} />
+            <span>Subscriptions</span>
+          </div>
+          <ChevronDown 
+            size={18} 
+            className={`transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
+        
+        {isOpen && (
+          <div className="pl-8 mt-1 space-y-1">
+            {loading ? (
+              <div className="px-3 py-2 text-sm text-gray-500">Loading subscriptions...</div>
+            ) : error ? (
+              <div className="px-3 py-2 text-sm text-red-500">Failed to load subscriptions</div>
+            ) : subscriptions.length === 0 ? (
+              <div className="px-3 py-2 text-sm text-gray-500">No subscriptions available</div>
+            ) : (
+              subscriptions.map((link) => (
+                <button
+                  key={link.id}
+                  onClick={() => handleSubscriptionClick(link)}
+                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 block px-3 py-2 rounded-md text-sm w-full text-left"
+                >
+                  {link.name}
+                </button>
+              ))
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="relative"
+      ref={dropdownRef}
+    >
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="text-blue-600 hover:text-blue-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1 transition-colors"
+      >
+        <Layers size={18} />
+        <span>Subscriptions</span>
+        <ChevronDown 
+          size={16} 
+          className={`transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50 animate-fadeIn">
+          <div className="px-3 py-2 border-b border-gray-100">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              My Subscriptions
+            </p>
+          </div>
+          {loading ? (
+            <div className="px-4 py-3 text-sm text-gray-500">Loading subscriptions...</div>
+          ) : error ? (
+            <div className="px-4 py-3 text-sm text-red-500">Failed to load subscriptions</div>
+          ) : subscriptions.length === 0 ? (
+            <div className="px-4 py-3 text-sm text-gray-500">No subscriptions available</div>
+          ) : (
+            subscriptions.map((link, index) => (
+              <button
+                key={link.id}
+                onClick={() => handleSubscriptionClick(link)}
+                className="w-full text-left block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-3 group/item"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <link.icon 
+                  size={18} 
+                  className="text-gray-400 group-hover/item:text-blue-600 transition-colors"
+                />
+                <span>{link.name}</span>
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Admin Dropdown Component
+const AdminDropdown = ({ isMobile = false }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const adminLinks = [
+    { name: 'User Management', href: '/admin', icon: Users },
+    { name: 'System Settings', href: '/admin/settings', icon: Settings },
+    { name: 'Database', href: '/admin/database', icon: Database },
+    { name: 'Reports', href: '/admin/reports', icon: FileText },
+    { name: 'Permissions', href: '/admin/permissions', icon: Shield },
+  ];
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  if (isMobile) {
+    return (
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 w-full px-3 py-2 rounded-md text-base font-medium flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <Shield size={18} />
+            <span>Admin</span>
+          </div>
+          <ChevronDown 
+            size={18} 
+            className={`transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          />
+        </button>
+        
+        {isOpen && (
+          <div className="pl-8 mt-1 space-y-1">
+            {adminLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 block px-3 py-2 rounded-md text-sm flex items-center gap-2"
+              >
+                <link.icon size={16} />
+                {link.name}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="relative"
+      ref={dropdownRef}
+    >
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="text-blue-600 hover:text-blue-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1 transition-colors"
+      >
+        <Shield size={18} />
+        <span>Admin</span>
+        <ChevronDown 
+          size={16} 
+          className={`transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50 animate-fadeIn">
+          <div className="px-3 py-2 border-b border-gray-100">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Administration
+            </p>
+          </div>
+          {adminLinks.map((link, index) => (
+            <a
+              key={link.name}
+              href={link.href}
+              className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-3 group/item"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <link.icon 
+                size={18} 
+                className="text-gray-400 group-hover/item:text-blue-600 transition-colors"
+              />
+              <span>{link.name}</span>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -206,11 +543,12 @@ const Navbar = () => {
     { name: 'Home', href: '/', icon: Home, access: "public" },
     { name: 'About', href: '/about', icon: Info },
     { name: 'Dashboard', href: '/dashboard', icon: BarChart, requiredRoles: ["Root","Global_Admin","Org_Admin","Standard_User"] },
+    { name: 'Subscriptions', href: '/subscriptions', icon: Layers, requiredRoles: ["Root","Global_Admin","Org_Admin","Standard_User"] },
     { name: 'Contact', href: '/contact', icon: Phone, access: "public" },
     { name: 'Admin', href: '/admin', requiredRoles: ["Root"]}
   ];
 
-  const currentUser = userContext.currentUser;
+  const currentUser = userContext?.currentUser;
 
   const shouldShowNavItem = (item, currentUser) => {
     // Public items are always visible
@@ -293,8 +631,24 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-out;
+        }
+      `}</style>
+      
+      <div className="max-w-6xl px-4">
+        <div className="flex justify-start items-center h-16 gap-8">
           {/* Logo */}
           <div className="flex-shrink-0">
             <img src='/src/assets/logo.png' width="65" height="49" alt="Description"/>
@@ -305,16 +659,24 @@ const Navbar = () => {
             <div className="flex space-x-8">
             {navItems
               .filter(item => shouldShowNavItem(item, currentUser))
-              .map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
-                >
-                  {item.icon && <item.icon size={18} />}
-                  {item.name}
-                </a>
-              ))}
+              .map((item) => {
+                if (item.name === 'Admin') {
+                  return <AdminDropdown key={item.name} />;
+                } else if (item.name === 'Subscriptions') {
+                  return <SubscriptionsDropdown key={item.name} />;
+                } else {
+                  return (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+                    >
+                      {item.icon && <item.icon size={18} />}
+                      {item.name}
+                    </a>
+                  );
+                }
+              })}
             </div>
             
             <div className="ml-8 border-l border-gray-200 pl-6">
@@ -338,16 +700,26 @@ const Navbar = () => {
         {isOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
-              {navItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium flex items-center gap-2"
-                >
-                  {item.icon && <item.icon size={18} />}
-                  {item.name}
-                </a>
-              ))}
+              {navItems
+                .filter(item => shouldShowNavItem(item, currentUser))
+                .map((item) => {
+                  if (item.name === 'Admin') {
+                    return <AdminDropdown key={item.name} isMobile={true} />;
+                  } else if (item.name === 'Subscriptions') {
+                    return <SubscriptionsDropdown key={item.name} isMobile={true} />;
+                  } else {
+                    return (
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium flex items-center gap-2"
+                      >
+                        {item.icon && <item.icon size={18} />}
+                        {item.name}
+                      </a>
+                    );
+                  }
+                })}
             </div>
           </div>
         )}
@@ -359,8 +731,10 @@ const Navbar = () => {
 // Export the wrapped components
 export default function NavbarWithProviders() {
   return (
-    <UserIpProvider>
-      <Navbar />
-    </UserIpProvider>
+    <SubscriptionProvider>
+      <UserIpProvider>
+        <Navbar />
+      </UserIpProvider>
+    </SubscriptionProvider>
   );
 }

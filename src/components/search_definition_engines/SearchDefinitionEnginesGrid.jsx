@@ -193,7 +193,7 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange })
   };
 
   return (
-    <div className="px-4 sm:px-0">
+    <div className="px-4 sm:px-0 mt-8">
       <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-bold">Search Definition Engines</h2>
         <div className="flex items-center space-x-4">
