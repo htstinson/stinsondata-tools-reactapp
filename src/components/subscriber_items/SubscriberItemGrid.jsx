@@ -249,8 +249,9 @@ const SubscriberItemGrid = ({ selectedSubscription, onSubscriptionSelect }) => {
   return (
     <div className="px-4 sm:px-0 mt-8">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Subscriber Items</h2>
-   
+       <h2 className="text-2xl font-bold">
+          Services {selectedSubscription && `for ${selectedSubscription.subscriber_name || selectedSubscription.name}`}
+        </h2>
         <div className="flex items-center space-x-4">
           <Button 
             onClick={handleCreate} 
@@ -289,7 +290,6 @@ const SubscriberItemGrid = ({ selectedSubscription, onSubscriptionSelect }) => {
             pageSize: 10
           }}
         >
-          <GridColumn field="subscriber_name" title="Subscriber" width="250px" />
           <GridColumn field="item_name" title="Item" width="250px" />
           <GridColumn field="created_at" title="Created" width="200px" cell={DateCell} />
           <GridColumn title="Actions"  cell={ActionCell} width="200px" />

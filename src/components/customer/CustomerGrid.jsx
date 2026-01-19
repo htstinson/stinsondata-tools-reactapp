@@ -159,43 +159,41 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add s
     setShowDialog(true);
   };
 
-  const handleSubmit = async (customer) => {
-    try {
-      const token = localStorage.getItem('token');
-      const method = customer.id ? 'PUT' : 'POST';
-      const isEdit = !!customer.id;
+ const handleSubmit = async (customer) => {
+  try {
+    const token = localStorage.getItem('token');
+    const method = customer.id ? 'PUT' : 'POST';
+    const isEdit = !!customer.id;
 
-      const url = 'https://thousandhillsdigital.net/api/v1/subscriber/customer';
-      
-      customer.subscriber_id = userContext.currentUser.subscribed[0].subscriber_id;
+    const url = 'https://thousandhillsdigital.net/api/v1/subscriber/customer';
+    
+    // FIX: Use selectedSubscription instead of userContext
+    customer.subscriber_id = selectedSubscription.subscriber_id;
 
-      console.log('UPDATE',customer);
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(customer)
+    });
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(customer)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      setShowDialog(false);
-      fetchData();
-      
-      // Show success notification
-      const actionText = isEdit ? 'updated' : 'created';
-      showNotificationDialog(`Customer ${actionText} successfully!`, 'success');
-      
-    } catch (err) {
-      setError(err.message);
-      showNotificationDialog(`Error saving customer: ${err.message}`, 'error');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+
+    setShowDialog(false);
+    fetchData();
+    
+    const actionText = isEdit ? 'updated' : 'created';
+    showNotificationDialog(`Customer ${actionText} successfully!`, 'success');
+    
+  } catch (err) {
+    setError(err.message);
+    showNotificationDialog(`Error saving customer: ${err.message}`, 'error');
+  }
+};
 
   const handleDelete = (customer) => {
     setCustomerToDelete(customer);
