@@ -3,6 +3,8 @@ import { Megaphone, Ruler, Menu, X, Home, Info, Phone, BarChart, Users, LogOut, 
 
 import { UserContext, useUser } from './UserContext.jsx'; 
 
+import logo from '../assets/logo.png'; // adjust path relative to this file
+
 // Create a new context for the user IP
 const UserIpContext = React.createContext(null);
 
@@ -650,7 +652,7 @@ const Navbar = () => {
         <div className="flex justify-start items-center h-16 gap-8">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <img src='/src/assets/logo.png' width="65" height="49" alt="Description"/>
+            <img src={logo} width="65" height="49" alt="Description"/>
           </div>
           
           {/* Desktop Menu */}
