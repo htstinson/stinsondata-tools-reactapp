@@ -142,6 +142,7 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
 
   const handleSearch = async (item) => {
     try {
+      alert('Search Started.')
       console.log('test', JSON.stringify({ id: item.id }));
       const token = localStorage.getItem('token');
       const method = 'POST';
@@ -187,7 +188,7 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
            <Button onClick={() => handleSearch(props.dataItem)} 
             themeColor="info"
             size="small">
-              Test
+              Start Search
             </Button>
         </div>
       </td>
@@ -258,7 +259,7 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
           <GridColumn field="start_date" title="Start" cells={{data: DateCell}} width="120px" />
           <GridColumn field="end_date" title="End" cells={{data: DateCell}} width="120px" />
           <GridColumn field="comment" title="Comment" />
-          <GridColumn title="Actions" cells={{data: ActionCell}} width="200px" />
+          <GridColumn title="Actions" cells={{data: ActionCell}} width="250px" />
         </Grid>
       )}
 

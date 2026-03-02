@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
-import { Dialog } from '@progress/kendo-react-dialogs';
+import { Dialog, DialogActionsBar } from '@progress/kendo-react-dialogs';
 import { SearchDefinitionEngineForm } from './SearchDefinitionEnginesForm';
+import SearchResultsGrid from '../search_results/SearchResultsGrid';
 
 const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange }) => {
   const [data, setData] = useState([]);
@@ -12,61 +13,65 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange })
   const [editItem, setEditItem] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedState, setSelectedState] = useState({});
+  
+  // NEW: State for showing results modal
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [selectedItemForResults, setSelectedItemForResults] = useState(null);
 
   const fetchData = async () => {
-  try {
-    setLoading(true);
-    setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-    if (!selectedSubscription) {
-      console.log('No subscription selected, clearing search definition engine data');
+      if (!selectedSubscription) {
+        console.log('No subscription selected, clearing search definition engine data');
+        setData([]);
+        return;
+      }
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      let url = `https://thousandhillsdigital.net/api/v1/searchdefinitionenginesview/${selectedSubscription.subscriber_id}`;
+      
+      const params = new URLSearchParams();
+      if (sort.length > 0) {
+        params.append('sort', sort[0].field);
+        params.append('order', sort[0].dir);
+      }
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          throw new Error('Session expired. Please login again.');
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const jsonData = await response.json();
+      setData(Array.isArray(jsonData) ? jsonData : []);
+      
+    } catch (err) {
+      setError(err.message);
       setData([]);
-      return;
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
     }
-    
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('No authentication token found');
-    }
-
-    let url = `https://thousandhillsdigital.net/api/v1/searchdefinitionenginesview/${selectedSubscription.subscriber_id}`;
-    
-    const params = new URLSearchParams();
-    if (sort.length > 0) {
-      params.append('sort', sort[0].field);
-      params.append('order', sort[0].dir);
-    }
-    if (params.toString()) {
-      url += `?${params.toString()}`;
-    }
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      if (response.status === 401) {
-        localStorage.removeItem('token');
-        throw new Error('Session expired. Please login again.');
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const jsonData = await response.json();
-    setData(Array.isArray(jsonData) ? jsonData : []); // ✅ Safety check
-    
-  } catch (err) {
-    setError(err.message);
-    setData([]); // ✅ Ensure data is array on error
-    console.error('Error fetching data:', err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchData();
@@ -78,14 +83,12 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange })
 
   const handleSelectionChange = (event) => {
     try {
-      // Kendo Grid uses event.select for the selection state
       const newSelectedState = event.select || {};
       setSelectedState(newSelectedState);
       
       console.log('Selection event:', event);
       console.log('Selected state:', newSelectedState);
       
-      // Find the selected item
       const selectedId = Object.keys(newSelectedState).find(key => newSelectedState[key]);
       
       let selectedItem = null;
@@ -107,6 +110,20 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange })
       console.error('Error in handleSelectionChange:', error);
       setError('Error selecting item: ' + error.message);
     }
+  };
+
+  // NEW: Handler to show results via button
+  const handleShowResults = (item, event) => {
+    // Prevent row selection event from firing
+    event.stopPropagation();
+    
+    setSelectedItemForResults(item);
+    setShowResultsModal(true);
+  };
+
+  // NEW: Handler to close results modal
+  const handleCloseResultsModal = () => {
+    setShowResultsModal(false);
   };
 
   const handleEdit = (dataItem) => {
@@ -174,6 +191,13 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange })
       <td>
         <div className="flex space-x-2">
           <Button 
+            onClick={(e) => handleShowResults(props.dataItem, e)}
+            themeColor="primary"
+            size="small"
+          >
+            Results
+          </Button>
+          <Button 
             onClick={() => handleEdit(props.dataItem)}
             themeColor="info"
             size="small"
@@ -195,9 +219,9 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange })
   return (
     <div className="px-4 sm:px-0 mt-8">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Search Definition Engines</h2>
+        <h2 className="text-2xl font-bold">Jobs</h2>
         <div className="flex items-center space-x-4">
-          <Button onClick={handleCreate} themeColor="primary">Create New</Button>
+          <Button onClick={handleCreate} themeColor="primary">Create Job</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
@@ -241,11 +265,35 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange })
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
-            width="200px"
+            width="300px"
           />
         </Grid>
       )}
 
+      {/* NEW: Results Modal Dialog */}
+      {showResultsModal && selectedItemForResults && (
+        <Dialog 
+          title={`Results for ${selectedItemForResults.search_definition_name} - ${selectedItemForResults.search_engine_name}`}
+          onClose={handleCloseResultsModal}
+          width="90%"
+          height="80%"
+        >
+          <SearchResultsGrid 
+            selectedSearchDefinitionEngine={selectedItemForResults}
+            selectedSubscription={selectedSubscription}
+          />
+          <DialogActionsBar>
+            <Button 
+              onClick={handleCloseResultsModal}
+              themeColor="primary"
+            >
+              Close
+            </Button>
+          </DialogActionsBar>
+        </Dialog>
+      )}
+
+      {/* Form Dialog */}
       {showDialog && (
         <Dialog 
           title={editItem ? "Edit Search Definition Engine" : "Create New Search Definition Engine"} 

@@ -52,11 +52,27 @@ const SearchResultsGrid = ({ selectedSearchDefinitionEngine, selectedSubscriptio
       }
 
       const jsonData = await response.json();
-      setData(jsonData);
+      
+      // Debug log to see what we're receiving
+      console.log('API Response:', jsonData, 'Type:', typeof jsonData, 'Is Array:', Array.isArray(jsonData));
+      
+      // Handle different response formats
+      if (Array.isArray(jsonData)) {
+        setData(jsonData);
+      } else if (jsonData && Array.isArray(jsonData.results)) {
+        setData(jsonData.results);
+      } else if (jsonData && Array.isArray(jsonData.data)) {
+        setData(jsonData.data);
+      } else {
+        // If response is not in expected format, default to empty array
+        console.warn('Unexpected response format, setting empty array');
+        setData([]);
+      }
 
     } catch (err) {
       setError(err.message);
       console.error('Error fetching search results:', err);
+      setData([]); // Ensure data is empty array on error
     } finally {
       setLoading(false);
     }
@@ -68,6 +84,22 @@ const SearchResultsGrid = ({ selectedSearchDefinitionEngine, selectedSubscriptio
 
   const handleSortChange = (e) => {
     setSort(e.sort);
+  };
+
+  const handleLinkClick = (e, url) => {
+    e.preventDefault();
+    
+    // Open in a popup window
+    const width = 1200;
+    const height = 800;
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+    
+    window.open(
+      url,
+      '_blank',
+      `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,status=no`
+    );
   };
 
   if (!selectedSearchDefinitionEngine) {
@@ -106,7 +138,7 @@ const SearchResultsGrid = ({ selectedSearchDefinitionEngine, selectedSubscriptio
             Try Again
           </button>
         </div>
-      ) : data.length === 0 ? (
+      ) : !Array.isArray(data) || data.length === 0 ? (
         <div className="text-center p-8 bg-gray-50 border border-gray-200 rounded">
           <p className="text-gray-600">No search results found</p>
         </div>
@@ -128,20 +160,21 @@ const SearchResultsGrid = ({ selectedSearchDefinitionEngine, selectedSubscriptio
           <GridColumn field="title" title="Title" />
           <GridColumn field="link" title="URL" 
             cell={(props) => (
-            <td>
-            <a 
-                href={props.dataItem.link} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 underline"
-            >
-                {props.dataItem.link}
-            </a>
-            </td>
-            )} />
+              <td>
+                <a 
+                  href={props.dataItem.link} 
+                  onClick={(e) => handleLinkClick(e, props.dataItem.link)}
+                  className="text-blue-600 hover:text-blue-800 underline cursor-pointer"
+                >
+                  {props.dataItem.link}
+                </a>
+              </td>
+            )} 
+          />
           <GridColumn field="snippet" title="Snippet" />
           <GridColumn field="published" title="Published" width="100px"
-            cell={(props) => ( <td>{new Date(props.dataItem.published).toLocaleDateString()}</td> )} />
+            cell={(props) => ( <td>{new Date(props.dataItem.published).toLocaleDateString()}</td> )} 
+          />
           <GridColumn 
             field="search_time" 
             title="Search Date" 

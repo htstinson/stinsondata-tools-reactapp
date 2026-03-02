@@ -4,17 +4,22 @@ import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog, DialogActionsBar } from '@progress/kendo-react-dialogs';
 import { CustomerForm } from './CustomerForm';
+import ContactGrid from '../contact/ContactGrid'; // Import ContactGrid
 import { UserContext, useUser } from '../UserContext.jsx'; 
 
-const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add selectedSubscription prop
+const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);  // Changed to false initially
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [sort, setSort] = useState([]);
   const [editCustomer, setEditCustomer] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
+  
+  // NEW: State for showing contacts modal
+  const [showContactsModal, setShowContactsModal] = useState(false);
+  const [selectedCustomerForContacts, setSelectedCustomerForContacts] = useState(null);
   
   // Notification dialog state
   const [showNotification, setShowNotification] = useState(false);
@@ -50,7 +55,6 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add s
   };
   
   const fetchData = async () => {
-    // Don't fetch if no subscription is selected
     if (!selectedSubscription) {
       console.log('No subscription selected, clearing customer data');
       setData([]);
@@ -83,9 +87,7 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add s
         url += `?${params.toString()}`;
       }
 
-      // Include subscription info in request body
       const requestBody = {
-       // ...currentUser,
         id: selectedSubscription.subscriber_id || selectedSubscription.id
       };
 
@@ -126,12 +128,11 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add s
   useEffect(() => {
     console.log('selectedSubscription changed:', selectedSubscription);
     fetchData();
-    // Clear customer selection when subscription changes
     setSelectedCustomerId(null);
     if (onCustomerSelect) {
       onCustomerSelect(null);
     }
-  }, [selectedSubscription, sort]);  // Add selectedSubscription to dependencies
+  }, [selectedSubscription, sort]);
 
   const handleSortChange = (e) => {
     setSort(e.sort);
@@ -143,10 +144,26 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add s
     
     console.log('Customer selected:', customer);
     
-    // Call the parent callback to update contacts
+    // Call the parent callback if needed
     if (onCustomerSelect) {
       onCustomerSelect(customer);
     }
+  };
+
+  // NEW: Handler to show contacts via button
+  const handleShowContacts = (customer, event) => {
+    // Prevent row click event from firing
+    event.stopPropagation();
+    
+    setSelectedCustomerForContacts(customer);
+    setShowContactsModal(true);
+  };
+
+  // NEW: Handler to close contacts modal
+  const handleCloseContactsModal = () => {
+    setShowContactsModal(false);
+    // Optionally clear selection when closing
+    // setSelectedCustomerForContacts(null);
   };
 
   const handleEdit = (dataItem) => {
@@ -159,41 +176,40 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add s
     setShowDialog(true);
   };
 
- const handleSubmit = async (customer) => {
-  try {
-    const token = localStorage.getItem('token');
-    const method = customer.id ? 'PUT' : 'POST';
-    const isEdit = !!customer.id;
+  const handleSubmit = async (customer) => {
+    try {
+      const token = localStorage.getItem('token');
+      const method = customer.id ? 'PUT' : 'POST';
+      const isEdit = !!customer.id;
 
-    const url = 'https://thousandhillsdigital.net/api/v1/subscriber/customer';
-    
-    // FIX: Use selectedSubscription instead of userContext
-    customer.subscriber_id = selectedSubscription.subscriber_id;
+      const url = 'https://thousandhillsdigital.net/api/v1/subscriber/customer';
+      
+      customer.subscriber_id = selectedSubscription.subscriber_id;
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(customer)
-    });
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(customer)
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      setShowDialog(false);
+      fetchData();
+      
+      const actionText = isEdit ? 'updated' : 'created';
+      showNotificationDialog(`Customer ${actionText} successfully!`, 'success');
+      
+    } catch (err) {
+      setError(err.message);
+      showNotificationDialog(`Error saving customer: ${err.message}`, 'error');
     }
-
-    setShowDialog(false);
-    fetchData();
-    
-    const actionText = isEdit ? 'updated' : 'created';
-    showNotificationDialog(`Customer ${actionText} successfully!`, 'success');
-    
-  } catch (err) {
-    setError(err.message);
-    showNotificationDialog(`Error saving customer: ${err.message}`, 'error');
-  }
-};
+  };
 
   const handleDelete = (customer) => {
     setCustomerToDelete(customer);
@@ -234,6 +250,13 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add s
       <td>
         <div className="flex space-x-2">
           <Button 
+            onClick={(e) => handleShowContacts(props.dataItem, e)}
+            themeColor="primary"
+            size="small"
+          >
+            Contacts
+          </Button>
+          <Button 
             onClick={() => handleEdit(props.dataItem)}
             themeColor="info"
             size="small"
@@ -252,7 +275,6 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add s
     );
   };
 
-  // Add selection to data for visual feedback
   const dataWithSelection = data.map(item => ({
     ...item,
     selected: item.id === selectedCustomerId
@@ -313,9 +335,29 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {  // Add s
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
-            width="200px"
+            width="300px"
           />
         </Grid>
+      )}
+
+      {/* NEW: Contacts Modal Dialog */}
+      {showContactsModal && selectedCustomerForContacts && (
+        <Dialog 
+          title={`Contacts for ${selectedCustomerForContacts.name}`}
+          onClose={handleCloseContactsModal}
+          width="90%"
+          height="80%"
+        >
+          <ContactGrid selectedCustomer={selectedCustomerForContacts} />
+          <DialogActionsBar>
+            <Button 
+              onClick={handleCloseContactsModal}
+              themeColor="primary"
+            >
+              Close
+            </Button>
+          </DialogActionsBar>
+        </Dialog>
       )}
 
       {/* Customer Form Dialog */}

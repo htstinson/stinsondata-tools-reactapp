@@ -228,7 +228,7 @@ const SearchEngineGrid = ({ selectedSubscription }) => {
         >
           <GridColumn field="name" title="Name" width="200px" />
           <GridColumn field="search_engine_id" title="CSE" width="300px" />
-          <GridColumn field="id" title="Id" />
+          
           <GridColumn field="comment" title="Comment" />
         
           <GridColumn 

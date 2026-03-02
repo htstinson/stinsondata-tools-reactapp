@@ -4,12 +4,10 @@ import { Menu, X, ChevronRight, ChevronDown } from 'lucide-react';
 import Navbar from '../../components/Navbar.jsx';
 
 import CustomerGrid from '../customer/CustomerGrid.jsx';
-import ContactGrid from '../contact/ContactGrid.jsx';
 import SubscriberItemGrid from '../subscriber_items/SubscriberItemGrid.jsx';
 import SearchEngineGrid from '../searchengines/SearchEnginesGrid.jsx';
 import SearchDefinitionGrid from '../search_definitions/SearchDefinitionGrid.jsx';
 import SearchDefinitionEngineGrid from '../search_definition_engines/SearchDefinitionEnginesGrid.jsx';
-import SearchResultsGrid from '../search_results/SearchResultsGrid.jsx'
 import MentionsGrid from '../mentions/MentionsGrid.jsx'
 import { useSubscription } from '../../components/Navbar.jsx';
 
@@ -24,7 +22,7 @@ const Dashboard = () => {
   // Get selected subscription from context
   const { selectedSubscription, selectSubscription } = useSubscription();
   
-  // State to track the selected customer
+  // State to track the selected customer (still needed for CustomerGrid callback)
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   
   // State to track the selected search definition engine
@@ -49,7 +47,7 @@ const Dashboard = () => {
     setSelectedSearchDefinitionEngine(null);
   };
   
-  // Handler for when customer is selected
+  // Handler for when customer is selected (still needed for CustomerGrid)
   const handleCustomerSelect = (customer) => {
     setSelectedCustomer(customer);
   };
@@ -59,17 +57,16 @@ const Dashboard = () => {
     setSelectedSearchDefinitionEngine(searchDefinitionEngine);
   };
 
+  // REMOVED contacts from topMenuItems
   const topMenuItems = [
     { id: 'customers', label: 'Customers', icon: '👥' },
-    { id: 'contacts', label: 'Contacts', icon: '📇' },
     { id: 'subscriber-items', label: 'Services', icon: '📦' },
   ];
 
   const calibrateItems = [
     { id: 'search-engines', label: 'Engines', icon: '🔍' },
-    { id: 'search-definitions', label: 'Definition', icon: '📋' },
-    { id: 'search-definition-engines', label: 'Assignments', icon: '📋' },
-    { id: 'search-results', label: 'Results', icon: '📊' },
+    { id: 'search-definitions', label: 'Definitions', icon: '📋' },
+    { id: 'search-definition-engines', label: 'Jobs', icon: '📋' },
     { id: 'mentions', label: 'Mentions', icon: '💬' },
   ];
 
@@ -107,12 +104,7 @@ const Dashboard = () => {
                 {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
               
-              <h1 className="text-xl font-bold">Dashboard</h1>
-              {selectedSubscription && (
-                <span className="ml-4 text-sm text-gray-600 hidden sm:inline">
-                  Current Subscription: <span className="font-semibold text-blue-600">{selectedSubscription.subscriber_name}</span>
-                </span>
-              )}
+              <h1 className="text-xl font-bold">{selectedSubscription.subscriber_name}</h1>
             </div>
           </div>
         </div>
@@ -233,9 +225,7 @@ const Dashboard = () => {
             />
           </div>
 
-          <div className={`w-full ${activeSection === 'contacts' ? 'block' : 'hidden'} pt-4`}>
-            <ContactGrid selectedCustomer={selectedCustomer} />
-          </div>
+          {/* REMOVED ContactGrid section */}
 
           <div className={`w-full ${activeSection === 'subscriber-items' ? 'block' : 'hidden'} pt-4`}>
             <SubscriberItemGrid 
@@ -256,13 +246,6 @@ const Dashboard = () => {
             <SearchDefinitionEngineGrid 
               selectedSubscription={selectedSubscription}
               onSelectionChange={handleSearchDefinitionEngineSelect} 
-            />
-          </div>
-
-          <div className={`w-full ${activeSection === 'search-results' ? 'block' : 'hidden'} pt-4`}>
-            <SearchResultsGrid
-              selectedSubscription={selectedSubscription}
-              selectedSearchDefinitionEngine={selectedSearchDefinitionEngine}
             />
           </div>
 
