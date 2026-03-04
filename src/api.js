@@ -17,15 +17,20 @@ const apiFetch = async (path, options = {}) => {
     },
   });
 
-  if (response.status === 401) {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-    throw new Error('Session expired. Please login again.');
-  }
+    if (!response.ok) {
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+            throw new Error('Session expired. Please login again.');
+        }
+        
+        if (response.status === 409) {
+            showNotificationDialog('Cannot delete.', 'error');
+            return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
   return response.json();
 };

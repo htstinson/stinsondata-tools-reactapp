@@ -77,10 +77,7 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
       if (!token) {
         throw new Error('No authentication token found');
       }
-  
-      //const url = 'https://thousandhillsdigital.net/api/v1/subscriber/customers'
-      //const url = '/api/v1/subscriber/customers'
-      
+        
       const params = new URLSearchParams();
       if (sort.length > 0) {
         params.append('sort', sort[0].field);
@@ -97,28 +94,7 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
 
       console.log('Request body:', requestBody);
   
-      //const response = await fetch(url, {
-      //  method: 'POST',
-      //  headers: {
-      //    'Authorization': `Bearer ${token}`,
-      //    'Content-Type': 'application/json'
-      //  },
-      //  body: JSON.stringify(requestBody)
-      //});
-
       const jsonData = await api.post('/api/v1/subscriber/customers ', { id: selectedSubscription.subscriber_id });
-
-      
-      //if (!response.ok) {
-      //  if (response.status === 401) {
-      //    localStorage.removeItem('token');
-      //    navigate('/login');
-      //    throw new Error('Session expired. Please login again.');
-      //  }
-      //  throw new Error(`HTTP error! status: ${response.status}`);
-      //}
-      
-      //const jsonData = await response.json();
 
       console.log('Customers loaded:', jsonData);
 
@@ -235,15 +211,8 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
         body: JSON.stringify(customer)
       });
 
-      if (!response.ok) {
-        if (response.status === 409) {
-          showNotificationDialog('Cannot delete customer - there are still contacts associated with this customer. Please delete all contacts first.', 'error');
-          return;
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       fetchData();
+
       showNotificationDialog('Customer deleted successfully!', 'success');
       
     } catch (err) {
