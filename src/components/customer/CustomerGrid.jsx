@@ -202,8 +202,8 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
   const performDelete = async (customer) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://thousandhillsdigital.net/api/v1/subscriber/customerd`, {
-        method: 'POST',
+      const response = await fetch(`https://thousandhillsdigital.net/api/v1/subscriber/customer/${selectedCustomer.subscriber_id}/${selectedCustomer.id}`, {
+        method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
