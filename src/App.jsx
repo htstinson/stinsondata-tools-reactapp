@@ -196,8 +196,8 @@ const PublicLayout = () => {
       </nav>
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 sm:px-0">
-          <h2 className="text-2xl font-bold mb-4">Welcome</h2>
-          <p className="mb-4">Please login to manage your items.</p>
+          <h2 className="text-2xl font-bold mb-4 text-black">Welcome</h2>
+          <p className="mb-4 text-black">Please login to manage your items.</p>
         </div>
       </main>
     </div>

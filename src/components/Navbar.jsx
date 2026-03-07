@@ -474,14 +474,14 @@ const UserDropdown = () => {
             ) : error ? (
               <p className="text-xs text-red-500">{error}</p>
             ) : (
-              <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center">{userIp || 'Not available'}</p>
+              <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center text-black">{userIp || 'Not available'}</p>
             )}
             
             <p className="text-sm font-medium text-gray-700 mt-2">Role:</p>
-            <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center">{userRole}</p>
+            <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center text-black">{userRole}</p>
 
             <p className="text-sm font-medium text-gray-700 mt-2">Subscribed:</p>
-            <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center">
+            <p className="text-xs font-mono bg-gray-50 p-1 rounded text-center text-black">
               {currentUser.subscribed && Array.isArray(currentUser.subscribed) && 
                 currentUser.subscribed.map((subscription, index) => (
                   <React.Fragment key={index}>
