@@ -641,7 +641,7 @@ const Navbar = () => {
         }
       `}</style>
       
-      <div className="max-w-6xl px-4">
+      <div className="w-full">
         <div className="flex justify-start items-center h-16 gap-8">
           {/* Logo */}
           <div className="flex-shrink-0">
