@@ -6,76 +6,52 @@ import { IntlProvider, LocalizationProvider } from '@progress/kendo-react-intl';
 import Dashboard from './components/dashboard/Dashboard.jsx';
 import ContactUs from './components/ContactUs';
 import Users from './components/user/Users';
-//import Roles from './components/roles/Roles.jsx';
 import Profile from './components/user/Profile';
-
 import Admin from './components/admin/Admin';
 import Navbar from './components/Navbar';
-
 import Customers from './components/customer/Customers';
-
 import { UserProvider, useUser } from './components/UserContext.jsx';
-import { SubscriptionProvider } from './components/Navbar.jsx'; // Add this import
-import JWTDebugger from './components/JWTDebugger'; // Import the debugger component
-
+import { SubscriptionProvider } from './components/Navbar.jsx';
+import JWTDebugger from './components/JWTDebugger';
 import './App.css';
 
-// Protected Route Component with useUser integration
+// ─── Background images ────────────────────────────────────────────────────────
+const IMG1 = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80";
+const IMG2 = "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80";
+
+// ─── Protected Route ──────────────────────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
   const { currentUser, loading } = useUser();
-  
-  // Show loading state while checking authentication
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
-  }
-  
-  // Redirect to login if no user found
+  if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
   return currentUser ? children : <Navigate to="/login" replace />;
 };
 
-// Item Edit Form Component
+// ─── Item Edit Form ───────────────────────────────────────────────────────────
 const ItemForm = ({ item, onSubmit, onCancel }) => {
   const [name, setName] = useState(item?.name || '');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit({ ...item, name });
-  };
-
+  const handleSubmit = (e) => { e.preventDefault(); onSubmit({ ...item, name }); };
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700">Name</label>
-        <Input
-          value={name}
-          onChange={(e) => setName(e.value)}
-          required
-          className="mt-1"
-        />
+        <Input value={name} onChange={(e) => setName(e.value)} required className="mt-1" />
       </div>
       <div className="flex justify-end space-x-2">
-        <Button onClick={onCancel} themeColor="light">
-          Cancel
-        </Button>
-        <Button type="submit" themeColor="primary">
-          Save
-        </Button>
+        <Button onClick={onCancel} themeColor="light">Cancel</Button>
+        <Button type="submit" themeColor="primary">Save</Button>
       </div>
     </form>
   );
 };
 
-// Login Component with useUser integration
+// ─── Login ────────────────────────────────────────────────────────────────────
 const Login = () => {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const { login, currentUser } = useUser();
 
   useEffect(() => {
-    // Redirect if already logged in
-    if (currentUser) {
-      navigate('/');
-    }
+    if (currentUser) navigate('/');
   }, [currentUser, navigate]);
 
   const handleLogin = async (e) => {
@@ -83,28 +59,15 @@ const Login = () => {
     const formData = new FormData(e.target);
     const username = formData.get('username');
     const password = formData.get('password');
-
     try {
       const response = await fetch('https://thousandhillsdigital.net/api/v1/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
-
-      if (!response.ok) {
-        console.log(username);
-        console.log(response.status);
-        console.log(response.headers);
-        throw new Error('Invalid credentials');
-      }
-
+      if (!response.ok) throw new Error('Invalid credentials');
       const data = await response.json();
-      
-      // Use the login function from context instead of directly setting localStorage
       login(data.token);
-      
       navigate('/');
     } catch (err) {
       setError(err.message);
@@ -120,42 +83,25 @@ const Login = () => {
           </h2>
         </div>
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded p-4 text-red-600">
-            {error}
-          </div>
+          <div className="bg-red-50 border border-red-200 rounded p-4 text-red-600">{error}</div>
         )}
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email" className="sr-only">Email address</label>
-              <input
-                id="email"
-                name="username"
-                type="email"
-                required
+              <input id="email" name="username" type="email" required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
+                placeholder="Email address" />
             </div>
             <div>
               <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
+              <input id="password" name="password" type="password" required
                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
+                placeholder="Password" />
             </div>
           </div>
-
           <div>
-            <Button
-              type="submit"
-              themeColor="primary"
-              className="group relative w-full"
-            >
+            <Button type="submit" themeColor="primary" className="group relative w-full">
               Sign in
             </Button>
           </div>
@@ -165,81 +111,211 @@ const Login = () => {
   );
 };
 
-// Debug Page Component
-const DebugPage = () => {
-  return (
-    <div className="container mx-auto pt-20">
-      <Navbar />
-      <div className="p-4 mt-16">
-        <h1 className="text-2xl font-bold mb-4">Authentication Debugging</h1>
-        <JWTDebugger />
-      </div>
+// ─── Debug Page ───────────────────────────────────────────────────────────────
+const DebugPage = () => (
+  <div className="container mx-auto pt-20">
+    <Navbar />
+    <div className="p-4 mt-16">
+      <h1 className="text-2xl font-bold mb-4">Authentication Debugging</h1>
+      <JWTDebugger />
     </div>
-  );
-};
+  </div>
+);
 
-// Public Layout Component
+// ─── Public Layout (scroll background transition) ─────────────────────────────
 const PublicLayout = () => {
+  const [scrollY, setScrollY] = useState(0);
+  const containerRef = React.useRef(null);
+
+  // Listen to scroll on the scrollable container div (not window)
+  const handleScroll = (e) => setScrollY(e.target.scrollTop);
+
+  // Transition happens over first 600px of scroll
+  const progress     = Math.min(scrollY / 600, 1);
+  const img2Opacity  = progress;
+  const img1Opacity  = 1 - progress * 0.6;
+
+  // Hero text fades out and drifts up
+  const heroOpacity  = Math.max(1 - scrollY / 300, 0);
+  const heroTranslate = scrollY * 0.4;
+
+  // Second section slides in
+  const section2Opacity   = Math.min((scrollY - 300) / 300, 1);
+  const section2Translate = Math.max(60 - (scrollY - 300) * 0.3, 0);
+
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Navbar />
-      <nav className="bg-white shadow mb-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold">Thousand Hills Digital</h1>
-            </div>
-            <div className="flex items-center">
-            </div>
+    <div
+      ref={containerRef}
+      onScroll={handleScroll}
+      style={{ height: "100vh", overflowY: "scroll", position: "relative" }}
+    >
+      {/* Navbar floats above everything */}
+      <Navbar style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 }} />
+
+      {/* Total scrollable height */}
+      <div style={{ height: "300vh", fontFamily: "'Segoe UI', sans-serif" }}>
+
+        {/* Fixed (sticky) background layers */}
+        <div style={{ position: "sticky", top: 0, height: 0, zIndex: 0 }}>
+          <div style={{ position: "absolute", inset: "0 0 0 0", height: "100vh" }}>
+            {/* Image 1 */}
+            <div style={{
+              position: "absolute", inset: 0,
+              backgroundImage: `url(${IMG1})`,
+              backgroundSize: "cover", backgroundPosition: "center",
+              opacity: img1Opacity,
+            }} />
+            {/* Image 2 */}
+            <div style={{
+              position: "absolute", inset: 0,
+              backgroundImage: `url(${IMG2})`,
+              backgroundSize: "cover", backgroundPosition: "center",
+              opacity: img2Opacity,
+            }} />
+            {/* Dark overlay */}
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 100%)"
+            }} />
           </div>
         </div>
-      </nav>
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 sm:px-0">
-          <h2 className="text-2xl font-bold mb-4 text-black">Welcome</h2>
-          <p className="mb-4 text-black">Please login to manage your items.</p>
+
+        {/* Scrollable content */}
+        <div style={{ position: "relative", zIndex: 1 }}>
+
+          {/* Hero Section */}
+          <div style={{
+            height: "100vh", display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center", textAlign: "center",
+            padding: "0 2rem",
+            opacity: heroOpacity,
+            transform: `translateY(-${heroTranslate}px)`,
+          }}>
+            <p style={{
+              color: "rgba(255,255,255,0.7)", letterSpacing: "0.3em",
+              textTransform: "uppercase", fontSize: "0.85rem", marginBottom: "1rem"
+            }}>
+              Scroll to explore
+            </p>
+            <h1 style={{
+              color: "#fff", fontSize: "clamp(2.5rem, 7vw, 6rem)",
+              fontWeight: 800, lineHeight: 1.1, margin: "0 0 1.5rem",
+              textShadow: "0 4px 30px rgba(0,0,0,0.4)"
+            }}>
+              Thousand Hills<br />Digital
+            </h1>
+            <p style={{
+              color: "rgba(255,255,255,0.85)", fontSize: "1.2rem",
+              maxWidth: "500px", lineHeight: 1.6,
+              textShadow: "0 2px 10px rgba(0,0,0,0.5)"
+            }}>
+              Modern tools for modern businesses. Manage customers, users, and
+              operations — all in one place.
+            </p>
+            {/* Scroll indicator */}
+            <div style={{ marginTop: "3rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem" }}>
+              <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem", letterSpacing: "0.15em" }}>SCROLL</span>
+              <div style={{
+                width: "1px", height: "50px",
+                background: "linear-gradient(to bottom, rgba(255,255,255,0.6), transparent)",
+                animation: "pulse 1.5s ease-in-out infinite"
+              }} />
+            </div>
+          </div>
+
+          {/* Second Section */}
+          <div style={{
+            minHeight: "100vh", display: "flex", alignItems: "center",
+            justifyContent: "center", padding: "4rem 2rem",
+          }}>
+            <div style={{
+              maxWidth: "680px", textAlign: "center",
+              opacity: section2Opacity,
+              transform: `translateY(${section2Translate}px)`,
+            }}>
+              <p style={{
+                color: "rgba(255,220,120,0.9)", letterSpacing: "0.25em",
+                textTransform: "uppercase", fontSize: "0.8rem", marginBottom: "1rem"
+              }}>
+                Get Started
+              </p>
+              <h2 style={{
+                color: "#fff", fontSize: "clamp(2rem, 5vw, 4rem)",
+                fontWeight: 700, lineHeight: 1.2, margin: "0 0 1.5rem",
+                textShadow: "0 4px 20px rgba(0,0,0,0.5)"
+              }}>
+                Everything You Need,<br />Right Here
+              </h2>
+              <p style={{
+                color: "rgba(255,255,255,0.8)", fontSize: "1.1rem",
+                lineHeight: 1.8, marginBottom: "2.5rem",
+                textShadow: "0 2px 8px rgba(0,0,0,0.5)"
+              }}>
+                From customer management to user administration, Thousand Hills Digital
+                gives your team the tools to move faster and work smarter.
+              </p>
+              {/* Link to login */}
+              <a href="/login" style={{ textDecoration: "none" }}>
+                <button style={{
+                  padding: "0.9rem 2.5rem",
+                  background: "rgba(255,255,255,0.15)",
+                  backdropFilter: "blur(10px)",
+                  border: "1px solid rgba(255,255,255,0.4)",
+                  borderRadius: "50px", color: "#fff",
+                  fontSize: "1rem", cursor: "pointer", letterSpacing: "0.05em",
+                  transition: "background 0.3s, transform 0.2s",
+                }}
+                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.3)"; e.currentTarget.style.transform = "scale(1.05)"; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.transform = "scale(1)"; }}
+                >
+                  Sign In to Get Started
+                </button>
+              </a>
+            </div>
+          </div>
+
         </div>
-      </main>
+      </div>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
+          50%       { opacity: 1;   transform: scaleY(1); }
+        }
+      `}</style>
     </div>
   );
 };
 
-// Main App Component
-const App = () => {
-  return (
-    <LocalizationProvider>
-      <IntlProvider locale="en">
-        {/* Wrap everything with UserProvider */}
-        <UserProvider>
-          {/* Add SubscriptionProvider wrapper */}
-          <SubscriptionProvider>
-            <BrowserRouter>
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<PublicLayout />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/contact" element={<ContactUs />} />
-                
-                {/* Debug Route */}
-                <Route path="/debug" element={<DebugPage />} />
-                
-                {/* Protected Routes */}
-                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/users" element={<ProtectedRoute><Users /></ProtectedRoute>} />
-                <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-                <Route path="/permissions" element={<ProtectedRoute><Permissions /></ProtectedRoute>} />
-                <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-                <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
+// ─── Root App ─────────────────────────────────────────────────────────────────
+const App = () => (
+  <LocalizationProvider>
+    <IntlProvider locale="en">
+      <UserProvider>
+        <SubscriptionProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public */}
+              <Route path="/"        element={<PublicLayout />} />
+              <Route path="/login"   element={<Login />} />
+              <Route path="/contact" element={<ContactUs />} />
+              <Route path="/debug"   element={<DebugPage />} />
 
-                {/* Catch all unmatched routes */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </BrowserRouter>
-          </SubscriptionProvider>
-        </UserProvider>
-      </IntlProvider>
-    </LocalizationProvider>
-  );
-};
+              {/* Protected */}
+              <Route path="/dashboard"   element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/users"       element={<ProtectedRoute><Users /></ProtectedRoute>} />
+              <Route path="/profile"     element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/admin"       element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+              <Route path="/customers"   element={<ProtectedRoute><Customers /></ProtectedRoute>} />
+
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </SubscriptionProvider>
+      </UserProvider>
+    </IntlProvider>
+  </LocalizationProvider>
+);
 
 export default App;
