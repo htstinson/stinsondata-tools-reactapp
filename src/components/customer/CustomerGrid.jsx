@@ -161,20 +161,12 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
   const handleSubmit = async (customer) => {
     try {
       customer.subscriber_id = selectedSubscription.subscriber_id;
-      
-      //const token = localStorage.getItem('token');
       customer.id ?  
       await api.put(`/api/v1/subscriber/customer`, customer) :  
       await api.post(`/api/v1/subscriber/customer`, customer);
-      
       const isEdit = !!customer.id;
-
       setShowDialog(false);
       fetchData();
-      
-      //const actionText = isEdit ? 'updated' : 'created';
-      //showNotificationDialog(`Customer ${actionText} successfully!`, 'success');
-      
     } catch (err) {
       setError(err.message);
       showNotificationDialog(`Error saving customer: ${err.message}`, 'error');

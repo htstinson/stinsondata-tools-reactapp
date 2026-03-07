@@ -35,13 +35,10 @@ const apiFetch = async (path, options = {}) => {
   return response.json();
 };
 
-
-
-
 // Convenience methods
 export const api = {
   get:    (path)         => apiFetch(path, { method: 'GET' }),
-  post:   (path, body)   => apiFetch(path, { method: 'POST',   body: JSON.stringify(body) }),
-  put:    (path, body)   => apiFetch(path, { method: 'PUT',    body: JSON.stringify(body) }),
-  delete: (path)   => apiFetch(path, { method: 'DELETE'}),
+  post:   (path, body)   => apiFetch(path, { method: 'POST',     body: JSON.stringify(body) }),
+  put:    (path, body)   => apiFetch(path, { method: 'PUT',      body: JSON.stringify(body) }),
+  delete: (path)         => apiFetch(path, { method: 'DELETE'}),
 };

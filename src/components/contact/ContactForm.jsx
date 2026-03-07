@@ -7,8 +7,9 @@ const ContactForm = ({ contact, selectedCustomer, onSubmit, onCancel }) => {
     last_name: '',
     email: '',
     phone: '',
-    title: '',
+    job_title: '',
     department: '',
+    subscriber_id: selectedCustomer.subscriber_id,
     ...contact
   });
 
@@ -164,8 +165,8 @@ const ContactForm = ({ contact, selectedCustomer, onSubmit, onCancel }) => {
           </label>
           <input
             type="text"
-            name="title"
-            value={formData.title}
+            name="job_title"
+            value={formData.job_title}
             onChange={handleInputChange}
             className="k-textbox w-full"
             style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}

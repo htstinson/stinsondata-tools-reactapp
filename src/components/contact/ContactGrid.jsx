@@ -144,47 +144,16 @@ const ContactGrid = ({ selectedCustomer }) => {
 
   const handleSubmit = async (contact) => {
     try {
-      const token = localStorage.getItem('token');
-      const method = contact.id ? 'PUT' : 'POST';
+      contact.subscriber_id = selectedCustomer.subscriber_id;
+      contact.parent_id = selectedCustomer.id;
+      contact.id ?  
+      await api.put(`/api/v1/subscriber/customer/contact`, contact) :  
+      await api.post(`/api/v1/subscriber/customer/contact`, contact);
       const isEdit = !!contact.id;
-
-      const url = contact?.id 
-      ? `https://thousandhillsdigital.net/api/v1/subscriber/customer/contact`
-      : 'https://thousandhillsdigital.net/api/v1/subscriber/customer/contact';
-                  
-      // Add customer_id to new contacts
-      if (!contact.id && selectedCustomer) {
-        contact.parent_id = selectedCustomer.id;
-        contact.schema_name = selectedCustomer.schema_name;
-      }
-
-      console.log(contact);
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(contact)
-      });
-
-      console.log(method, url, JSON.stringify(contact))
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       setShowDialog(false);
       fetchData();
-      
-      // Show success notification
-      const actionText = isEdit ? 'updated' : 'created';
-      showNotificationDialog(`Contact ${actionText} successfully!`, 'success');
-      
     } catch (err) {
       setError(err.message);
-      showNotificationDialog(`Error saving contact: ${err.message}`, 'error');
     }
   };
 
@@ -278,7 +247,8 @@ const ContactGrid = ({ selectedCustomer }) => {
           <GridColumn field="first_name" title="First Name" />
           <GridColumn field="email" title="Email" />
           <GridColumn field="phone" title="Phone" />
-          <GridColumn field="title" title="Job Title" />
+          <GridColumn field="job_title" title="Job Title" />
+          <GridColumn field="department" title="Department" />
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
