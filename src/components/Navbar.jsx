@@ -576,13 +576,6 @@ const Navbar = () => {
       }
       console.log("[2] userIp from context:", userIp);
       
-      // You can now use userIp in your logic here
-      // For example, you might want to add it to the currentUser object
-      if (userIp && !currentUser.ip_address) {
-        // This is just for the current render, not persisted
-        currentUser.ip_address = userIp;
-      }
-      
       // Special case for 'Admin' item - it requires IP address verification
       if (item.name === 'Admin') {
         // If we don't have both IPs to compare, don't show the Admin item
