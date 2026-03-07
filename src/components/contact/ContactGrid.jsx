@@ -6,6 +6,8 @@ import { Dialog, DialogActionsBar } from '@progress/kendo-react-dialogs';
 import ContactForm from '../contact/ContactForm'; // Import ContactForm instead of CustomerForm
 import { UserContext, useUser } from '../UserContext.jsx'; 
 
+import { api } from '../../api';
+
 const ContactGrid = ({ selectedCustomer }) => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -191,34 +193,12 @@ const ContactGrid = ({ selectedCustomer }) => {
     setShowConfirmation(true);
   };
 
-  const performDelete = async (dataItem) => {
-    dataItem.schema_name = selectedCustomer.schema_name
-    console.log(JSON.stringify(dataItem))
+  const performDelete = async (contact) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`https://thousandhillsdigital.net/api/v1/subscriber/customer/contactd`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dataItem)
-      });
-
-      if (!response.ok) {
-        if (response.status === 409) {
-          showNotificationDialog('Cannot delete contact - there are dependencies that prevent deletion.', 'error');
-          return;
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
+      await api.delete(`/api/v1/subscriber/contact/${contact.subscriber_id}/${contact.id}`);
       fetchData();
-      showNotificationDialog('Contact deleted successfully!', 'success');
-      
     } catch (err) {
       setError(err.message);
-      showNotificationDialog(`Error deleting contact: ${err.message}`, 'error');
     }
   };
 

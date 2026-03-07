@@ -9,7 +9,6 @@ import { UserContext, useUser } from '../UserContext.jsx';
 
 import { api } from '../../api';
 
-
 const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -161,32 +160,20 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
 
   const handleSubmit = async (customer) => {
     try {
-      const token = localStorage.getItem('token');
-      const method = customer.id ? 'PUT' : 'POST';
-      const isEdit = !!customer.id;
-
-      const url = 'https://thousandhillsdigital.net/api/v1/subscriber/customer';
-      
       customer.subscriber_id = selectedSubscription.subscriber_id;
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(customer)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      
+      //const token = localStorage.getItem('token');
+      customer.id ?  
+      await api.put(`/api/v1/subscriber/customer`, customer) :  
+      await api.post(`/api/v1/subscriber/customer`, customer);
+      
+      const isEdit = !!customer.id;
 
       setShowDialog(false);
       fetchData();
       
-      const actionText = isEdit ? 'updated' : 'created';
-      showNotificationDialog(`Customer ${actionText} successfully!`, 'success');
+      //const actionText = isEdit ? 'updated' : 'created';
+      //showNotificationDialog(`Customer ${actionText} successfully!`, 'success');
       
     } catch (err) {
       setError(err.message);
@@ -201,23 +188,14 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
 
   const performDelete = async (customer) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`https://thousandhillsdigital.net/api/v1/subscriber/customer/${selectedCustomer.subscriber_id}/${selectedCustomer.id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(customer)
-      });
 
+      await api.delete(`/api/v1/subscriber/customer/${customer.subscriber_id}/${customer.id}`);
+      
       fetchData();
-
-      showNotificationDialog('Customer deleted successfully!', 'success');
       
     } catch (err) {
       setError(err.message);
-      showNotificationDialog(`Error deleting customer: ${err.message}`, 'error');
+      //showNotificationDialog(`Error deleting customer: ${err.message}`, 'error');
     }
   };
 
