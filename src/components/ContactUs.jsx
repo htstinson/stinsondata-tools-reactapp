@@ -45,27 +45,26 @@ const ContactUs = () => {
               <div className="flex items-start space-x-3">
                 <Mail className="w-6 h-6 text-blue-500 mt-1" />
                 <div>
-                  <p className="font-medium">Email</p>
-                  <p className="text-gray-600">support@example.com</p>
+                  <p className="font-medium text-left">Email</p>
+                  <p className="text-gray-600 text-left">support@stinsondata.com</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3">
                 <Phone className="w-6 h-6 text-blue-500 mt-1" />
                 <div>
-                  <p className="font-medium">Phone</p>
-                  <p className="text-gray-600">+1 (555) 123-4567</p>
+                  <p className="font-medium text-left">Phone</p>
+                  <p className="text-gray-600 text-left">+1 (573) 303-3724</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3">
                 <MapPin className="w-6 h-6 text-blue-500 mt-1" />
                 <div>
-                  <p className="font-medium">Address</p>
-                  <p className="text-gray-600">
-                    123 Business Street<br />
-                    Suite 100<br />
-                    City, State 12345
+                  <p className="font-medium text-left">Address</p>
+                  <p className="text-gray-600 text-left">
+                    PO Box 44<br />
+                    Kirksville, MO 63501
                   </p>
                 </div>
               </div>
@@ -78,7 +77,7 @@ const ContactUs = () => {
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1 text-left">
                   Name
                 </label>
                 <input
@@ -93,7 +92,7 @@ const ContactUs = () => {
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1 text-left">
                   Email
                 </label>
                 <input
@@ -108,7 +107,22 @@ const ContactUs = () => {
               </div>
 
               <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1 text-left">
+                  Phone
+                </label>
+                <input
+                  type="telephone"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1 text-left">
                   Subject
                 </label>
                 <input
@@ -123,7 +137,7 @@ const ContactUs = () => {
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1 text-left">
                   Message
                 </label>
                 <textarea
