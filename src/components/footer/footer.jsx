@@ -15,7 +15,7 @@ const Footer = () => {
       fontSize: "0.8rem", fontFamily: "'Segoe UI', sans-serif",
     }}>
       <span style={{ color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>
-        © {new Date().getFullYear()} Thousand Hills Digital
+        © {new Date().getFullYear()} Stinson Data LLC
       </span>
       <span style={{ display: "flex", gap: "1.25rem" }}>
         <a href="mailto:support@stinsondata.com" style={linkStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
