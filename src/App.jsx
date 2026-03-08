@@ -14,10 +14,11 @@ import { UserProvider, useUser } from './components/UserContext.jsx';
 import { SubscriptionProvider } from './components/Navbar.jsx';
 import JWTDebugger from './components/JWTDebugger';
 import './App.css';
+import bgVideo from './assets/aerial-drone-view-flight-over-pine-tree-forest-in-mountain-at-sunset-SBV-338777383-HD.mp4';
 
 // ─── Background images ────────────────────────────────────────────────────────
-const IMG1 = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80";
-const IMG2 = "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80";
+const IMG1 = "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80";
+const IMG2 = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80";
 
 // ─── Protected Route ──────────────────────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
@@ -77,11 +78,9 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Sign in to your account
+        </h2>
         {error && (
           <div className="bg-red-50 border border-red-200 rounded p-4 text-red-600">{error}</div>
         )}
@@ -122,26 +121,32 @@ const DebugPage = () => (
   </div>
 );
 
-// ─── Public Layout (scroll background transition) ─────────────────────────────
+// ─── Public Layout ────────────────────────────────────────────────────────────
 const PublicLayout = () => {
   const [scrollY, setScrollY] = useState(0);
   const containerRef = React.useRef(null);
 
-  // Listen to scroll on the scrollable container div (not window)
   const handleScroll = (e) => setScrollY(e.target.scrollTop);
 
-  // Transition happens over first 600px of scroll
-  const progress     = Math.min(scrollY / 600, 1);
-  const img2Opacity  = progress;
-  const img1Opacity  = 1 - progress * 0.6;
+  const progress1 = Math.min(scrollY / 600, 1);
+  const progress2 = Math.min(Math.max((scrollY - 600) / 300, 0), 1);
 
-  // Hero text fades out and drifts up
-  const heroOpacity  = Math.max(1 - scrollY / 300, 0);
+  const img1Opacity = 1 - progress1 * 0.6;
+  const img2Opacity = progress1 - progress2 * 0.6;
+  const img3Opacity = progress2;
+
+  const heroOpacity   = Math.max(1 - scrollY / 300, 0);
   const heroTranslate = scrollY * 0.4;
 
-  // Second section slides in
   const section2Opacity   = Math.min((scrollY - 300) / 300, 1);
   const section2Translate = Math.max(60 - (scrollY - 300) * 0.3, 0);
+
+  const section3Opacity   = Math.min((scrollY - 700) / 300, 1);
+  const section3Translate = Math.max(60 - (scrollY - 700) * 0.3, 0);
+
+  const linkStyle = { color: "rgba(255,255,255,0.5)", textDecoration: "none" };
+  const onEnter = e => e.target.style.color = "#fff";
+  const onLeave = e => e.target.style.color = "rgba(255,255,255,0.5)";
 
   return (
     <div
@@ -149,29 +154,40 @@ const PublicLayout = () => {
       onScroll={handleScroll}
       style={{ height: "100vh", width: "100vw", overflowY: "scroll", position: "fixed", top: 0, left: 0 }}
     >
-      {/* Navbar floats above everything */}
+      {/* Navbar */}
       <Navbar style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 }} />
 
-      {/* Total scrollable height */}
-      <div style={{ height: "300vh", fontFamily: "'Segoe UI', sans-serif" }}>
+      {/* Scrollable area */}
+      <div style={{ height: "450vh", fontFamily: "'Segoe UI', sans-serif" }}>
 
-        {/* Fixed (sticky) background layers */}
+        {/* Sticky background layers */}
         <div style={{ position: "sticky", top: 0, height: 0, zIndex: 0 }}>
           <div style={{ position: "absolute", inset: "0 0 0 0", height: "100vh" }}>
-            {/* Image 1 */}
-            <div style={{
-              position: "absolute", inset: 0,
-              backgroundImage: `url(${IMG1})`,
-              backgroundSize: "cover", backgroundPosition: "center",
-              opacity: img1Opacity,
-            }} />
-            {/* Image 2 */}
+
+            {/* Scene 1 — video */}
+            <div style={{ position: "absolute", inset: 0, opacity: img1Opacity }}>
+              <video autoPlay muted loop playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}>
+                <source src={bgVideo} type="video/mp4" />
+              </video>
+            </div>
+
+            {/* Scene 2 — image */}
             <div style={{
               position: "absolute", inset: 0,
               backgroundImage: `url(${IMG2})`,
               backgroundSize: "cover", backgroundPosition: "center",
               opacity: img2Opacity,
             }} />
+
+            {/* Scene 3 — image */}
+            <div style={{
+              position: "absolute", inset: 0,
+              backgroundImage: `url(${IMG1})`,
+              backgroundSize: "cover", backgroundPosition: "center",
+              opacity: img3Opacity,
+            }} />
+
             {/* Dark overlay */}
             <div style={{
               position: "absolute", inset: 0,
@@ -212,7 +228,6 @@ const PublicLayout = () => {
               Modern tools for modern businesses. Manage customers, users, and
               operations — all in one place.
             </p>
-            {/* Scroll indicator */}
             <div style={{ marginTop: "3rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem" }}>
               <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem", letterSpacing: "0.15em" }}>SCROLL</span>
               <div style={{
@@ -254,7 +269,6 @@ const PublicLayout = () => {
                 From customer management to user administration, Thousand Hills Digital
                 gives your team the tools to move faster and work smarter.
               </p>
-              {/* Link to login */}
               <a href="/login" style={{ textDecoration: "none" }}>
                 <button style={{
                   padding: "0.9rem 2.5rem",
@@ -274,7 +288,76 @@ const PublicLayout = () => {
             </div>
           </div>
 
-        </div>
+          {/* Third Section */}
+          <div style={{
+            minHeight: "100vh", display: "flex", alignItems: "center",
+            justifyContent: "center", padding: "4rem 2rem 5rem",
+          }}>
+            <div style={{
+              maxWidth: "680px", textAlign: "center",
+              opacity: section3Opacity,
+              transform: `translateY(${section3Translate}px)`,
+            }}>
+              <p style={{
+                color: "rgba(180,220,255,0.9)", letterSpacing: "0.25em",
+                textTransform: "uppercase", fontSize: "0.8rem", marginBottom: "1rem"
+              }}>
+                Your Vision
+              </p>
+              <h2 style={{
+                color: "#fff", fontSize: "clamp(2rem, 5vw, 4rem)",
+                fontWeight: 700, lineHeight: 1.2, margin: "0 0 1.5rem",
+                textShadow: "0 4px 20px rgba(0,0,0,0.5)"
+              }}>
+                Built for the<br />Way You Work
+              </h2>
+              <p style={{
+                color: "rgba(255,255,255,0.8)", fontSize: "1.1rem",
+                lineHeight: 1.8, marginBottom: "2.5rem",
+                textShadow: "0 2px 8px rgba(0,0,0,0.5)"
+              }}>
+                Every team is different. Thousand Hills Digital adapts to your
+                workflow — not the other way around.
+              </p>
+            </div>
+          </div>
+
+        </div>{/* end scrollable content */}
+      </div>{/* end 450vh */}
+
+      {/* Footer — fixed single bar */}
+      <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 20,
+        background: "rgba(0,0,0,0.75)", backdropFilter: "blur(10px)",
+        borderTop: "1px solid rgba(255,255,255,0.1)",
+        height: "40px", minHeight: "40px", maxHeight: "40px",
+        padding: "0 2rem", overflow: "hidden",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        fontSize: "0.8rem", fontFamily: "'Segoe UI', sans-serif",
+      }}>
+        {/* Copyright */}
+        <span style={{ color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>
+          © {new Date().getFullYear()} Thousand Hills Digital
+        </span>
+
+        {/* Contact */}
+        <span style={{ display: "flex", gap: "1.25rem" }}>
+          <a href="mailto:info@thousandhillsdigital.net" style={linkStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+            info@thousandhillsdigital.net
+          </a>
+          <a href="tel:+11234567890" style={linkStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+            (123) 456-7890
+          </a>
+        </span>
+
+        {/* Quick links */}
+        <span style={{ display: "flex", gap: "1.25rem" }}>
+          {[["Home", "/"], ["Contact", "/contact"], ["Sign In", "/login"]].map(([label, href]) => (
+            <a key={label} href={href} style={linkStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
+              {label}
+            </a>
+          ))}
+        </span>
       </div>
 
       <style>{`
@@ -301,20 +384,17 @@ const App = () => (
         <SubscriptionProvider>
           <BrowserRouter>
             <Routes>
-              {/* Public */}
               <Route path="/"        element={<PublicLayout />} />
               <Route path="/login"   element={<Login />} />
               <Route path="/contact" element={<ContactUs />} />
               <Route path="/debug"   element={<DebugPage />} />
 
-              {/* Protected */}
-              <Route path="/dashboard"   element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/users"       element={<ProtectedRoute><Users /></ProtectedRoute>} />
-              <Route path="/profile"     element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-              <Route path="/admin"       element={<ProtectedRoute><Admin /></ProtectedRoute>} />
-              <Route path="/customers"   element={<ProtectedRoute><Customers /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/users"     element={<ProtectedRoute><Users /></ProtectedRoute>} />
+              <Route path="/profile"   element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/admin"     element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+              <Route path="/customers" element={<ProtectedRoute><Customers /></ProtectedRoute>} />
 
-              {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
