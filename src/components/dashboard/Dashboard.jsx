@@ -10,6 +10,7 @@ import SearchDefinitionGrid from '../search_definitions/SearchDefinitionGrid.jsx
 import SearchDefinitionEngineGrid from '../search_definition_engines/SearchDefinitionEnginesGrid.jsx';
 import MentionsGrid from '../mentions/MentionsGrid.jsx'
 import { useSubscription } from '../../components/Navbar.jsx';
+import Footer from '../../components/footer/footer.jsx';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -120,7 +121,7 @@ const Dashboard = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-white shadow-lg z-40 transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-[calc(100%-40px)] bg-white shadow-lg z-40 transition-transform duration-300 ease-in-out ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } w-64`}
       >
@@ -255,6 +256,7 @@ const Dashboard = () => {
           
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

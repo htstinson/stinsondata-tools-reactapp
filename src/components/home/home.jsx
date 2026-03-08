@@ -23,6 +23,7 @@ const App = () => {
   return (
     <div className="app-container">
       {/* Top Navigation Bar */}
+     
       <AppBar>
         <AppBarSection>
           <Button 

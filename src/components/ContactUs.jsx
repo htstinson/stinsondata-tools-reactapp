@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import Navbar from './Navbar';
+import Footer from '../components/footer/footer.jsx';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -161,7 +162,8 @@ const ContactUs = () => {
           </div>
         </div>
       </div>
-    </div>
+    <Footer />
+    </div>    
   );
 };
 

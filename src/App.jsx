@@ -16,6 +16,7 @@ import JWTDebugger from './components/JWTDebugger';
 import './App.css';
 import bgVideo from './assets/aerial-drone-view-flight-over-pine-tree-forest-in-mountain-at-sunset-SBV-338777383-HD.mp4';
 import { api } from './api';
+import Footer from './components/footer/footer.jsx';
 
 // ─── Background images ────────────────────────────────────────────────────────
 const IMG1 = "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80";
@@ -320,40 +321,7 @@ const PublicLayout = () => {
         </div>{/* end scrollable content */}
       </div>{/* end 450vh */}
 
-      {/* Footer — fixed single bar */}
-      <div style={{
-        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 20,
-        background: "rgba(0,0,0,0.75)", backdropFilter: "blur(10px)",
-        borderTop: "1px solid rgba(255,255,255,0.1)",
-        height: "40px", minHeight: "40px", maxHeight: "40px",
-        padding: "0 2rem", overflow: "hidden",
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        fontSize: "0.8rem", fontFamily: "'Segoe UI', sans-serif",
-      }}>
-        {/* Copyright */}
-        <span style={{ color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>
-          © {new Date().getFullYear()} Thousand Hills Digital
-        </span>
-
-        {/* Contact */}
-        <span style={{ display: "flex", gap: "1.25rem" }}>
-          <a href="mailto:info@thousandhillsdigital.net" style={linkStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
-            info@thousandhillsdigital.net
-          </a>
-          <a href="tel:+11234567890" style={linkStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
-            (123) 456-7890
-          </a>
-        </span>
-
-        {/* Quick links */}
-        <span style={{ display: "flex", gap: "1.25rem" }}>
-          {[["Home", "/"], ["Contact", "/contact"], ["Sign In", "/login"]].map(([label, href]) => (
-            <a key={label} href={href} style={linkStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
-              {label}
-            </a>
-          ))}
-        </span>
-      </div>
+      <Footer />
 
       <style>{`
         @keyframes pulse {
