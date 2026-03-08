@@ -35,10 +35,32 @@ const apiFetch = async (path, options = {}) => {
   return response.json();
 };
 
+const apiLogin = async (path, options = {}) => {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      localStorage.removeItem('token');
+      throw new Error('Login failed');
+    } else {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+  }
+
+  return response.json();
+};
+
 // Convenience methods
 export const api = {
   get:    (path)         => apiFetch(path, { method: 'GET' }),
   post:   (path, body)   => apiFetch(path, { method: 'POST',     body: JSON.stringify(body) }),
   put:    (path, body)   => apiFetch(path, { method: 'PUT',      body: JSON.stringify(body) }),
   delete: (path)         => apiFetch(path, { method: 'DELETE'}),
+  login:  (path, body)   => apiLogin(path, { method: 'POST',     body: body}),
 };

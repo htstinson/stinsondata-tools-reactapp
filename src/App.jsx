@@ -15,6 +15,7 @@ import { SubscriptionProvider } from './components/Navbar.jsx';
 import JWTDebugger from './components/JWTDebugger';
 import './App.css';
 import bgVideo from './assets/aerial-drone-view-flight-over-pine-tree-forest-in-mountain-at-sunset-SBV-338777383-HD.mp4';
+import { api } from './api';
 
 // ─── Background images ────────────────────────────────────────────────────────
 const IMG1 = "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80";
@@ -61,13 +62,7 @@ const Login = () => {
     const username = formData.get('username');
     const password = formData.get('password');
     try {
-      const response = await fetch('https://thousandhillsdigital.net/api/v1/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      if (!response.ok) throw new Error('Invalid credentials');
-      const data = await response.json();
+      const data = await api.login(`/api/v1/login`, JSON.stringify({ username, password }))
       login(data.token);
       navigate('/');
     } catch (err) {
