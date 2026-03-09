@@ -17,15 +17,19 @@ import './App.css';
 import { api } from './api';
 import Footer from './components/footer/footer.jsx';
 
+const CDN = `${import.meta.env.VITE_CDN_BASE_URL}`;
+
 // ─── Background images ────────────────────────────────────────────────────────
-const IMG1 = 'https://d2wu2xky5xagy7.cloudfront.net/bg1.jpeg'
-const IMG2 = 'https://d2wu2xky5xagy7.cloudfront.net/bg2.jpeg';
+const IMG1 = `${CDN}/bg1.jpeg`
+const IMG2 = `${CDN}/bg2.jpeg`
 // ─── Protected Route ──────────────────────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
   const { currentUser, loading } = useUser();
   if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
   return currentUser ? children : <Navigate to="/login" replace />;
 };
+
+
 
 // ─── Item Edit Form ───────────────────────────────────────────────────────────
 const ItemForm = ({ item, onSubmit, onCancel }) => {
@@ -162,7 +166,7 @@ const PublicLayout = () => {
             <div style={{ position: "absolute", inset: 0, opacity: img1Opacity }}>
               <video autoPlay muted loop playsInline
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}>
-                <source src="https://d2wu2xky5xagy7.cloudfront.net/bgv1.mp4" type="video/mp4" />
+                <source src={`${CDN}/bgv1.mp4`} type="video/mp4" />
               </video>
             </div>
 
