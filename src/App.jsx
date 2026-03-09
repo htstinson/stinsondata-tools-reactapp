@@ -14,17 +14,12 @@ import { UserProvider, useUser } from './components/UserContext.jsx';
 import { SubscriptionProvider } from './components/Navbar.jsx';
 import JWTDebugger from './components/JWTDebugger';
 import './App.css';
-import bgVideo from './assets/aerial-drone-view-flight-over-pine-tree-forest-in-mountain-at-sunset-SBV-338777383-HD.mp4';
 import { api } from './api';
 import Footer from './components/footer/footer.jsx';
 
 // ─── Background images ────────────────────────────────────────────────────────
-const IMG2 = 'https://d2wu2xky5xagy7.cloudfront.net/photo-1470252649378-9c29740c9fa8.jpeg'
-//const IMG1 = "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80";
-
-//const IMG2 = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80";
-const IMG1 = 'https://d2wu2xky5xagy7.cloudfront.net/photo-1506905925346-21bda4d32df4.jpeg';
-
+const IMG1 = 'https://d2wu2xky5xagy7.cloudfront.net/bg1.jpeg'
+const IMG2 = 'https://d2wu2xky5xagy7.cloudfront.net/bg2.jpeg';
 // ─── Protected Route ──────────────────────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
   const { currentUser, loading } = useUser();
@@ -167,7 +162,7 @@ const PublicLayout = () => {
             <div style={{ position: "absolute", inset: 0, opacity: img1Opacity }}>
               <video autoPlay muted loop playsInline
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}>
-                <source src={bgVideo} type="video/mp4" />
+                <source src="https://d2wu2xky5xagy7.cloudfront.net/bgv1.mp4" type="video/mp4" />
               </video>
             </div>
 
