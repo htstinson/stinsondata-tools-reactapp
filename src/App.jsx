@@ -19,8 +19,11 @@ import { api } from './api';
 import Footer from './components/footer/footer.jsx';
 
 // ─── Background images ────────────────────────────────────────────────────────
-const IMG1 = "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80";
-const IMG2 = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80";
+const IMG2 = 'https://d2wu2xky5xagy7.cloudfront.net/photo-1470252649378-9c29740c9fa8.jpeg'
+//const IMG1 = "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1600&q=80";
+
+//const IMG2 = "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80";
+const IMG1 = 'https://d2wu2xky5xagy7.cloudfront.net/photo-1506905925346-21bda4d32df4.jpeg';
 
 // ─── Protected Route ──────────────────────────────────────────────────────────
 const ProtectedRoute = ({ children }) => {
