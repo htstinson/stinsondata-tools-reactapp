@@ -4,7 +4,7 @@ import Navbar from './Navbar';
 import Footer from '../components/footer/footer.jsx';
 
 const CDN = `${import.meta.env.VITE_CDN_BASE_URL}`;
-const IMG = `${CDN}/bg2.jpeg`;
+const IMG2 = `${CDN}/bg2.jpeg`;
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ const ContactUs = () => {
       {/* Background Image */}
       <div style={{
         position: "fixed", inset: 0,
-        backgroundImage: `url(${IMG})`,
+        backgroundImage: `url(${IMG2})`,
         backgroundSize: "cover", backgroundPosition: "center",
         opacity: 1.0,
         zIndex: 0,
@@ -78,6 +78,7 @@ const ContactUs = () => {
                   <div>
                     <p className="font-medium text-left">Address</p>
                     <p className="text-gray-600 text-left">
+                      Stinson Data LLC<br />
                       PO Box 44<br />
                       Kirksville, MO 63501
                     </p>

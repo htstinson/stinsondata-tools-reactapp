@@ -26,7 +26,7 @@ const Footer = () => {
         </a>
       </span>
       <span style={{ display: "flex", gap: "1.25rem" }}>
-        {[["Home", "/"], ["Contact", "/contact"], ["Sign In", "/login"]].map(([label, href]) => (
+        {[["Home", "/"], ["Contact", "/contact"], ["Login", "/login"]].map(([label, href]) => (
           <a key={label} href={href} style={linkStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>
             {label}
           </a>

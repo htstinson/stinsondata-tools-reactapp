@@ -29,8 +29,6 @@ const ProtectedRoute = ({ children }) => {
   return currentUser ? children : <Navigate to="/login" replace />;
 };
 
-
-
 // ─── Item Edit Form ───────────────────────────────────────────────────────────
 const ItemForm = ({ item, onSubmit, onCancel }) => {
   const [name, setName] = useState(item?.name || '');
@@ -75,10 +73,23 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
-        </h2>
+     
+     {/* Background Image */}
+      <div style={{
+        position: "fixed", inset: 0,
+        backgroundImage: `url(${IMG1})`,
+        backgroundSize: "cover", backgroundPosition: "center",
+        opacity: 1.0,
+        zIndex: 0,
+      }} />
+
+       {/* Foreground Content */}
+      <Navbar />
+      <div className="max-w-md w-full space-y-8 relative z-10">
+        
+        <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Login
+        </h1>
         {error && (
           <div className="bg-red-50 border border-red-200 rounded p-4 text-red-600">{error}</div>
         )}
@@ -104,6 +115,7 @@ const Login = () => {
           </div>
         </form>
       </div>
+      <Footer />
     </div>
   );
 };
