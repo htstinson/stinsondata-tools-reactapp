@@ -49,7 +49,7 @@ const apiLogin = async (path, options = {}) => {
       localStorage.removeItem('token');
       throw new Error('Login failed');
     } else {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
   }
 
