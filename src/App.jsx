@@ -8,14 +8,14 @@ import ContactUs from './components/ContactUs';
 import Users from './components/user/Users';
 import Profile from './components/user/Profile';
 import Admin from './components/admin/Admin';
-import Navbar from './components/Navbar';
+
 import Customers from './components/customer/Customers';
 import { UserProvider, useUser } from './components/UserContext.jsx';
 import { SubscriptionProvider } from './components/Navbar.jsx';
 import JWTDebugger from './components/JWTDebugger';
-import './App.css';
+
 import { api } from './api';
-import Footer from './components/footer/footer.jsx';
+import PageLayout from './components/PageLayout.jsx';
 
 const CDN = `${import.meta.env.VITE_CDN_BASE_URL}`;
 
@@ -72,20 +72,12 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-     
-     {/* Background Image */}
-      <div style={{
-        position: "fixed", inset: 0,
-        backgroundImage: `url(${IMG1})`,
-        backgroundSize: "cover", backgroundPosition: "center",
-        opacity: 1.0,
-        zIndex: 0,
-      }} />
+    <PageLayout bgImage={IMG2}>
+    <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
 
        {/* Foreground Content */}
-      <Navbar />
-      <div className="max-w-md w-full space-y-8 relative z-10">
+      
+      <div className="max-w-md w-full space-y-8 relative">
         
         <h1 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Login
@@ -115,15 +107,16 @@ const Login = () => {
           </div>
         </form>
       </div>
-      <Footer />
+      
     </div>
+    </PageLayout>
   );
 };
 
 // ─── Debug Page ───────────────────────────────────────────────────────────────
 const DebugPage = () => (
   <div className="container mx-auto pt-20">
-    <Navbar />
+  
     <div className="p-4 mt-16">
       <h1 className="text-2xl font-bold mb-4">Authentication Debugging</h1>
       <JWTDebugger />
@@ -159,197 +152,182 @@ const PublicLayout = () => {
   const onLeave = e => e.target.style.color = "rgba(255,255,255,0.5)";
 
   return (
-    <div
-      ref={containerRef}
-      onScroll={handleScroll}
-      style={{ height: "100vh", width: "100vw", overflowY: "scroll", position: "fixed", top: 0, left: 0 }}
-    >
-      {/* Navbar */}
-      <Navbar style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 10 }} />
+    <PageLayout>
+      <div
+        ref={containerRef}
+        onScroll={handleScroll}
+        style={{ height: "100vh", width: "100vw", overflowY: "scroll", position: "fixed", top: 0, left: 0, zIndex: 10 }}
+      >
 
-      {/* Scrollable area */}
-      <div style={{ height: "450vh", fontFamily: "'Segoe UI', sans-serif" }}>
+        {/* Scrollable area */}
+        <div style={{ height: "450vh", fontFamily: "'Segoe UI', sans-serif" }}>
 
-        {/* Sticky background layers */}
-        <div style={{ position: "sticky", top: 0, height: 0, zIndex: 0 }}>
-          <div style={{ position: "absolute", inset: "0 0 0 0", height: "100vh" }}>
+          {/* Sticky background layers */}
+          <div style={{ position: "sticky", top: 0, height: 0, zIndex: 0 }}>
+            <div style={{ position: "absolute", inset: "0 0 0 0", height: "100vh" }}>
 
-            {/* Scene 1 — video */}
-            <div style={{ position: "absolute", inset: 0, opacity: img1Opacity }}>
-              <video autoPlay muted loop playsInline
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}>
-                <source src={`${CDN}/bgv1.mp4`} type="video/mp4" />
-              </video>
-            </div>
+              {/* Scene 1 — video */}
+              <div style={{ position: "absolute", inset: 0, opacity: img1Opacity }}>
+                <video autoPlay muted loop playsInline
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}>
+                  <source src={`${CDN}/bgv1.mp4`} type="video/mp4" />
+                </video>
+              </div>
 
-            {/* Scene 2 — image */}
-            <div style={{
-              position: "absolute", inset: 0,
-              backgroundImage: `url(${IMG2})`,
-              backgroundSize: "cover", backgroundPosition: "center",
-              opacity: img2Opacity,
-            }} />
-
-            {/* Scene 3 — image */}
-            <div style={{
-              position: "absolute", inset: 0,
-              backgroundImage: `url(${IMG1})`,
-              backgroundSize: "cover", backgroundPosition: "center",
-              opacity: img3Opacity,
-            }} />
-
-            {/* Dark overlay */}
-            <div style={{
-              position: "absolute", inset: 0,
-              background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 100%)"
-            }} />
-          </div>
-        </div>
-
-        {/* Scrollable content */}
-        <div style={{ position: "relative", zIndex: 1 }}>
-
-          {/* Hero Section */}
-          <div style={{
-            height: "100vh", display: "flex", flexDirection: "column",
-            alignItems: "center", justifyContent: "center", textAlign: "center",
-            padding: "0 2rem",
-            opacity: heroOpacity,
-            transform: `translateY(-${heroTranslate}px)`,
-          }}>
-            <p style={{
-              color: "rgba(255,255,255,0.7)", letterSpacing: "0.3em",
-              textTransform: "uppercase", fontSize: "0.85rem", marginBottom: "1rem"
-            }}>
-              Scroll to explore
-            </p>
-            <h1 style={{
-              color: "#fff", fontSize: "clamp(2.5rem, 7vw, 6rem)",
-              fontWeight: 800, lineHeight: 1.1, margin: "0 0 1.5rem",
-              textShadow: "0 4px 30px rgba(0,0,0,0.4)"
-            }}>
-              Thousand Hills<br />Digital
-            </h1>
-            <p style={{
-              color: "rgba(255,255,255,0.85)", fontSize: "1.2rem",
-              maxWidth: "500px", lineHeight: 1.6,
-              textShadow: "0 2px 10px rgba(0,0,0,0.5)"
-            }}>
-              Modern tools for modern businesses. Manage customers, users, and
-              operations — all in one place.
-            </p>
-            <div style={{ marginTop: "3rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem" }}>
-              <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem", letterSpacing: "0.15em" }}>SCROLL</span>
+              {/* Scene 2 — image */}
               <div style={{
-                width: "1px", height: "50px",
-                background: "linear-gradient(to bottom, rgba(255,255,255,0.6), transparent)",
-                animation: "pulse 1.5s ease-in-out infinite"
+                position: "absolute", inset: 0,
+                backgroundImage: `url(${IMG2})`,
+                backgroundSize: "cover", backgroundPosition: "center",
+                opacity: img2Opacity,
+              }} />
+
+              {/* Scene 3 — image */}
+              <div style={{
+                position: "absolute", inset: 0,
+                backgroundImage: `url(${IMG1})`,
+                backgroundSize: "cover", backgroundPosition: "center",
+                opacity: img3Opacity,
+              }} />
+
+              {/* Dark overlay */}
+              <div style={{
+                position: "absolute", inset: 0,
+                background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.55) 100%)"
               }} />
             </div>
           </div>
 
-          {/* Second Section */}
-          <div style={{
-            minHeight: "100vh", display: "flex", alignItems: "center",
-            justifyContent: "center", padding: "4rem 2rem",
-          }}>
+          {/* Scrollable content */}
+          <div style={{ position: "relative", zIndex: 1 }}>
+
+            {/* Hero Section */}
             <div style={{
-              maxWidth: "680px", textAlign: "center",
-              opacity: section2Opacity,
-              transform: `translateY(${section2Translate}px)`,
+              height: "100vh", display: "flex", flexDirection: "column",
+              alignItems: "center", justifyContent: "center", textAlign: "center",
+              padding: "0 2rem",
+              opacity: heroOpacity,
+              transform: `translateY(-${heroTranslate}px)`,
             }}>
               <p style={{
-                color: "rgba(255,220,120,0.9)", letterSpacing: "0.25em",
-                textTransform: "uppercase", fontSize: "0.8rem", marginBottom: "1rem"
+                color: "rgba(255,255,255,0.7)", letterSpacing: "0.3em",
+                textTransform: "uppercase", fontSize: "0.85rem", marginBottom: "1rem"
               }}>
-                Get Started
+                Scroll to explore
               </p>
-              <h2 style={{
-                color: "#fff", fontSize: "clamp(2rem, 5vw, 4rem)",
-                fontWeight: 700, lineHeight: 1.2, margin: "0 0 1.5rem",
-                textShadow: "0 4px 20px rgba(0,0,0,0.5)"
+              <h1 style={{
+                color: "#fff", fontSize: "clamp(2.5rem, 7vw, 6rem)",
+                fontWeight: 800, lineHeight: 1.1, margin: "0 0 1.5rem",
+                textShadow: "0 4px 30px rgba(0,0,0,0.4)"
               }}>
-                Everything You Need,<br />Right Here
-              </h2>
+                Thousand Hills<br />Digital
+              </h1>
               <p style={{
-                color: "rgba(255,255,255,0.8)", fontSize: "1.1rem",
-                lineHeight: 1.8, marginBottom: "2.5rem",
-                textShadow: "0 2px 8px rgba(0,0,0,0.5)"
+                color: "rgba(255,255,255,0.85)", fontSize: "1.2rem",
+                maxWidth: "500px", lineHeight: 1.6,
+                textShadow: "0 2px 10px rgba(0,0,0,0.5)"
               }}>
-                From customer management to user administration, Thousand Hills Digital
-                gives your team the tools to move faster and work smarter.
+                Modern tools for modern businesses. Manage customers, users, and
+                operations — all in one place.
               </p>
-              <a href="/login" style={{ textDecoration: "none" }}>
-                <button style={{
-                  padding: "0.9rem 2.5rem",
-                  background: "rgba(255,255,255,0.15)",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid rgba(255,255,255,0.4)",
-                  borderRadius: "50px", color: "#fff",
-                  fontSize: "1rem", cursor: "pointer", letterSpacing: "0.05em",
-                  transition: "background 0.3s, transform 0.2s",
-                }}
-                  onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.3)"; e.currentTarget.style.transform = "scale(1.05)"; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.transform = "scale(1)"; }}
-                >
-                  Sign In to Get Started
-                </button>
-              </a>
+              <div style={{ marginTop: "3rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.4rem" }}>
+                <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "0.75rem", letterSpacing: "0.15em" }}>SCROLL</span>
+                <div style={{
+                  width: "1px", height: "50px",
+                  background: "linear-gradient(to bottom, rgba(255,255,255,0.6), transparent)",
+                  animation: "pulse 1.5s ease-in-out infinite"
+                }} />
+              </div>
             </div>
-          </div>
 
-          {/* Third Section */}
-          <div style={{
-            minHeight: "100vh", display: "flex", alignItems: "center",
-            justifyContent: "center", padding: "4rem 2rem 5rem",
-          }}>
+            {/* Second Section */}
             <div style={{
-              maxWidth: "680px", textAlign: "center",
-              opacity: section3Opacity,
-              transform: `translateY(${section3Translate}px)`,
+              minHeight: "100vh", display: "flex", alignItems: "center",
+              justifyContent: "center", padding: "4rem 2rem",
             }}>
-              <p style={{
-                color: "rgba(180,220,255,0.9)", letterSpacing: "0.25em",
-                textTransform: "uppercase", fontSize: "0.8rem", marginBottom: "1rem"
+              <div style={{
+                maxWidth: "680px", textAlign: "center",
+                opacity: section2Opacity,
+                transform: `translateY(${section2Translate}px)`,
               }}>
-                Your Vision
-              </p>
-              <h2 style={{
-                color: "#fff", fontSize: "clamp(2rem, 5vw, 4rem)",
-                fontWeight: 700, lineHeight: 1.2, margin: "0 0 1.5rem",
-                textShadow: "0 4px 20px rgba(0,0,0,0.5)"
-              }}>
-                Built for the<br />Way You Work
-              </h2>
-              <p style={{
-                color: "rgba(255,255,255,0.8)", fontSize: "1.1rem",
-                lineHeight: 1.8, marginBottom: "2.5rem",
-                textShadow: "0 2px 8px rgba(0,0,0,0.5)"
-              }}>
-                Every team is different. Thousand Hills Digital adapts to your
-                workflow — not the other way around.
-              </p>
+                <p style={{
+                  color: "rgba(255,220,120,0.9)", letterSpacing: "0.25em",
+                  textTransform: "uppercase", fontSize: "0.8rem", marginBottom: "1rem"
+                }}>
+                  Get Started
+                </p>
+                <h2 style={{
+                  color: "#fff", fontSize: "clamp(2rem, 5vw, 4rem)",
+                  fontWeight: 700, lineHeight: 1.2, margin: "0 0 1.5rem",
+                  textShadow: "0 4px 20px rgba(0,0,0,0.5)"
+                }}>
+                  Everything You Need,<br />Right Here
+                </h2>
+                <p style={{
+                  color: "rgba(255,255,255,0.8)", fontSize: "1.1rem",
+                  lineHeight: 1.8, marginBottom: "2.5rem",
+                  textShadow: "0 2px 8px rgba(0,0,0,0.5)"
+                }}>
+                  From customer management to user administration, Thousand Hills Digital
+                  gives your team the tools to move faster and work smarter.
+                </p>
+                <a href="/login" style={{ textDecoration: "none" }}>
+                  <button style={{
+                    padding: "0.9rem 2.5rem",
+                    background: "rgba(255,255,255,0.15)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid rgba(255,255,255,0.4)",
+                    borderRadius: "50px", color: "#fff",
+                    fontSize: "1rem", cursor: "pointer", letterSpacing: "0.05em",
+                    transition: "background 0.3s, transform 0.2s",
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.3)"; e.currentTarget.style.transform = "scale(1.05)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.transform = "scale(1)"; }}
+                  >
+                    Sign In to Get Started
+                  </button>
+                </a>
+              </div>
             </div>
-          </div>
 
-        </div>{/* end scrollable content */}
-      </div>{/* end 450vh */}
+            {/* Third Section */}
+            <div style={{
+              minHeight: "100vh", display: "flex", alignItems: "center",
+              justifyContent: "center", padding: "4rem 2rem 5rem",
+            }}>
+              <div style={{
+                maxWidth: "680px", textAlign: "center",
+                opacity: section3Opacity,
+                transform: `translateY(${section3Translate}px)`,
+              }}>
+                <p style={{
+                  color: "rgba(180,220,255,0.9)", letterSpacing: "0.25em",
+                  textTransform: "uppercase", fontSize: "0.8rem", marginBottom: "1rem"
+                }}>
+                  Your Vision
+                </p>
+                <h2 style={{
+                  color: "#fff", fontSize: "clamp(2rem, 5vw, 4rem)",
+                  fontWeight: 700, lineHeight: 1.2, margin: "0 0 1.5rem",
+                  textShadow: "0 4px 20px rgba(0,0,0,0.5)"
+                }}>
+                  Built for the<br />Way You Work
+                </h2>
+                <p style={{
+                  color: "rgba(255,255,255,0.8)", fontSize: "1.1rem",
+                  lineHeight: 1.8, marginBottom: "2.5rem",
+                  textShadow: "0 2px 8px rgba(0,0,0,0.5)"
+                }}>
+                  Every team is different. Thousand Hills Digital adapts to your
+                  workflow — not the other way around.
+                </p>
+              </div>
+            </div>
 
-      <Footer />
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
-          50%       { opacity: 1;   transform: scaleY(1); }
-        }
-        html, body, #root {
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          overflow: hidden;
-        }
-      `}</style>
-    </div>
+          </div>{/* end scrollable content */}
+        </div>{/* end 450vh */}
+      </div>
+    </PageLayout>
   );
 };
 

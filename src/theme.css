@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   BASE RESETS
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   DESIGN TOKENS
+   Single source of truth. All components reference these — never hardcode.
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root {
+
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+  --font-ui: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+  /* ── Brand palette ──────────────────────────────────────────────────────── */
+  --color-primary:        #1566c2;     /* buttons, active states              */
+  --color-primary-hover:  #2563eb;
+  --color-accent:         #dbd835;     /* navbar background, highlight labels */
+  --color-accent-hover:   #c9c720;
+
+  /* ── Surfaces ───────────────────────────────────────────────────────────── */
+  --color-surface:         #ffffff;
+  --color-form-background: #ffffff;
+  --color-sidebar:         #3b82f6;
+
+  /* ── Overlays ───────────────────────────────────────────────────────────── */
+  --color-overlay:       rgba(0, 0, 0, 0.75);   /* footer, modals            */
+  --color-overlay-light: rgba(0, 0, 0, 0.50);   /* page background tint      */
+
+  /* ── Text ───────────────────────────────────────────────────────────────── */
+  --color-text-primary:   #111827;    /* on light surfaces                    */
+  --color-text-secondary: #4b5563;    /* subdued on light surfaces            */
+  --color-text-on-dark:   rgba(255, 255, 255, 0.85);  /* on dark/overlay bg  */
+  --color-text-muted:     rgba(255, 255, 255, 0.50);  /* footer links, hints  */
+  --color-text-on-accent: #1a1a00;    /* text on the yellow accent navbar     */
+
+  /* ── Component-specific ─────────────────────────────────────────────────── */
+  --color-nav-bg:           var(--color-accent);
+  --color-footer-bg:        var(--color-overlay);
+  --color-sidebar-btn:      rgba(255, 255, 255, 0.10);  /* inactive sidebar button */
+  --color-sidebar-btn-active: rgba(255, 255, 255, 0.35); /* active sidebar button   */
+
+  /* ── Layout dimensions ──────────────────────────────────────────────────── */
+  --height-navbar:  5rem;    /* 80px  — keep in sync with Navbar h-16        */
+  --height-footer:  2.5rem;  /* 40px  — keep in sync with Footer height      */
+  --height-subbar:  0rem;    /* 96px  — dashboard sub-bar when present       */
+  --width-sidebar:  16rem;   /* 256px                                        */
+  --width-sidebar-collapsed: 4rem; /* collapsed icon-rail width               */
+  --height-sidebar: 12rem;
+  --padding-grid-top: 0rem; /* 8px   — space above embedded grid titles    */
+
+  --padding-main-top: var(--height-navbar);   /* replaces --test              */
+
+  /* ── Z-index scale ──────────────────────────────────────────────────────── */
+  --z-background: -1;
+  --z-content:     10;
+  --z-subbar:      20;
+  --z-sidebar:     40;
+  --z-navbar:      50;
+
+  /* ── Transitions ────────────────────────────────────────────────────────── */
+  --transition-layout: 300ms ease-in-out;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   KENDO UI OVERRIDES
+   Map Kendo's variables to our tokens so Kendo components stay in sync.
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+:root {
+  --kendo-color-primary:       var(--color-primary);
+  --kendo-color-primary-hover: var(--color-primary-hover);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   GLOBAL BASE STYLES
+   Set defaults that cascade — reduces inline style repetition in components.
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--color-text-primary);
+  background-color: transparent;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-primary);
+}
+
+h1 { font-size: 3.2em; line-height: 1.1; }
+h2 { padding-left: 1rem; }
+
+/* ── Links ──────────────────────────────────────────────────────────────────── */
+a {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-decoration: inherit;
+}
+a:hover {
+  color: var(--color-primary-hover);
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────────── */
+button {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  line-height: 1;
+  margin: 0;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+button:hover {
+  border-color: var(--color-primary);
+}
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* ── Selects ────────────────────────────────────────────────────────────────── */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  line-height: 1;
+  margin: 0;
+  color: var(--color-text-primary);
+  background-color: var(--color-surface);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: var(--font-ui);
+  cursor: pointer;
+}
+select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* ── Kendo Grid ─────────────────────────────────────────────────────────────── */
+.k-grid {
+  touch-action: manipulation;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   LIGHT MODE
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+@media (prefers-color-scheme: light) {
+  button {
+    background-color: #f9f9f9;
+  }
+}

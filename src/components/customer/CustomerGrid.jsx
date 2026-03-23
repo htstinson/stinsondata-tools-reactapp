@@ -191,25 +191,25 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
     }
   };
 
-  const ActionCell = (props) => {
+const ActionCell = (props) => {
     return (
       <td>
-        <div className="flex space-x-2">
-          <Button 
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <Button
             onClick={(e) => handleShowContacts(props.dataItem, e)}
             themeColor="primary"
             size="small"
           >
             Contacts
           </Button>
-          <Button 
+          <Button
             onClick={() => handleEdit(props.dataItem)}
-            themeColor="info"
+            themeColor="primary"
             size="small"
           >
             Edit
           </Button>
-          <Button 
+          <Button
             onClick={() => handleDelete(props.dataItem)}
             themeColor="error"
             size="small"
@@ -227,22 +227,21 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
   }));
 
   return (
-    <div className="px-4 sm:px-0 mt-8">
+    <div className="px-4 pt-0 sm:px-0 mt-2">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">
-          Customers {selectedSubscription && `for ${selectedSubscription.subscriber_name || selectedSubscription.name || 'Selected Subscription'}`}
-        </h2>
-        <div className="flex items-center space-x-4">
-          <Button 
-            onClick={handleCreate} 
-            themeColor="primary"
-            disabled={!selectedSubscription}
-          >
-            Create New Customer
-          </Button>
-          <Button onClick={fetchData} themeColor="light">Refresh</Button>
+          <h2 className="text-2xl font-bold pl-4">
+            Customers {selectedSubscription && `for ${selectedSubscription.subscriber_name || selectedSubscription.name || 'Selected Subscription'}`}
+          </h2>
+          <div style={{ paddingRight: '1.5rem' }}>
+            <Button
+              onClick={handleCreate}
+              themeColor="primary"
+              disabled={!selectedSubscription}
+            >
+              Create New Customer
+            </Button>
+          </div>
         </div>
-      </div>
 
       {!selectedSubscription ? (
         <div className="flex justify-center items-center h-64">
@@ -281,14 +280,15 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
           <GridColumn 
             title="Actions" 
             cell={ActionCell}
-            width="300px"
+            width="250px"
           />
         </Grid>
       )}
 
       {/* NEW: Contacts Modal Dialog */}
+
       {showContactsModal && selectedCustomerForContacts && (
-        <Dialog 
+        <Dialog
           title={`Contacts for ${selectedCustomerForContacts.name}`}
           onClose={handleCloseContactsModal}
           width="90%"
@@ -296,12 +296,11 @@ const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {
         >
           <ContactGrid selectedCustomer={selectedCustomerForContacts} />
           <DialogActionsBar>
-            <Button 
-              onClick={handleCloseContactsModal}
-              themeColor="primary"
-            >
-              Close
-            </Button>
+            <div className="flex justify-end">
+              <Button onClick={handleCloseContactsModal} themeColor="primary">
+                Close
+              </Button>
+            </div>
           </DialogActionsBar>
         </Dialog>
       )}

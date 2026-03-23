@@ -1,20 +1,22 @@
 // src/components/Footer.jsx
 const Footer = () => {
-  const linkStyle = { color: "rgba(255,255,255,0.5)", textDecoration: "none" };
+  const linkStyle = { color: 'var(--color-text-muted)', textDecoration: "none" };
   const onEnter = e => e.target.style.color = "#fff";
-  const onLeave = e => e.target.style.color = "rgba(255,255,255,0.5)";
+  const onLeave = e => e.target.style.color = 'var(--color-text-muted)';
 
   return (
     <div style={{
       position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 20,
-      background: "rgba(0,0,0,0.75)", backdropFilter: "blur(10px)",
+      background: 'var(--color-footer-bg)', 
+      backdropFilter: "blur(10px)",
       borderTop: "1px solid rgba(255,255,255,0.1)",
       height: "40px", minHeight: "40px", maxHeight: "40px",
       padding: "0 2rem", overflow: "hidden",
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      fontSize: "0.8rem", fontFamily: "'Segoe UI', sans-serif",
+      display: "flex", alignItems: "center", 
+      justifyContent: "space-between",
+      fontSize: "0.8rem"
     }}>
-      <span style={{ color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>
+      <span style={{ color: 'var(--color-text-muted)', whiteSpace: "nowrap" }}>
         © {new Date().getFullYear()} Stinson Data LLC
       </span>
       <span style={{ display: "flex", gap: "1.25rem" }}>

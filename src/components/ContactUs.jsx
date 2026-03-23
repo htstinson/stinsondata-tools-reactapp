@@ -1,25 +1,23 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin } from 'lucide-react';
-import Navbar from './Navbar';
-import Footer from '../components/footer/footer.jsx';
+import PageLayout from './PageLayout.jsx';
+import { api } from '../api';
+import { Button } from '@progress/kendo-react-buttons';
 
-const CDN = `${import.meta.env.VITE_CDN_BASE_URL}`;
-const IMG2 = `${CDN}/bg2.jpeg`;
+const IMG2 = api.cdn('/bg2.jpeg');
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
+    phone: '',
     subject: '',
     message: ''
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
@@ -27,160 +25,107 @@ const ContactUs = () => {
     // Handle form submission here
   };
 
+  const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500";
+  const labelClass = "block text-sm font-medium mb-1 text-left";
+
   return (
-    <div className="relative min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Background Image */}
-      <div style={{
-        position: "fixed", inset: 0,
-        backgroundImage: `url(${IMG2})`,
-        backgroundSize: "cover", backgroundPosition: "center",
-        opacity: 1.0,
-        zIndex: 0,
-      }} />
+    <PageLayout bgImage={IMG2} bgOpacity={0.7}>
+      <div className="max-w-2xl mx-auto py-18 px-4  sm:px-6 lg:px-8">
 
-      {/* Foreground Content */}
-      <div className="relative z-10">
-        <Navbar />
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold mb-3" style={{ color: 'var(--color-text-primary)' }}>
+            Get in Touch
+          </h1>
+          <p className="text-lg" style={{ color: 'var(--color-text-primary)' }}>
+            We'd love to hear from you — fill out the form and we'll get back to you shortly.
+          </p>
+        </div>
 
-        <div className="max-w-7xl mx-auto">
-          {/* Header Section */}
-          <div className="text-center mb-12">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Contact Us</h1>
-            <p className="text-lg text-black">
-              Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
-            </p>
-          </div>
+        <div className="p-8 rounded-lg shadow-md" style={{ background: 'var(--color-form-background)' }}>
+          <form onSubmit={handleSubmit} className="space-y-4">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Contact Information */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-6">Contact Information</h2>
-
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Mail className="w-6 h-6 text-blue-500 mt-1" />
-                  <div>
-                    <p className="font-medium text-left">Email</p>
-                    <p className="text-gray-600 text-left">support@stinsondata.com</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <Phone className="w-6 h-6 text-blue-500 mt-1" />
-                  <div>
-                    <p className="font-medium text-left">Phone</p>
-                    <p className="text-gray-600 text-left">+1 (573) 303-3724</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <MapPin className="w-6 h-6 text-blue-500 mt-1" />
-                  <div>
-                    <p className="font-medium text-left">Address</p>
-                    <p className="text-gray-600 text-left">
-                      Stinson Data LLC<br />
-                      PO Box 44<br />
-                      Kirksville, MO 63501
-                    </p>
-                  </div>
-                </div>
+            {/* First + Last name */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="firstName" className={labelClass} style={{ color: 'var(--color-text-primary)' }}>
+                  First Name
+                </label>
+                <input
+                  type="text" id="firstName" name="firstName"
+                  value={formData.firstName} onChange={handleChange}
+                  className={inputClass} required
+                />
+              </div>
+              <div>
+                <label htmlFor="lastName" className={labelClass} style={{ color: 'var(--color-text-primary)' }}>
+                  Last Name
+                </label>
+                <input
+                  type="text" id="lastName" name="lastName"
+                  value={formData.lastName} onChange={handleChange}
+                  className={inputClass} required
+                />
               </div>
             </div>
 
-            {/* Contact Form */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h2 className="text-xl font-semibold mb-6">Send us a Message</h2>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1 text-left">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1 text-left">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1 text-left">
-                    Phone
-                  </label>
-                  <input
-                    type="telephone"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1 text-left">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1 text-left">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    rows="4"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  ></textarea>
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors duration-200"
-                >
-                  Send Message
-                </button>
-              </form>
+            {/* Email + Phone */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="email" className={labelClass} style={{ color: 'var(--color-text-primary)' }}>
+                  Email
+                </label>
+                <input
+                  type="email" id="email" name="email"
+                  value={formData.email} onChange={handleChange}
+                  className={inputClass} required
+                />
+              </div>
+              <div>
+                <label htmlFor="phone" className={labelClass} style={{ color: 'var(--color-text-primary)' }}>
+                  Phone
+                </label>
+                <input
+                  type="tel" id="phone" name="phone"
+                  value={formData.phone} onChange={handleChange}
+                  className={inputClass}
+                />
+              </div>
             </div>
-          </div>
+
+            {/* Subject */}
+            <div>
+              <label htmlFor="subject" className={labelClass} style={{ color: 'var(--color-text-primary)' }}>
+                Subject
+              </label>
+              <input
+                type="text" id="subject" name="subject"
+                value={formData.subject} onChange={handleChange}
+                className={inputClass} required
+              />
+            </div>
+
+            {/* Message */}
+            <div>
+              <label htmlFor="message" className={labelClass} style={{ color: 'var(--color-text-primary)' }}>
+                Message
+              </label>
+              <textarea
+                id="message" name="message"
+                value={formData.message} onChange={handleChange}
+                rows="4" className={inputClass} required
+              />
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button type="submit" themeColor="primary">Send Message</Button>
+            </div>
+
+          </form>
         </div>
 
-        <Footer />
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

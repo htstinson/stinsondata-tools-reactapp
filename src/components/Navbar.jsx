@@ -3,8 +3,6 @@ import { Megaphone, Ruler, Menu, X, Home, Info, Phone, BarChart, Users, LogOut, 
 
 import { UserContext, useUser } from './UserContext.jsx'; 
 
-//import logo from '../assets/logo.png'; // adjust path relative to this file
-
 const CDN = `${import.meta.env.VITE_CDN_BASE_URL}`;
 
 // Create a new context for the user IP
@@ -213,7 +211,7 @@ const SubscriptionsDropdown = ({ isMobile = false }) => {
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 w-full px-3 py-2 rounded-md text-base font-medium flex items-center justify-between"
+          className="text-[var(--color-text-primary)] hover:text-gray-900 hover:bg-gray-100 w-full px-3 py-2 rounded-md text-base font-medium flex items-center justify-between"
         >
           <div className="flex items-center gap-2">
             <Layers size={18} />
@@ -238,7 +236,7 @@ const SubscriptionsDropdown = ({ isMobile = false }) => {
                 <button
                   key={link.id}
                   onClick={() => handleSubscriptionClick(link)}
-                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 block px-3 py-2 rounded-md text-sm w-full text-left"
+                  className="text-[var(--color-text-primary)] hover:text-gray-900 hover:bg-gray-50 block px-3 py-2 rounded-md text-sm w-full text-left"
                 >
                   {link.name}
                 </button>
@@ -258,6 +256,7 @@ const SubscriptionsDropdown = ({ isMobile = false }) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="text-blue-600 hover:text-blue-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1 transition-colors"
+        style={{background: 'var(--color-accent)'}}
       >
         <Layers size={18} />
         <span>Subscriptions</span>
@@ -268,7 +267,7 @@ const SubscriptionsDropdown = ({ isMobile = false }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50 animate-fadeIn">
+        <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg border border-gray-100 py-2 z-50 animate-fadeIn">
           <div className="px-3 py-2 border-b border-gray-100">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               My Subscriptions
@@ -354,7 +353,7 @@ const AdminDropdown = ({ isMobile = false }) => {
               <a
                 key={link.name}
                 href={link.href}
-                className="text-gray-600 hover:text-gray-900 hover:bg-gray-50 block px-3 py-2 rounded-md text-sm flex items-center gap-2"
+                className="text-[var(--color-text-primary)] hover:text-gray-900 hover:bg-gray-50 block px-3 py-2 rounded-md text-sm flex items-center gap-2"
               >
                 <link.icon size={16} />
                 {link.name}
@@ -374,6 +373,7 @@ const AdminDropdown = ({ isMobile = false }) => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="text-blue-600 hover:text-blue-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1 transition-colors"
+        style={{background: 'var(--color-accent)'}}
       >
         <Shield size={18} />
         <span>Admin</span>
@@ -384,7 +384,7 @@ const AdminDropdown = ({ isMobile = false }) => {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50 animate-fadeIn">
+        <div className="absolute left-0 mt-2 w-56 bg-white rounded-lg border border-gray-100 py-2 z-50 animate-fadeIn">
           <div className="px-3 py-2 border-b border-gray-100">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               Administration
@@ -427,7 +427,7 @@ const UserDropdown = () => {
     return (
       <a 
         href="/login" 
-        className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+        className="text-[var(--color-text-primary)] hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
       >
         Login
       </a>
@@ -459,7 +459,8 @@ const UserDropdown = () => {
     <div className="relative">
       <button 
         onClick={toggleDropdown}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+        className="flex items-center gap-2 text-[var(--color-text-primary)] hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+        style={{background: 'var(--color-accent)'}}
       >
         <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
           {initials}
@@ -468,7 +469,7 @@ const UserDropdown = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-50">
+        <div className="absolute right-0 mt-2 w-64 bg-white rounded-md py-1 z-50">
           <div className="px-4 py-2 border-b border-gray-100">
             <p className="text-sm font-medium text-gray-700">IP Address:</p>
             {isLoading ? (
@@ -547,7 +548,7 @@ const Navbar = () => {
     { name: 'Home', href: '/', icon: Home, access: "public" },
     { name: 'About', href: '/about', icon: Info },
     { name: 'Subscriptions', href: '/subscriptions', icon: Layers, requiredRoles: ["Root","Global_Admin","Org_Admin","Standard_User"] },
-    { name: 'Contact', href: '/contact', icon: Phone, access: "public" },
+    { name: 'Contact Us', href: '/contact', icon: Phone, access: "public" },
     { name: 'Admin', href: '/admin', requiredRoles: ["Root"]}
   ];
 
@@ -626,33 +627,33 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white shadow-lg z-50">
-      <style>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-      `}</style>
+    <nav className="fixed top-0 left-0 w-full z-50">
       
       <div className="w-full">
-        <div className="flex justify-start items-center h-16 gap-8">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <img src={`${CDN}/logo.png`} width="65" height="49" alt="Description"/>
+        <div 
+          className="flex justify-start items-center h-16 gap-8"
+          style={{background: 'var(--color-accent)',
+        }}
+        >
+        {/* Logo */}
+          <div style={{ 
+            width:      'var(--width-sidebar-collapsed)',
+            flexShrink: 0,
+            display:    'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding:    '0.25rem',
+          }}>
+            <img 
+              src={`${CDN}/logo.png`} 
+              alt="Logo"
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
           </div>
           
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center">
-            <div className="flex space-x-8">
+          <div className="hidden md:flex items-center flex-1">
+            <div className="flex space-x-8" >
             {navItems
               .filter(item => shouldShowNavItem(item, currentUser))
               .map((item) => {
@@ -665,7 +666,7 @@ const Navbar = () => {
                     <a
                       key={item.name}
                       href={item.href}
-                      className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
+                      className="text-[var(--color-text-primary)] hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2"
                     >
                       {item.icon && <item.icon size={18} />}
                       {item.name}
@@ -675,7 +676,7 @@ const Navbar = () => {
               })}
             </div>
             
-            <div className="ml-8 border-l border-gray-200 pl-6">
+            <div className="ml-auto pl-6" >
               <UserDropdown />
             </div>
           </div>
@@ -685,7 +686,7 @@ const Navbar = () => {
             <UserDropdown />
             <button
               onClick={toggleMenu}
-              className="ml-4 p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
+              className="ml-4 p-2 rounded-md text-[var(--color-text-primary)] hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -695,7 +696,7 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {isOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-white border-t" >
               {navItems
                 .filter(item => shouldShowNavItem(item, currentUser))
                 .map((item) => {
@@ -708,7 +709,7 @@ const Navbar = () => {
                       <a
                         key={item.name}
                         href={item.href}
-                        className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium flex items-center gap-2"
+                        className="text-[var(--color-text-primary)] hover:text-gray-900 hover:bg-gray-100 block px-3 py-2 rounded-md text-base font-medium flex items-center gap-2"
                       >
                         {item.icon && <item.icon size={18} />}
                         {item.name}

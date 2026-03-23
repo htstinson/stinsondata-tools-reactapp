@@ -81,7 +81,7 @@ const MentionsGrid = ({ selectedSearchResult, selectedSubscription }) => {
   }
 
   return (
-    <div className="px-4 sm:px-0 mt-8">
+    <div className="px-4 sm:px-0 mt-2">
       <div className="mb-4 flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold">Mentions</h2>

@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './index.css';
 import '@progress/kendo-licensing';
 import '@progress/kendo-react-intl';
 import '@progress/kendo-theme-default/dist/all.css';
+import './theme.css';
 
 // Dynamic import for licensing
 const initializeLicense = async () => {
