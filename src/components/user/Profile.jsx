@@ -1,3 +1,5 @@
+{/* ── my-login-app/src/components/user/Profile.jsx ── */}
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@progress/kendo-react-buttons';
 import { Input } from '@progress/kendo-react-inputs';

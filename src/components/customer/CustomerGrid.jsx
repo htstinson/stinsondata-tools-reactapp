@@ -1,3 +1,5 @@
+{/* ── my-login-app/src/components/customer/CustomerGrid.jsx ── */}
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
@@ -6,7 +8,6 @@ import { Dialog, DialogActionsBar } from '@progress/kendo-react-dialogs';
 import { CustomerForm } from './CustomerForm';
 import ContactGrid from '../contact/ContactGrid'; // Import ContactGrid
 import { UserContext, useUser } from '../UserContext.jsx'; 
-
 import { api } from '../../api';
 
 const CustomerGrid = ({ selectedSubscription, onCustomerSelect }) => {

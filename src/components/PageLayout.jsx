@@ -1,4 +1,4 @@
-// src/components/layout/PageLayout.jsx
+{/* ── my-login-app/src/components/PageLayout.jsx ── */}
 
 import React from 'react';
 import Navbar from './Navbar.jsx';

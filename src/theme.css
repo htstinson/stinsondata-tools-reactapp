@@ -1,3 +1,5 @@
+/* ── my-login-app/src/theme.css── */
+
 @import "tailwindcss";
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -48,7 +50,7 @@
   --height-navbar:  5rem;    /* 80px  — keep in sync with Navbar h-16        */
   --height-footer:  2.5rem;  /* 40px  — keep in sync with Footer height      */
   --height-subbar:  0rem;    /* 96px  — dashboard sub-bar when present       */
-  --width-sidebar:  16rem;   /* 256px                                        */
+  --width-sidebar:  12rem;   /* 256px                                        */
   --width-sidebar-collapsed: 4rem; /* collapsed icon-rail width               */
   --height-sidebar: 12rem;
   --padding-grid-top: 0rem; /* 8px   — space above embedded grid titles    */

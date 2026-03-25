@@ -1,4 +1,5 @@
-// src/components/Footer.jsx
+{/* ── my-login-app/src/components/footer.jsx ── */}
+
 const Footer = () => {
   const linkStyle = { color: 'var(--color-text-muted)', textDecoration: "none" };
   const onEnter = e => e.target.style.color = "#fff";

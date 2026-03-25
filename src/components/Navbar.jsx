@@ -1,6 +1,7 @@
+{/* ── my-login-app/src/components/Navbar.jsx ── */}
+
 import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
 import { Megaphone, Ruler, Menu, X, Home, Info, Phone, BarChart, Users, LogOut, User, Settings, ChevronDown, Shield, Database, FileText, UserCog, Package, BadgePlus, Sprout, Box, Layers } from 'lucide-react';
-
 import { UserContext, useUser } from './UserContext.jsx'; 
 
 const CDN = `${import.meta.env.VITE_CDN_BASE_URL}`;

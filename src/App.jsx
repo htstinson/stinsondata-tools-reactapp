@@ -1,3 +1,5 @@
+{/* ── my-login-app/src/App.jsx ── */}
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@progress/kendo-react-buttons';
@@ -8,12 +10,10 @@ import ContactUs from './components/ContactUs';
 import Users from './components/user/Users';
 import Profile from './components/user/Profile';
 import Admin from './components/admin/Admin';
-
 import Customers from './components/customer/Customers';
 import { UserProvider, useUser } from './components/UserContext.jsx';
 import { SubscriptionProvider } from './components/Navbar.jsx';
 import JWTDebugger from './components/JWTDebugger';
-
 import { api } from './api';
 import PageLayout from './components/PageLayout.jsx';
 

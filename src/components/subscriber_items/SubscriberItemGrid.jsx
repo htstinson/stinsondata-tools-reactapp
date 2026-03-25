@@ -1,3 +1,5 @@
+{/* ── my-login-app/src/components/subscriber_items/SubscriberItemGrid.jsx ── */}
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';

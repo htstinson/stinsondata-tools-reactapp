@@ -1,3 +1,5 @@
+{/* ── my-login-app/src/components/search_definitions/SearchDefinitionGrid.jsx ── */}
+
 import React, { useState, useEffect } from 'react';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
