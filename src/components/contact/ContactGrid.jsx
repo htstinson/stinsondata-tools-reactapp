@@ -1,14 +1,15 @@
+/* ── my-login-app/src/components/contact/ContactGrid.jsx ── */
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
 import { Button } from '@progress/kendo-react-buttons';
 import { Dialog, DialogActionsBar } from '@progress/kendo-react-dialogs';
-import ContactForm from '../contact/ContactForm'; // Import ContactForm instead of CustomerForm
+import ContactForm from '../contact/ContactForm';
 import { UserContext, useUser } from '../UserContext.jsx'; 
-
 import { api } from '../../api';
 
-const ContactGrid = ({ selectedCustomer }) => {
+const ContactGrid = ({ selectedCustomer, hideTitle = false, onBack = null, onReady = null, triggerCreate = false }) => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -20,7 +21,7 @@ const ContactGrid = ({ selectedCustomer }) => {
   // Notification dialog state
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState('');
-  const [notificationType, setNotificationType] = useState('success'); // 'success' or 'error'
+  const [notificationType, setNotificationType] = useState('success');
   
   // Confirmation dialog state
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -28,16 +29,13 @@ const ContactGrid = ({ selectedCustomer }) => {
   
   const userContext = useUser();
   
-  // Function to show notification
   const showNotificationDialog = (message, type = 'success') => {
     setNotificationMessage(message);
     setNotificationType(type);
     setShowNotification(true);
   };
 
-  const handleNotificationClose = () => {
-    setShowNotification(false);
-  };
+  const handleNotificationClose = () => setShowNotification(false);
 
   const handleConfirmationClose = () => {
     setShowConfirmation(false);
@@ -51,7 +49,6 @@ const ContactGrid = ({ selectedCustomer }) => {
   };
   
   const fetchData = async () => {
-    // Don't fetch if no customer is selected
     if (!selectedCustomer) {
       setData([]);
       return;
@@ -61,15 +58,8 @@ const ContactGrid = ({ selectedCustomer }) => {
       setLoading(true);
       setError(null);
 
-      const currentUser = userContext?.currentUser;
-
-      console.log('currentuser', currentUser);
-      console.log('selectedCustomer', selectedCustomer);
-      
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
+      if (!token) throw new Error('No authentication token found');
   
       let url = 'https://thousandhillsdigital.net/api/v1/subscriber/customer/contacts';
       
@@ -78,17 +68,8 @@ const ContactGrid = ({ selectedCustomer }) => {
         params.append('sort', sort[0].field);
         params.append('order', sort[0].dir);
       }
-
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
+      if (params.toString()) url += `?${params.toString()}`;
   
-      // Send both current user and selected customer info
-      const requestBody = {
-        ...currentUser,
-        customer_id: selectedCustomer.id
-      };
-
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -97,8 +78,6 @@ const ContactGrid = ({ selectedCustomer }) => {
         },
         body: JSON.stringify(selectedCustomer)
       });
-
-      console.log('body:', JSON.stringify(selectedCustomer));
       
       if (!response.ok) {
         if (response.status === 401) {
@@ -110,10 +89,8 @@ const ContactGrid = ({ selectedCustomer }) => {
       }
       
       const jsonData = await response.json();
-
-      console.log(jsonData);
-
       setData(jsonData);
+      if (onReady) onReady();
     } catch (err) {
       setError(err.message);
       console.error('Error fetching data:', err);
@@ -123,14 +100,16 @@ const ContactGrid = ({ selectedCustomer }) => {
     }
   };
 
-  // Fetch contacts when selectedCustomer changes
+  // Open create dialog when parent triggers it
+  useEffect(() => {
+    if (triggerCreate) handleCreate();
+  }, [triggerCreate]);
+
   useEffect(() => {
     fetchData();
   }, [selectedCustomer, sort]);
 
-  const handleSortChange = (e) => {
-    setSort(e.sort);
-  };
+  const handleSortChange = (e) => setSort(e.sort);
 
   const handleEdit = (dataItem) => {
     setEditContact(dataItem);
@@ -147,9 +126,8 @@ const ContactGrid = ({ selectedCustomer }) => {
       contact.subscriber_id = selectedCustomer.subscriber_id;
       contact.parent_id = selectedCustomer.id;
       contact.id ?  
-      await api.put(`/api/v1/subscriber/customer/contact`, contact) :  
-      await api.post(`/api/v1/subscriber/customer/contact`, contact);
-      const isEdit = !!contact.id;
+        await api.put(`/api/v1/subscriber/customer/contact`, contact) :  
+        await api.post(`/api/v1/subscriber/customer/contact`, contact);
       setShowDialog(false);
       fetchData();
     } catch (err) {
@@ -171,46 +149,35 @@ const ContactGrid = ({ selectedCustomer }) => {
     }
   };
 
-  const ActionCell = (props) => {
-    return (
-      <td>
-        <div className="flex space-x-2">
-          <Button 
-            onClick={() => handleEdit(props.dataItem)}
-            themeColor="info"
-            size="small"
-          >
-            Edit
-          </Button>
-          <Button 
-            onClick={() => handleDelete(props.dataItem)}
-            themeColor="error"
-            size="small"
-          >
-            Delete
-          </Button>
-        </div>
-      </td>
-    );
-  };
+  const ActionCell = (props) => (
+    <td>
+      <div className="grid-actions">
+        <Button onClick={() => handleEdit(props.dataItem)} themeColor="info" size="small">Edit</Button>
+        <Button onClick={() => handleDelete(props.dataItem)} themeColor="error" size="small">Delete</Button>
+      </div>
+    </td>
+  );
 
   return (
-    <div className="px-4 sm:px-0 mt-8">
-      <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold">
-          Contacts {selectedCustomer && `for ${selectedCustomer.name}`}
-        </h2>
-        <div className="flex items-center space-x-4">
-          <Button 
-            onClick={handleCreate} 
-            themeColor="primary"
-            disabled={!selectedCustomer}
-          >
-            Create New Contact
-          </Button>
-          <Button onClick={fetchData} themeColor="light">Refresh</Button>
+    <div className="px-4 sm:px-0">
+      {/* Only show the title/toolbar when not embedded */}
+      {/* Toolbar only shown when ContactGrid is used standalone */}
+      {!hideTitle && (
+        <div className="mb-4 flex justify-between items-center">
+          <h2 className="text-2xl font-bold">
+            Contacts {selectedCustomer && `for ${selectedCustomer.name}`}
+          </h2>
+          <div className="flex items-center space-x-4">
+            <Button onClick={handleCreate} themeColor="primary" disabled={!selectedCustomer}>
+              Create New Contact
+            </Button>
+            <Button onClick={fetchData} themeColor="light">Refresh</Button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* When embedded, show a compact toolbar with just the Create button */}
+
 
       {!selectedCustomer ? (
         <div className="flex justify-center items-center h-64">
@@ -223,17 +190,14 @@ const ContactGrid = ({ selectedCustomer }) => {
       ) : error ? (
         <div className="p-4 bg-red-50 border border-red-200 rounded">
           <p className="text-red-600">Error loading data: {error}</p>
-          <button 
-            onClick={fetchData}
-            className="mt-2 bg-red-100 text-red-600 px-4 py-2 rounded hover:bg-red-200"
-          >
+          <button onClick={fetchData} className="mt-2 bg-red-100 text-red-600 px-4 py-2 rounded hover:bg-red-200">
             Try Again
           </button>
         </div>
       ) : (
         <Grid
           data={data}
-          style={{ height: '400px' }}
+          style={{ height: '525px' }}
           sortable={true}
           sort={sort}
           onSortChange={handleSortChange}
@@ -249,18 +213,17 @@ const ContactGrid = ({ selectedCustomer }) => {
           <GridColumn field="phone" title="Phone" />
           <GridColumn field="job_title" title="Job Title" />
           <GridColumn field="department" title="Department" />
-          <GridColumn 
-            title="Actions" 
-            cell={ActionCell}
-            width="200px"
-          />
+          <GridColumn title="Actions" cell={ActionCell} width="200px" />
         </Grid>
       )}
 
       {/* Contact Form Dialog */}
       {showDialog && (
-        <Dialog title={editContact ? "Edit Contact" : "Create New Contact"} onClose={() => setShowDialog(false)}>
-          <ContactForm 
+        <Dialog
+          title={editContact ? "Edit Contact" : "Create New Contact"}
+          onClose={() => setShowDialog(false)}
+        >
+          <ContactForm
             contact={editContact}
             selectedCustomer={selectedCustomer}
             onSubmit={handleSubmit}
@@ -271,12 +234,7 @@ const ContactGrid = ({ selectedCustomer }) => {
 
       {/* Confirmation Dialog */}
       {showConfirmation && (
-        <Dialog 
-          title="Confirm Delete"
-          onClose={handleConfirmationClose}
-          width={400}
-          height={200}
-        >
+        <Dialog title="Confirm Delete" onClose={handleConfirmationClose} width={400} height={200}>
           <div className="p-4 text-gray-700">
             <p>Are you sure you want to delete this contact?</p>
             {contactToDelete && (
@@ -286,26 +244,15 @@ const ContactGrid = ({ selectedCustomer }) => {
             )}
           </div>
           <DialogActionsBar>
-            <Button 
-              onClick={handleConfirmationClose}
-              themeColor="light"
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={confirmDelete}
-              themeColor="error"
-              className="ml-2"
-            >
-              Delete
-            </Button>
+            <Button onClick={handleConfirmationClose} themeColor="light">Cancel</Button>
+            <Button onClick={confirmDelete} themeColor="error" className="ml-2">Delete</Button>
           </DialogActionsBar>
         </Dialog>
       )}
 
       {/* Notification Dialog */}
       {showNotification && (
-        <Dialog 
+        <Dialog
           title={notificationType === 'success' ? "Success" : "Error"}
           onClose={handleNotificationClose}
           width={400}
@@ -315,11 +262,7 @@ const ContactGrid = ({ selectedCustomer }) => {
             <p>{notificationMessage}</p>
           </div>
           <DialogActionsBar>
-            <Button 
-              primary 
-              onClick={handleNotificationClose}
-              themeColor={notificationType === 'success' ? 'primary' : 'error'}
-            >
+            <Button primary onClick={handleNotificationClose} themeColor={notificationType === 'success' ? 'primary' : 'error'}>
               OK
             </Button>
           </DialogActionsBar>

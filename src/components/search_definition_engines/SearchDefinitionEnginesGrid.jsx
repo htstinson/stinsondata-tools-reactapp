@@ -189,7 +189,7 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange })
   const ActionCell = (props) => {
     return (
       <td>
-        <div className="flex space-x-2">
+        <div className="grid-actions">
           <Button 
             onClick={(e) => handleShowResults(props.dataItem, e)}
             themeColor="primary"

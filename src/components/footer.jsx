@@ -1,4 +1,4 @@
-{/* ── my-login-app/src/components/footer.jsx ── */}
+/* ── my-login-app/src/components/footer.jsx ── */
 
 const Footer = () => {
   const linkStyle = { color: 'var(--color-text-muted)', textDecoration: "none" };

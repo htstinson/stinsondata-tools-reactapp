@@ -1,4 +1,4 @@
-{/* ── my-login-app/src/main.jsx ── */}
+/* ── my-login-app/src/main.jsx ── */
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';

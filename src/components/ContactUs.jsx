@@ -1,4 +1,4 @@
-{/* ── my-login-app/src/components/ContactUs.jsx ── */}
+/* ── my-login-app/src/components/ContactUs.jsx ── */
 
 import React, { useState } from 'react';
 import PageLayout from './PageLayout.jsx';
@@ -32,7 +32,7 @@ const ContactUs = () => {
 
   return (
     <PageLayout bgImage={IMG2} bgOpacity={0.7}>
-      <div className="max-w-2xl mx-auto py-18 px-4  sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto pb-18 px-4  sm:px-6 lg:px-8">
 
         {/* Header */}
         <div className="text-center mb-8">

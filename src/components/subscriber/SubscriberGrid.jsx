@@ -146,7 +146,7 @@ const SubscriberGrid = () => {
   const ActionCell = (props) => {
     return (
       <td>
-        <div className="flex space-x-2">
+        <div className="grid-actions">
           <Button 
             onClick={() => handleEdit(props.dataItem)}
             themeColor="info"

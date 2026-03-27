@@ -1,4 +1,4 @@
-{/* ── my-login-app/src/components/searchengines/SearchEnginesGrid.jsx ── */}
+/* ── my-login-app/src/components/searchengines/SearchEnginesGrid.jsx ── */
 
 import React, { useState, useEffect } from 'react';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
@@ -163,7 +163,7 @@ const SearchEngineGrid = ({ selectedSubscription }) => {
   const ActionCell = (props) => {
     return (
       <td>
-        <div className="flex space-x-2">
+        <div className="grid-actions">
           <Button 
             onClick={() => handleEdit(props.dataItem)}
             themeColor="info"

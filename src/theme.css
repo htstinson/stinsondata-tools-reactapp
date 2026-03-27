@@ -52,7 +52,7 @@
   --height-subbar:  0rem;    /* 96px  — dashboard sub-bar when present       */
   --width-sidebar:  12rem;   /* 256px                                        */
   --width-sidebar-collapsed: 4rem; /* collapsed icon-rail width               */
-  --height-sidebar: 12rem;
+  --height-sidebar: 11rem;
   --padding-grid-top: 0rem; /* 8px   — space above embedded grid titles    */
 
   --padding-main-top: var(--height-navbar);   /* replaces --test              */
@@ -166,6 +166,13 @@ select:focus {
 /* ── Kendo Grid ─────────────────────────────────────────────────────────────── */
 .k-grid {
   touch-action: manipulation;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.grid-actions {
+  display: flex;
+  gap: 8px;
 }
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

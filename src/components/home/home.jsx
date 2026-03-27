@@ -1,4 +1,4 @@
-// App.jsx
+// home.jsx
 import React from 'react';
 import { 
   AppBar, 

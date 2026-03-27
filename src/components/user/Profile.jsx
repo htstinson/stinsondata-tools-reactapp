@@ -1,4 +1,4 @@
-{/* ── my-login-app/src/components/user/Profile.jsx ── */}
+/* ── my-login-app/src/components/user/Profile.jsx ── */
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@progress/kendo-react-buttons';
@@ -108,7 +108,7 @@ export const Profile = () => {
 
   return (
     <PageLayout bgImage={IMG2} bgOpacity={0.7}>
-      <div className="py-18 px-4 sm:px-6 lg:px-8">
+      <div className="pb-18 px-4 sm:px-6 lg:px-8">
 
         <h1 className="text-2xl font-bold mb-6 text-center" style={{ color: 'var(--color-text-primary)' }}>
           My Profile

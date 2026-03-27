@@ -1,4 +1,4 @@
-{/* ── my-login-app/src/components/subscriber_items/SubscriberItemGrid.jsx ── */}
+/* ── my-login-app/src/components/subscriber_items/SubscriberItemGrid.jsx ── */
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -219,7 +219,7 @@ const SubscriberItemGrid = ({ selectedSubscription, onSubscriptionSelect }) => {
   const ActionCell = (props) => {
     return (
       <td>
-        <div className="flex space-x-2">
+        <div className="grid-actions">
           <Button 
             onClick={() => handleEdit(props.dataItem)}
             themeColor="info"

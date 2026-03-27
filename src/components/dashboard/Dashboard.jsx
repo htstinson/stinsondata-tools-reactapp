@@ -1,115 +1,202 @@
 {/* ── my-login-app/src/components/dashboard/Dashboard.jsx ── */}
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Menu, ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Menu, ChevronLeft, ChevronRight, ChevronDown, GripVertical } from 'lucide-react';
 import CustomerGrid from '../customer/CustomerGrid.jsx';
 import SubscriberItemGrid from '../subscriber_items/SubscriberItemGrid.jsx';
 import SearchEngineGrid from '../searchengines/SearchEnginesGrid.jsx';
 import SearchDefinitionGrid from '../search_definitions/SearchDefinitionGrid.jsx';
 import SearchDefinitionEngineGrid from '../search_definition_engines/SearchDefinitionEnginesGrid.jsx';
 import MentionsGrid from '../mentions/MentionsGrid.jsx';
+import Integrations from '../cultivate/Integrations.jsx';
 import { useSubscription } from '../../components/Navbar.jsx';
 import PageLayout from '../PageLayout.jsx';
 import { api } from '../../api';
 
 const IMG2 = api.cdn('/bg2.jpeg');
 
+// ── Persistence helpers ──────────────────────────────────────────────────────
+const load = (key, fallback) => {
+  try {
+    const val = localStorage.getItem(key);
+    const result = val !== null ? JSON.parse(val) : fallback;
+    console.log(`[UI] load "${key}":`, result);
+    return result;
+  } catch (e) {
+    console.warn(`[UI] load "${key}" failed:`, e);
+    return fallback;
+  }
+};
+
+const save = (key, val) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(val));
+    console.log(`[UI] save "${key}":`, val);
+  } catch (e) {
+    console.warn(`[UI] save "${key}" failed:`, e);
+  }
+};
+
+// ── Section definitions ──────────────────────────────────────────────────────
+const INITIAL_SECTIONS = [
+  {
+    id: 'calibrate', label: 'Calibrate', icon: '⚙️',
+    items: [
+      { id: 'search-engines',            label: 'Engines',     icon: '🔍' },
+      { id: 'search-definitions',        label: 'Definitions', icon: '📋' },
+      { id: 'search-definition-engines', label: 'Jobs',        icon: '📋' },
+      { id: 'mentions',                  label: 'Mentions',    icon: '💬' },
+    ],
+  },
+  {
+    id: 'create', label: 'Create', icon: '✨',
+    items: [
+      { id: 'create-social', label: 'Social', icon: '📱' },
+      { id: 'create-video',  label: 'Video',  icon: '🎬' },
+      { id: 'create-web',    label: 'Web',    icon: '🌐' },
+    ],
+  },
+  {
+    id: 'amplify', label: 'Amplify', icon: '📣',
+    items: [
+      { id: 'amplify-advocate',        label: 'Advocate',        icon: '📣' },
+      { id: 'amplify-constantcontact', label: 'Constant Contact', icon: '📧' },
+      { id: 'amplify-ringcentral',     label: 'Ring Central',     icon: '📞' },
+    ],
+  },
+  {
+    id: 'plan', label: 'Plan', icon: '📝',
+    items: [
+      { id: 'plan-profile',     label: 'Profile',     icon: '👤' },
+      { id: 'subscriber-items', label: 'Services',    icon: '📦' },
+      { id: 'plan-background',  label: 'Background',  icon: '🖼️' },
+      { id: 'plan-campaigns',   label: 'Campaigns',   icon: '🎯' },
+      { id: 'plan-initiatives', label: 'Initiatives', icon: '🚀' },
+      { id: 'plan-strategies',  label: 'Strategies',  icon: '♟️' },
+      { id: 'plan-goals',       label: 'Goals',       icon: '🏆' },
+    ],
+  },
+  {
+    id: 'cultivate', label: 'Cultivate', icon: '🌱',
+    items: [
+      { id: 'customers',              label: 'Customers',    icon: '👥' },
+      { id: 'cultivate-integrations', label: 'Integrations', icon: '🔗' },
+      { id: 'cultivate-crm',          label: 'CRM',          icon: '🤝' },
+    ],
+  },
+  {
+    id: 'optimize', label: 'Optimize', icon: '⚡',
+    items: [
+      { id: 'optimize-schedule', label: 'Schedule', icon: '📅' },
+      { id: 'optimize-measure',  label: 'Measure',  icon: '📊' },
+    ],
+  },
+  {
+    id: 'test', label: 'Test', icon: '🧪',
+    items: [
+      { id: 'test-ab', label: 'A/B', icon: '🧪' },
+    ],
+  },
+];
+
+const loadSections = () => {
+  const savedOrder = load('ui.sectionOrder', null);
+  if (!savedOrder) return INITIAL_SECTIONS;
+  return [
+    ...savedOrder.map(id => INITIAL_SECTIONS.find(s => s.id === id)).filter(Boolean),
+    ...INITIAL_SECTIONS.filter(s => !savedOrder.includes(s.id)),
+  ];
+};
+
+// ── Component ────────────────────────────────────────────────────────────────
 const Dashboard = () => {
-  const navigate = useNavigate();
-
-  const [sidebarOpen, setSidebarOpen]     = useState(true);
-  const [activeSection, setActiveSection] = useState('customers');
-  const [calibrateOpen, setCalibrateOpen]   = useState(false);
-  const [createOpen, setCreateOpen]         = useState(false);
-  const [amplifyOpen, setAmplifyOpen]       = useState(false);
-  const [cultivateOpen, setCultivateOpen]   = useState(false);
-  const [optimizeOpen, setOptimizeOpen]     = useState(false);
-  const [testOpen, setTestOpen]             = useState(false);
-
-  const closeAllSections = () => {
-    setCalibrateOpen(false);
-    setCreateOpen(false);
-    setAmplifyOpen(false);
-    setCultivateOpen(false);
-    setOptimizeOpen(false);
-    setTestOpen(false);
-  };
-
-  const toggleSection = (setter, currentState) => {
-    if (!sidebarOpen) return;
-    closeAllSections();
-    setter(!currentState);
-  };
+  const [sidebarOpen, setSidebarOpen]   = useState(() => load('ui.sidebarOpen', true));
+  const [activeSection, setActiveSection] = useState(() => load('ui.activeSection', 'customers'));
+  const [openSection, setOpenSection]   = useState(() => load('ui.openSection', null));
+  const [sections, setSections]         = useState(loadSections);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
+  const dragIndex = useRef(null);
 
   const { selectedSubscription, selectSubscription } = useSubscription();
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedSearchDefinitionEngine, setSelectedSearchDefinitionEngine] = useState(null);
 
-  useEffect(() => {
-    if (selectedSubscription) {
-      console.log('Dashboard loaded with subscription:', selectedSubscription);
-    }
-  }, [selectedSubscription]);
-
   const handleSubscriptionSelect = (subscription) => {
     selectSubscription({
       subscriber_id:   subscription.subscriber_id,
-      subscriber_name: subscription.subscriber_name
+      subscriber_name: subscription.subscriber_name,
     });
     setSelectedCustomer(null);
     setSelectedSearchDefinitionEngine(null);
   };
 
-  const handleCustomerSelect = (customer) => setSelectedCustomer(customer);
+  const handleCustomerSelect = (c) => setSelectedCustomer(c);
   const handleSearchDefinitionEngineSelect = (sde) => setSelectedSearchDefinitionEngine(sde);
 
-  const topMenuItems = [
-    { id: 'customers',        label: 'Customers', icon: '👥' },
-    { id: 'subscriber-items', label: 'Services',  icon: '📦' },
-  ];
-
-  const calibrateItems = [
-    { id: 'search-engines',            label: 'Engines',     icon: '🔍' },
-    { id: 'search-definitions',        label: 'Definitions', icon: '📋' },
-    { id: 'search-definition-engines', label: 'Jobs',        icon: '📋' },
-    { id: 'mentions',                  label: 'Mentions',    icon: '💬' },
-  ];
-
-  const createItems = [
-    { id: 'create-social', label: 'Social', icon: '📱' },
-    { id: 'create-video',  label: 'Video',  icon: '🎬' },
-    { id: 'create-web',    label: 'Web',    icon: '🌐' },
-  ];
-
-  const amplifyItems = [
-    { id: 'amplify-advocate', label: 'Advocate', icon: '📣' },
-  ];
-
-  const cultivateItems = [
-    { id: 'cultivate-integrations', label: 'Integrations', icon: '🔗' },
-    { id: 'cultivate-crm',          label: 'CRM',          icon: '🤝' },
-  ];
-
-  const optimizeItems = [
-    { id: 'optimize-schedule', label: 'Schedule', icon: '📅' },
-    { id: 'optimize-measure',  label: 'Measure',  icon: '📊' },
-  ];
-
-  const testItems = [
-    { id: 'test-ab', label: 'A/B', icon: '🧪' },
-  ];
+  const topMenuItems = [];
 
   const handleMenuClick = (itemId) => {
     setActiveSection(itemId);
-    if (window.innerWidth < 1024) setSidebarOpen(false);
+    save('ui.activeSection', itemId);
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+      save('ui.sidebarOpen', false);
+    }
+  };
+
+  const handleToggleSidebar = () => {
+    const next = !sidebarOpen;
+    setSidebarOpen(next);
+    save('ui.sidebarOpen', next);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('selectedSubscription');
     window.location.href = '/';
   };
 
+  const toggleSection = (id) => {
+    setOpenSection(prev => {
+      const next = prev === id ? null : id;
+      save('ui.openSection', next);
+      return next;
+    });
+  };
+
+  // ── Drag handlers ──────────────────────────────────────────────────────────
+  const handleDragStart = (e, idx) => {
+    dragIndex.current = idx;
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e, idx) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(idx);
+  };
+
+  const handleDrop = (e, idx) => {
+    e.preventDefault();
+    const from = dragIndex.current;
+    if (from === null || from === idx) { setDragOverIndex(null); return; }
+    setSections(prev => {
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(idx, 0, moved);
+      save('ui.sectionOrder', next.map(s => s.id));
+      return next;
+    });
+    dragIndex.current = null;
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    dragIndex.current = null;
+    setDragOverIndex(null);
+  };
+
+  // ── Styles ─────────────────────────────────────────────────────────────────
   const labelStyle = {
     opacity:    sidebarOpen ? 1 : 0,
     maxWidth:   sidebarOpen ? '200px' : '0',
@@ -127,12 +214,12 @@ const Dashboard = () => {
     borderLeft:     activeSection === id ? '3px solid white' : '3px solid transparent',
   });
 
-  // Shared style for collapsible section header buttons
   const sectionHeaderStyle = {
     background: 'rgba(255, 255, 255, 0.05)',
     color:      'rgba(255, 255, 255, 0.7)',
   };
 
+  // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <PageLayout bgImage={IMG2}>
 
@@ -149,34 +236,8 @@ const Dashboard = () => {
       >
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center h-16">
-            <h1 className="text-xl font-bold">
-              {selectedSubscription?.subscriber_name}
-            </h1>
-            <div className={`w-full ${activeSection === 'amplify-advocate' ? 'block' : 'hidden'}`}>
-          {/* <AdvocateGrid /> */}
-        </div>
-
-        <div className={`w-full ${activeSection === 'cultivate-integrations' ? 'block' : 'hidden'}`}>
-          {/* <IntegrationsGrid /> */}
-        </div>
-
-        <div className={`w-full ${activeSection === 'cultivate-crm' ? 'block' : 'hidden'}`}>
-          {/* <CrmGrid /> */}
-        </div>
-
-        <div className={`w-full ${activeSection === 'optimize-schedule' ? 'block' : 'hidden'}`}>
-          {/* <ScheduleGrid /> */}
-        </div>
-
-        <div className={`w-full ${activeSection === 'optimize-measure' ? 'block' : 'hidden'}`}>
-          {/* <MeasureGrid /> */}
-        </div>
-
-        <div className={`w-full ${activeSection === 'test-ab' ? 'block' : 'hidden'}`}>
-          {/* <AbGrid /> */}
-        </div>
-
-      </div>
+            <h1 className="text-xl font-bold">{selectedSubscription?.subscriber_name}</h1>
+          </div>
         </div>
       </nav>
 
@@ -185,7 +246,7 @@ const Dashboard = () => {
         <div
           className="fixed inset-0 bg-black/50 lg:hidden"
           style={{ zIndex: 'var(--z-sidebar)' }}
-          onClick={() => setSidebarOpen(false)}
+          onClick={() => { setSidebarOpen(false); save('ui.sidebarOpen', false); }}
         />
       )}
 
@@ -202,20 +263,17 @@ const Dashboard = () => {
           overflow:      'hidden',
         }}
       >
-        {/* Sidebar header */}
+        {/* Header */}
         <div
-          className="flex items-center justify-end px-2"
+          className={`flex items-center px-2 ${sidebarOpen ? 'justify-end' : 'justify-center'}`}
           style={{ height: 'var(--height-sidebar)', width: '100%' }}
         >
-          <span
-            className="font-bold text-lg flex-1 pl-2"
-            style={{ ...labelStyle, color: 'white' }}
-          >
+          <span className="font-bold text-lg flex-1 pl-2" style={{ ...labelStyle, color: 'white' }}>
             Menu
           </span>
           <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-lg transition-colors"
+            onClick={handleToggleSidebar}
+            className="p-1 rounded-lg transition-colors"
             style={{ color: 'white', flexShrink: 0, background: 'transparent', border: 'none' }}
             aria-label="Toggle sidebar"
           >
@@ -223,231 +281,93 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {/* Scrollable nav area */}
+        {/* Scrollable nav */}
         <nav
-          className="flex-1 overflow-y-auto px-2 py-4"
+          className="flex-1 overflow-y-auto px-2 pt-2 pb-4"
           style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
         >
+          {/* Static top items */}
           {topMenuItems.map((item) => (
             <button
               key={item.id}
               onClick={() => handleMenuClick(item.id)}
               className="w-full flex items-center px-3 py-2.5 rounded-lg text-left transition-all"
               style={navBtnStyle(item.id)}
+              title={!sidebarOpen ? item.label : undefined}
             >
               <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{item.icon}</span>
               <span className="text-xs font-medium" style={labelStyle}>{item.label}</span>
             </button>
           ))}
 
-          {/* ── Calibrate collapsible section ── */}
-          <div className="pt-1">
-            <button
-              onClick={() => toggleSection(setCalibrateOpen, calibrateOpen)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all"
-              style={sectionHeaderStyle}
-            >
-              <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>⚙️</span>
-              <span
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ ...labelStyle, marginLeft: '0.75rem', flex: 1, textAlign: 'left' }}
+          {/* Draggable collapsible sections */}
+          {sections.map((section, idx) => {
+            const isOpen     = openSection === section.id;
+            const isDragOver = dragOverIndex === idx;
+
+            return (
+              <div
+                key={section.id}
+                className="pt-1"
+                draggable
+                onDragStart={(e) => handleDragStart(e, idx)}
+                onDragOver={(e)  => handleDragOver(e, idx)}
+                onDrop={(e)      => handleDrop(e, idx)}
+                onDragEnd={handleDragEnd}
+                style={{
+                  borderTop:  isDragOver ? '2px solid rgba(255,255,255,0.6)' : '2px solid transparent',
+                  transition: 'border-color 150ms ease',
+                }}
               >
-                Calibrate
-              </span>
-              {sidebarOpen && (calibrateOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-            </button>
-
-            {(calibrateOpen || !sidebarOpen) && (
-              <div className="mt-1" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {calibrateItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleMenuClick(item.id)}
-                    className="w-full flex items-center px-3 py-2.5 rounded-lg text-left transition-all"
-                    style={navBtnStyle(item.id)}
+                <button
+                  onClick={() => toggleSection(section.id)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all"
+                  style={sectionHeaderStyle}
+                  title={!sidebarOpen ? section.label : undefined}
+                >
+                  {sidebarOpen && (
+                    <GripVertical
+                      size={14}
+                      style={{ color: 'rgba(255,255,255,0.35)', flexShrink: 0, marginRight: '4px', cursor: 'grab' }}
+                    />
+                  )}
+                  <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{section.icon}</span>
+                  <span
+                    className="text-xs font-semibold tracking-wider"
+                    style={{ ...labelStyle, marginLeft: '0.75rem', flex: 1, textAlign: 'left' }}
                   >
-                    <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{item.icon}</span>
-                    <span className="text-xs font-medium" style={labelStyle}>{item.label}</span>
-                  </button>
-                ))}
+                    {section.label}
+                  </span>
+                  {sidebarOpen && (isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
+                </button>
+
+                {isOpen && (
+                  <div className="mt-1" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {section.items.map((item) => (
+                      <button
+                        key={item.id}
+                        onClick={() => handleMenuClick(item.id)}
+                        className="w-full flex items-center px-3 py-2.5 rounded-lg text-left transition-all"
+                        style={navBtnStyle(item.id)}
+                        title={!sidebarOpen ? item.label : undefined}
+                      >
+                        <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{item.icon}</span>
+                        <span className="text-xs font-medium" style={labelStyle}>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-
-          {/* ── Create collapsible section ── */}
-          <div className="pt-1">
-            <button
-              onClick={() => toggleSection(setCreateOpen, createOpen)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all"
-              style={sectionHeaderStyle}
-            >
-              <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>✨</span>
-              <span
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ ...labelStyle, marginLeft: '0.75rem', flex: 1, textAlign: 'left' }}
-              >
-                Create
-              </span>
-              {sidebarOpen && (createOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-            </button>
-
-            {(createOpen || !sidebarOpen) && (
-              <div className="mt-1" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {createItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleMenuClick(item.id)}
-                    className="w-full flex items-center px-3 py-2.5 rounded-lg text-left transition-all"
-                    style={navBtnStyle(item.id)}
-                  >
-                    <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{item.icon}</span>
-                    <span className="text-xs font-medium" style={labelStyle}>{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* ── Amplify collapsible section ── */}
-          <div className="pt-1">
-            <button
-              onClick={() => toggleSection(setAmplifyOpen, amplifyOpen)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all"
-              style={sectionHeaderStyle}
-            >
-              <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>📣</span>
-              <span
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ ...labelStyle, marginLeft: '0.75rem', flex: 1, textAlign: 'left' }}
-              >
-                Amplify
-              </span>
-              {sidebarOpen && (amplifyOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-            </button>
-            {(amplifyOpen || !sidebarOpen) && (
-              <div className="mt-1" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {amplifyItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleMenuClick(item.id)}
-                    className="w-full flex items-center px-3 py-2.5 rounded-lg text-left transition-all"
-                    style={navBtnStyle(item.id)}
-                  >
-                    <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{item.icon}</span>
-                    <span className="text-xs font-medium" style={labelStyle}>{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* ── Cultivate collapsible section ── */}
-          <div className="pt-1">
-            <button
-              onClick={() => toggleSection(setCultivateOpen, cultivateOpen)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all"
-              style={sectionHeaderStyle}
-            >
-              <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>🌱</span>
-              <span
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ ...labelStyle, marginLeft: '0.75rem', flex: 1, textAlign: 'left' }}
-              >
-                Cultivate
-              </span>
-              {sidebarOpen && (cultivateOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-            </button>
-            {(cultivateOpen || !sidebarOpen) && (
-              <div className="mt-1" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {cultivateItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleMenuClick(item.id)}
-                    className="w-full flex items-center px-3 py-2.5 rounded-lg text-left transition-all"
-                    style={navBtnStyle(item.id)}
-                  >
-                    <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{item.icon}</span>
-                    <span className="text-xs font-medium" style={labelStyle}>{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* ── Optimize collapsible section ── */}
-          <div className="pt-1">
-            <button
-              onClick={() => toggleSection(setOptimizeOpen, optimizeOpen)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all"
-              style={sectionHeaderStyle}
-            >
-              <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>⚡</span>
-              <span
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ ...labelStyle, marginLeft: '0.75rem', flex: 1, textAlign: 'left' }}
-              >
-                Optimize
-              </span>
-              {sidebarOpen && (optimizeOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-            </button>
-            {(optimizeOpen || !sidebarOpen) && (
-              <div className="mt-1" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {optimizeItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleMenuClick(item.id)}
-                    className="w-full flex items-center px-3 py-2.5 rounded-lg text-left transition-all"
-                    style={navBtnStyle(item.id)}
-                  >
-                    <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{item.icon}</span>
-                    <span className="text-xs font-medium" style={labelStyle}>{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* ── Test collapsible section ── */}
-          <div className="pt-1">
-            <button
-              onClick={() => toggleSection(setTestOpen, testOpen)}
-              className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all"
-              style={sectionHeaderStyle}
-            >
-              <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>🧪</span>
-              <span
-                className="text-xs font-semibold uppercase tracking-wider"
-                style={{ ...labelStyle, marginLeft: '0.75rem', flex: 1, textAlign: 'left' }}
-              >
-                Test
-              </span>
-              {sidebarOpen && (testOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />)}
-            </button>
-            {(testOpen || !sidebarOpen) && (
-              <div className="mt-1" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {testItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleMenuClick(item.id)}
-                    className="w-full flex items-center px-3 py-2.5 rounded-lg text-left transition-all"
-                    style={navBtnStyle(item.id)}
-                  >
-                    <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>{item.icon}</span>
-                    <span className="text-xs font-medium" style={labelStyle}>{item.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
+            );
+          })}
         </nav>
 
-        {/* Logout button */}
+        {/* Logout */}
         <div className="px-2 py-4 border-t">
           <button
             onClick={handleLogout}
             className="w-full flex items-center px-3 py-2.5 rounded-lg transition-all text-left"
-            style={{ ...navBtnStyle(null), color: '#ef4444' }}
+            style={{ ...navBtnStyle(null) }}
           >
             <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>🚪</span>
             <span className="text-xs font-medium" style={labelStyle}>Logout</span>
@@ -503,18 +423,12 @@ const Dashboard = () => {
           <MentionsGrid />
         </div>
 
-        <div className={`w-full ${activeSection === 'create-social' ? 'block' : 'hidden'}`}>
-          {/* <SocialGrid /> */}
-        </div>
-
-        <div className={`w-full ${activeSection === 'create-video' ? 'block' : 'hidden'}`}>
-          {/* <VideoGrid /> */}
-        </div>
-
-        <div className={`w-full ${activeSection === 'create-web' ? 'block' : 'hidden'}`}>
-          {/* <WebGrid /> */}
-        </div>
-
+        {/* Dynamic panels for all section children */}
+        {INITIAL_SECTIONS.flatMap(s => s.items).map(item => (
+          <div key={item.id} className={`w-full ${activeSection === item.id ? 'block' : 'hidden'}`}>
+            {item.id === 'cultivate-integrations' && <Integrations />}
+          </div>
+        ))}
       </div>
 
     </PageLayout>
