@@ -67,7 +67,15 @@ const INITIAL_SECTIONS = [
   {
     id: 'plan', label: 'Plan', icon: '📝',
     items: [
-      { id: 'plan-profile',     label: 'Profile',     icon: '👤' },
+      { id: 'plan-profile',     
+        label: 'Subscriber Profile',     
+        icon: '👤',
+        onSelect: async ({ selectedSubscription }) => {
+          await api.post('/subscriber/profile', {
+            subscriber_id: selectedSubscription?.subscriber_id,
+          });
+        }, 
+      },
       { id: 'subscriber-items', label: 'Services',    icon: '📦' },
       { id: 'plan-background',  label: 'Background',  icon: '🖼️' },
       { id: 'plan-campaigns',   label: 'Campaigns',   icon: '🎯' },
@@ -135,7 +143,18 @@ const Dashboard = () => {
 
   const topMenuItems = [];
 
-  const handleMenuClick = (itemId) => {
+
+  const handleMenuClick = async (itemId) => {
+    const item = INITIAL_SECTIONS.flatMap(s => s.items).find(i => i.id === itemId);
+
+    if (item?.onSelect) {
+      try {
+        await item.onSelect({ selectedSubscription });
+      } catch (err) {
+        console.error(`[Dashboard] onSelect failed for "${itemId}":`, err);
+      }
+    }
+
     setActiveSection(itemId);
     save('ui.activeSection', itemId);
     if (window.innerWidth < 1024) {
