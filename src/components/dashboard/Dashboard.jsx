@@ -1,6 +1,6 @@
 {/* ── my-login-app/src/components/dashboard/Dashboard.jsx ── */}
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Menu, ChevronLeft, ChevronRight, ChevronDown, GripVertical } from 'lucide-react';
 import CustomerGrid from '../customer/CustomerGrid.jsx';
 import SubscriberItemGrid from '../subscriber_items/SubscriberItemGrid.jsx';
@@ -12,6 +12,8 @@ import Integrations from '../cultivate/Integrations.jsx';
 import { useSubscription } from '../../components/Navbar.jsx';
 import PageLayout from '../PageLayout.jsx';
 import { api } from '../../api';
+import SubscriberProfileForm from '../plan/SubscriberProfileForm.jsx';
+import BackgroundForm from '../plan/BackgroundForm.jsx';
 
 const IMG2 = api.cdn('/bg2.jpeg');
 
@@ -67,14 +69,14 @@ const INITIAL_SECTIONS = [
   {
     id: 'plan', label: 'Plan', icon: '📝',
     items: [
-      { id: 'plan-profile',     
-        label: 'Subscriber Profile',     
+      { id: 'plan-profile',
+        label: 'Subscriber Profile',
         icon: '👤',
         onSelect: async ({ selectedSubscription }) => {
-          await api.post('/subscriber/profile', {
-            subscriber_id: selectedSubscription?.subscriber_id,
+          return await api.post('/api/v1/subscriber/profile', {
+            id: selectedSubscription?.subscriber_id,
           });
-        }, 
+        },
       },
       { id: 'subscriber-items', label: 'Services',    icon: '📦' },
       { id: 'plan-background',  label: 'Background',  icon: '🖼️' },
@@ -118,16 +120,29 @@ const loadSections = () => {
 
 // ── Component ────────────────────────────────────────────────────────────────
 const Dashboard = () => {
-  const [sidebarOpen, setSidebarOpen]   = useState(() => load('ui.sidebarOpen', true));
+  const [profileData, setProfileData]     = useState(null);
+  const [sidebarOpen, setSidebarOpen]     = useState(() => load('ui.sidebarOpen', true));
   const [activeSection, setActiveSection] = useState(() => load('ui.activeSection', 'customers'));
-  const [openSection, setOpenSection]   = useState(() => load('ui.openSection', null));
-  const [sections, setSections]         = useState(loadSections);
+  const [openSection, setOpenSection]     = useState(() => load('ui.openSection', null));
+  const [sections, setSections]           = useState(loadSections);
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const dragIndex = useRef(null);
 
   const { selectedSubscription, selectSubscription } = useSubscription();
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedSearchDefinitionEngine, setSelectedSearchDefinitionEngine] = useState(null);
+
+  // ── Auto-load profile on mount if it's the active section ─────────────────
+  useEffect(() => {
+    if (activeSection === 'plan-profile' && selectedSubscription?.subscriber_id) {
+      const item = INITIAL_SECTIONS.flatMap(s => s.items).find(i => i.id === 'plan-profile');
+      if (item?.onSelect) {
+        item.onSelect({ selectedSubscription })
+          .then(result => { if (result) setProfileData(result); })
+          .catch(err => console.error('[Dashboard] auto-load plan-profile failed:', err));
+      }
+    }
+  }, [activeSection, selectedSubscription]);
 
   const handleSubscriptionSelect = (subscription) => {
     selectSubscription({
@@ -143,13 +158,13 @@ const Dashboard = () => {
 
   const topMenuItems = [];
 
-
   const handleMenuClick = async (itemId) => {
     const item = INITIAL_SECTIONS.flatMap(s => s.items).find(i => i.id === itemId);
 
     if (item?.onSelect) {
       try {
-        await item.onSelect({ selectedSubscription });
+        const result = await item.onSelect({ selectedSubscription });
+        if (result) setProfileData(result);
       } catch (err) {
         console.error(`[Dashboard] onSelect failed for "${itemId}":`, err);
       }
@@ -238,7 +253,7 @@ const Dashboard = () => {
     color:      'rgba(255, 255, 255, 0.7)',
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <PageLayout bgImage={IMG2}>
 
@@ -408,6 +423,14 @@ const Dashboard = () => {
           background:    'var(--color-grid-bg)',
         }}
       >
+        <div className={`w-full ${activeSection === 'plan-profile' ? 'block' : 'hidden'}`}>
+          <SubscriberProfileForm profile={profileData} />
+        </div>
+
+        <div className={`w-full ${activeSection === 'plan-background' ? 'block' : 'hidden'}`}>
+          <BackgroundForm subscriberId={selectedSubscription?.subscriber_id} />
+        </div>
+
         <div className={`w-full ${activeSection === 'customers' ? 'block' : 'hidden'}`}
           style={{ paddingTop: 'var(--padding-grid-top)' }}>
           <CustomerGrid
