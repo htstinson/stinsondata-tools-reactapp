@@ -336,18 +336,18 @@ const SubscriberProfileForm = ({ profile }) => {
         {/* Identity */}
         {activeTab === 'identity' && (
           <div className="flex flex-col gap-2">
+            <TextField    label="Legal Name"  name="legal_name" value={form.legal_name} onChange={handleChange} />
             <DisplayField label="Id"          value={form.id} />
             <DisplayField label="Parent Id"   value={form.parentid} />
             <DisplayField label="Created At"  value={form.created_at} />
             <DisplayField label="Modified At" value={form.modified_at} />
-            <TextField    label="Legal Name"  name="legal_name" value={form.legal_name} onChange={handleChange} />
           </div>
         )}
 
         {/* Address */}
         {visitedTabs.has('address') && (
           <div className={activeTab === 'address' ? 'block' : 'hidden'}>
-            <AddressGrid subscriberId={form.id} />
+            <AddressGrid subscriberId={form.parentid} />
           </div>
         )}
 
@@ -382,6 +382,7 @@ const SubscriberProfileForm = ({ profile }) => {
             <TextField label="Glassdoor"       name="glassdoor"      value={form.glassdoor}      onChange={handleChange} />
             <TextField label="GitHub"          name="github"         value={form.github}         onChange={handleChange} />
             <TextField label="Nextdoor"        name="nextdoor"       value={form.nextdoor}       onChange={handleChange} />
+            <TextField label="Bizapedia"        name="bizapedia"     value={form.bizapedia}      onChange={handleChange} />
           </div>
         )}
 

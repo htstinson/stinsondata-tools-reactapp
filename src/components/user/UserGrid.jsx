@@ -5,29 +5,35 @@ import { Button } from '@progress/kendo-react-buttons';
 import { Dialog } from '@progress/kendo-react-dialogs';
 import { UserForm } from './UserForm';
 
+const PAGE_SIZES = [10, 20, 50];
+
 const UserGrid = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(false);
   const [error, setError] = useState(null);
   const [sort, setSort] = useState([]);
+  const [page, setPage] = useState({ skip: 0, take: PAGE_SIZES[0] });
   const [editUser, setEditUser] = useState(null);
   const [showDialog, setShowDialog] = useState(false);
   const [dateFilter, setDateFilter] = useState(null);
 
   const fetchData = async () => {
     try {
-      setLoading(true);
+      data.length === 0 ? setLoading(true) : setFetching(true);
       setError(null);
-      
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
 
-      let url = 'https://thousandhillsdigital.net/api/v1/users';
-      
-      const params = new URLSearchParams();
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error('No authentication token found');
+
+      const pageNumber = Math.floor(page.skip / page.take) + 1;
+
+      const params = new URLSearchParams({
+        page: pageNumber,
+        limit: page.take,
+      });
       if (sort.length > 0) {
         params.append('sort', sort[0].field);
         params.append('order', sort[0].dir);
@@ -35,42 +41,50 @@ const UserGrid = () => {
       if (dateFilter) {
         params.append('date', dateFilter.toISOString());
       }
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
 
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const response = await fetch(
+        `https://thousandhillsdigital.net/api/v1/users?${params}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
         }
-      });
-      
+      );
+
       if (!response.ok) {
         if (response.status === 401) {
-          localStorage.removeUser('token');
+          localStorage.removeItem('token'); // was removeUser — bug fix
           navigate('/login');
           throw new Error('Session expired. Please login again.');
         }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
-      const jsonData = await response.json();
-      setData(jsonData);
+
+      const json = await response.json();
+      // Expect the API to return { users: [...], total: N }
+      setData(json.users ?? json);
+      setTotal(json.total ?? json.length);
     } catch (err) {
       setError(err.message);
       console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
+      setFetching(false);
     }
   };
 
   useEffect(() => {
     fetchData();
-  }, [sort, dateFilter]);
+  }, [sort, page, dateFilter]);
 
   const handleSortChange = (e) => {
+    setPage((p) => ({ ...p, skip: 0 })); // reset to first page on sort
     setSort(e.sort);
+  };
+
+  const handlePageChange = (e) => {
+    setPage({ skip: e.page.skip, take: e.page.take });
   };
 
   const handleEdit = (dataItem) => {
@@ -87,22 +101,20 @@ const UserGrid = () => {
     try {
       const token = localStorage.getItem('token');
       const method = user.id ? 'PUT' : 'POST';
-      const url = user.id 
+      const url = user.id
         ? `https://thousandhillsdigital.net/api/v1/users/${user.id}`
         : 'https://thousandhillsdigital.net/api/v1/users';
 
       const response = await fetch(url, {
         method,
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(user)
+        body: JSON.stringify(user),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       setShowDialog(false);
       fetchData();
@@ -112,68 +124,55 @@ const UserGrid = () => {
   };
 
   const handleDelete = async (dataItem) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`https://thousandhillsdigital.net/api/v1/users/${dataItem.id}`, {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(
+        `https://thousandhillsdigital.net/api/v1/users/${dataItem.id}`,
+        {
           method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          headers: { Authorization: `Bearer ${token}` },
         }
+      );
 
-        fetchData();
-      } catch (err) {
-        setError(err.message);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      fetchData();
+    } catch (err) {
+      setError(err.message);
     }
   };
 
-  const ActionCell = (props) => {
-    return (
-      <td>
-        <div className="flex space-x-2">
-          <Button 
-            onClick={() => handleEdit(props.dataItem)}
-            themeColor="info"
-            size="small"
-          >
-            Edit
-          </Button>
-          <Button 
-            onClick={() => handleDelete(props.dataItem)}
-            themeColor="error"
-            size="small"
-          >
-            Delete
-          </Button>
-        </div>
-      </td>
-    );
-  };
+  const ActionCell = (props) => (
+    <td>
+      <div className="flex space-x-2">
+        <Button onClick={() => handleEdit(props.dataItem)} themeColor="info" size="small">
+          Edit
+        </Button>
+        <Button onClick={() => handleDelete(props.dataItem)} themeColor="error" size="small">
+          Delete
+        </Button>
+      </div>
+    </td>
+  );
 
   return (
     <div className="px-4 sm:px-0">
-      <div className="mb-4 flex justify-between users-center">
+      <div className="mb-4 flex justify-between items-center">
         <h2 className="text-2xl font-bold">Users</h2>
-        <div className="flex users-center space-x-4">
+        <div className="flex items-center space-x-4">
           <Button onClick={handleCreate} themeColor="primary">Create New User</Button>
           <Button onClick={fetchData} themeColor="light">Refresh</Button>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex justify-center users-center h-64">
+        <div className="flex justify-center items-center h-64">
           <div className="text-gray-600">Loading...</div>
         </div>
       ) : error ? (
         <div className="p-4 bg-red-50 border border-red-200 rounded">
           <p className="text-red-600">Error loading data: {error}</p>
-          <button 
+          <button
             onClick={fetchData}
             className="mt-2 bg-red-100 text-red-600 px-4 py-2 rounded hover:bg-red-200"
           >
@@ -181,31 +180,37 @@ const UserGrid = () => {
           </button>
         </div>
       ) : (
+        <div className="relative">
+          {fetching && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 rounded">
+              <div className="text-gray-500 text-sm">Loading...</div>
+            </div>
+          )}
         <Grid
           data={data}
+          total={total}
           style={{ height: '400px' }}
           sortable={true}
           sort={sort}
           onSortChange={handleSortChange}
-          pageable={{
-            buttonCount: 5,
-            pageSizes: [10, 20, 50],
-            pageSize: 10
-          }}
+          pageable={{ buttonCount: 5, pageSizes: PAGE_SIZES }}
+          skip={page.skip}
+          take={page.take}
+          onPageChange={handlePageChange}
         >
           <GridColumn field="username" title="Name" />
           <GridColumn field="ip_address" title="IP Address" />
-          <GridColumn 
-            title="Actions" 
-            cell={ActionCell}
-            width="200px"
-          />
+          <GridColumn title="Actions" cell={ActionCell} width="200px" />
         </Grid>
+        </div>
       )}
 
       {showDialog && (
-        <Dialog title={editUser ? "Edit User" : "Create New User"} onClose={() => setShowDialog(false)}>
-          <UserForm 
+        <Dialog
+          title={editUser ? 'Edit User' : 'Create New User'}
+          onClose={() => setShowDialog(false)}
+        >
+          <UserForm
             user={editUser}
             onSubmit={handleSubmit}
             onCancel={() => setShowDialog(false)}

@@ -11,53 +11,49 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [errorSubscribers, setErrorSubscribers] = useState(null);
   const [errorUsers, setErrorUsers] = useState(null);
- 
+
   // Fetch subscribers from the API on component mount
   useEffect(() => {
     const fetchSubscribers = async () => {
       setIsLoadingSubscribers(true);
       setErrorSubscribers(null);
-      
+
       try {
-        // Get authentication token from localStorage
         const token = localStorage.getItem('token');
-        
+
         if (!token) {
           throw new Error('Authentication token not found');
         }
-        
+
         const response = await fetch('https://thousandhillsdigital.net/api/v1/subscribers', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
-        
+
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log('Subscriber data from API:', data);
-        
-        // Adjust mapping based on actual API response structure
-        const formattedSubscribers = Array.isArray(data) 
+
+        const formattedSubscribers = Array.isArray(data)
           ? data.map(subscriber => ({
               id: subscriber.id,
               name: subscriber.name,
               text: subscriber.name
             }))
           : [];
-        
+
         console.log('Formatted subscribers:', formattedSubscribers);
         setSubscribers(formattedSubscribers);
-        
-        // Set selected subscriber after data has loaded
+
         if (usersubscriber?.subscriber_id && formattedSubscribers.length > 0) {
           const existingSubscriber = formattedSubscribers.find(
             c => c.id.toString() === usersubscriber.subscriber_id.toString()
           );
-          
           console.log('Found existing subscriber:', existingSubscriber);
           if (existingSubscriber) {
             setSelectedSubscriber(existingSubscriber);
@@ -70,7 +66,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
         setIsLoadingSubscribers(false);
       }
     };
-    
+
     fetchSubscribers();
   }, [usersubscriber]);
 
@@ -79,47 +75,43 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
     const fetchUsers = async () => {
       setIsLoadingUsers(true);
       setErrorUsers(null);
-      
+
       try {
-        // Get authentication token from localStorage
         const token = localStorage.getItem('token');
-        
+
         if (!token) {
           throw new Error('Authentication token not found');
         }
-        
+
         const response = await fetch('https://thousandhillsdigital.net/api/v1/users', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
-        
+
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
         }
-        
+
         const data = await response.json();
         console.log('User data from API:', data);
-        
-        // Adjust mapping based on actual API response structure
-        const formattedUsers = Array.isArray(data) 
-          ? data.map(user => ({
-              id: user.id,
-              username: user.username,
-              text: user.username
-            }))
-          : [];
-        
+
+        const userArray = Array.isArray(data) ? data : (data.data ?? []);
+
+        const formattedUsers = userArray.map(user => ({
+          id: user.id,
+          username: user.username,
+          text: user.username
+        }));
+
         console.log('Formatted users:', formattedUsers);
         setUsers(formattedUsers);
-        
-        // Set selected user after data has loaded
+
         if (usersubscriber?.user_id && formattedUsers.length > 0) {
           const existingUser = formattedUsers.find(
             u => u.id.toString() === usersubscriber.user_id.toString()
           );
-          
           console.log('Found existing user:', existingUser);
           if (existingUser) {
             setSelectedUser(existingUser);
@@ -132,7 +124,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
         setIsLoadingUsers(false);
       }
     };
-    
+
     fetchUsers();
   }, [usersubscriber]);
 
@@ -155,14 +147,13 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
 
   const onFormSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!selectedSubscriber || !selectedUser) {
       return;
     }
-    
-    // Pass both the selected subscriber and user data to the parent component's onSubmit
+
     onSubmit({
-      id: usersubscriber?.id, // Pass the ID if it exists (for updates)
+      id: usersubscriber?.id,
       subscriber_id: selectedSubscriber.id,
       subscriber_name: selectedSubscriber.name,
       user_id: selectedUser.id,
@@ -174,7 +165,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
     <form onSubmit={onFormSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Subscriber</label>
-        
+
         {isLoadingSubscribers ? (
           <div className="mt-1">Loading subscribers...</div>
         ) : errorSubscribers ? (
@@ -204,10 +195,10 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
           </div>
         )}
       </div>
-      
+
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">User</label>
-        
+
         {isLoadingUsers ? (
           <div className="mt-1">Loading users...</div>
         ) : errorUsers ? (
@@ -237,13 +228,13 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
           </div>
         )}
       </div>
-      
+
       <div className="flex justify-end space-x-2 mt-4">
         <Button onClick={onCancel} themeColor="light">
           Cancel
         </Button>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           themeColor="primary"
           disabled={!selectedSubscriber || !selectedUser || isLoadingSubscribers || isLoadingUsers}
         >

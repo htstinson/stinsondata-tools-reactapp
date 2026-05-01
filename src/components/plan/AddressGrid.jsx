@@ -1,17 +1,17 @@
 // ── my-login-app/src/components/plan/AddressGrid.jsx ──
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../../api';
 
 // ── Options ───────────────────────────────────────────────────────────────────
 const ADDRESS_TYPES = [
   { value: 'street', label: 'Street' },
-  { value: 'po',     label: 'PO Box' },
+  { value: 'po',     label: 'Post Office' },
 ];
 const ADDRESS_USES = [
-  { value: 'headquarters', label: 'Headquarters' },
-  { value: 'office',       label: 'Office'        },
+  { value: 'mailing',      label: 'Mailing'       },
   { value: 'shipping',     label: 'Shipping'      },
+  { value: 'sales',        label: 'Sales'      },
   { value: 'other',        label: 'Other'         },
 ];
 const US_STATES = [
@@ -45,6 +45,8 @@ const US_STATES = [
   { value: 'GU', label: 'GU' }, { value: 'MP', label: 'MP' },
   { value: 'PR', label: 'PR' }, { value: 'VI', label: 'VI' },
 ];
+
+const PAGE_SIZES = [10, 20, 50];
 
 const BLANK_ROW = () => ({
   _tempId:      crypto.randomUUID(),
@@ -104,9 +106,9 @@ const ZipInput = ({ value, onChange }) => {
 };
 
 // ── Row ───────────────────────────────────────────────────────────────────────
-const AddressRow = ({ row, isEven, subscriberId, onChange, onDelete }) => {
-  const [saving,  setSaving]  = useState(false);
-  const [dirty,   setDirty]   = useState(row.id === null); // new rows start dirty
+const AddressRow = ({ row, isEven, subscriberId, onChange, onSaved, onDelete }) => {
+  const [saving, setSaving] = useState(false);
+  const [dirty,  setDirty]  = useState(row.id === null);
 
   const handle = (e) => {
     const { name, value } = e.target;
@@ -114,28 +116,31 @@ const AddressRow = ({ row, isEven, subscriberId, onChange, onDelete }) => {
     setDirty(true);
   };
 
-  const save = async () => {
+
+    const save = async () => {
     setSaving(true);
     try {
-      const payload = { ...row, subscriber_id: subscriberId };
-      if (row.id === null) {
+        const { created_at, modified_at, _tempId, ...rest } = row;
+        const payload = { ...rest, subscriber_id: subscriberId };
+        if (row.id === null) {
         const created = await api.post('/api/v1/subscriber/address', payload);
         onChange({ ...row, id: created.id });
-      } else {
+        onSaved?.();
+        } else {
         await api.put('/api/v1/subscriber/address', payload);
-      }
-      setDirty(false);
+        }
+        setDirty(false);
     } catch (err) {
-      console.error('[AddressRow] save failed:', err);
+        console.error('[AddressRow] save failed:', err);
     } finally {
-      setSaving(false);
+        setSaving(false);
     }
-  };
+    };
 
   const remove = async () => {
     if (row.id !== null) {
       try {
-        await api.delete(`/api/v1/subscriber/address/${row.id}`);
+        await api.delete(`/api/v1/subscriber/address/d/${subscriberId}/${row.id}`);
       } catch (err) {
         console.error('[AddressRow] delete failed:', err);
         return;
@@ -174,7 +179,7 @@ const AddressRow = ({ row, isEven, subscriberId, onChange, onDelete }) => {
           options={US_STATES} width="4.5rem" />
       </Cell>
       <Cell>
-        <ZipInput value={row.zip} onChange={handle} width="7rem" />
+        <ZipInput value={row.zip} onChange={handle} />
       </Cell>
       <Cell>
         <div className="flex flex-row gap-2 items-center">
@@ -183,7 +188,7 @@ const AddressRow = ({ row, isEven, subscriberId, onChange, onDelete }) => {
             className="text-xs px-2 py-0.5 rounded text-white transition-opacity"
             style={{ background: 'var(--color-primary)', opacity: (!dirty || saving) ? 0.4 : 1 }}
           >
-            {saving ? '...' : 'Save'}
+            {saving ? '...' : row.id === null ? 'Create' : 'Save'}
           </button>
           <button onClick={remove} className="text-xs text-red-400 hover:text-red-600">
             Delete
@@ -194,39 +199,97 @@ const AddressRow = ({ row, isEven, subscriberId, onChange, onDelete }) => {
   );
 };
 
+// ── Pagination bar ────────────────────────────────────────────────────────────
+const Pagination = ({ skip, take, total, onPageChange, onSizeChange }) => {
+  const page      = Math.floor(skip / take) + 1;
+  const pageCount = Math.max(1, Math.ceil(total / take));
+
+  return (
+    <div className="flex items-center justify-between text-xs text-gray-500 pt-2">
+      <span>{total} address{total !== 1 ? 'es' : ''}</span>
+      <div className="flex items-center gap-2">
+        <button
+          disabled={page <= 1}
+          onClick={() => onPageChange((page - 2) * take)}
+          className="px-2 py-0.5 rounded border disabled:opacity-40"
+        >‹</button>
+        <span>Page {page} / {pageCount}</span>
+        <button
+          disabled={page >= pageCount}
+          onClick={() => onPageChange(page * take)}
+          className="px-2 py-0.5 rounded border disabled:opacity-40"
+        >›</button>
+        <select
+          value={take}
+          onChange={e => onSizeChange(Number(e.target.value))}
+          className="border rounded px-1 py-0.5 text-xs"
+        >
+          {PAGE_SIZES.map(s => <option key={s} value={s}>{s} / page</option>)}
+        </select>
+      </div>
+    </div>
+  );
+};
+
 // ── Component ─────────────────────────────────────────────────────────────────
 const AddressGrid = ({ subscriberId }) => {
-  const [rows,    setRows]    = useState([BLANK_ROW()]);
-  const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState(null);
+  const [rows,     setRows]     = useState([]);
+  const [total,    setTotal]    = useState(0);
+  const [skip,     setSkip]     = useState(0);
+  const [take,     setTake]     = useState(PAGE_SIZES[0]);
+  const [sort,     setSort]     = useState('');
+  const [order,    setOrder]    = useState('');
+  const [loading,  setLoading]  = useState(true);
+  const [fetching, setFetching] = useState(false);
+  const [error,    setError]    = useState(null);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!subscriberId) return;
-    const fetch = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await api.post('/api/v1/subscriber/addresses', { id: subscriberId });
-        setRows(data?.length ? data : [BLANK_ROW()]);
-      } catch (err) {
-        console.error('[AddressGrid] fetch failed:', err);
-        setRows([BLANK_ROW()]);      } finally {
-        setLoading(false);
-      }
-    };
-    fetch();
-  }, [subscriberId]);
+
+    // First load shows spinner; subsequent loads show overlay
+    rows.length === 0 ? setLoading(true) : setFetching(true);
+    setError(null);
+
+    try {
+      const page   = Math.floor(skip / take) + 1;
+      const params = new URLSearchParams({ page, limit: take });
+      if (sort)  params.append('sort',  sort);
+      if (order) params.append('order', order);
+
+      // POST body carries subscriber id; query params carry pagination
+      const json = await api.post(
+        `/api/v1/subscriber/addresses?${params}`,
+        { id: subscriberId },
+      );
+
+      const data = json?.data ?? json ?? [];
+      setRows(data.length ? data : []);
+      setTotal(json?.total ?? data.length);
+    } catch (err) {
+      console.error('[AddressGrid] fetch failed:', err);
+      setError('Failed to load addresses.');
+    } finally {
+      setLoading(false);
+      setFetching(false);
+    }
+  }, [subscriberId, skip, take, sort, order]);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const updateRow = (i, updated) =>
     setRows(prev => prev.map((r, idx) => idx === i ? updated : r));
 
-  const deleteRow = (i) =>
-    setRows(prev => {
-      const next = prev.filter((_, idx) => idx !== i);
-      return next.length ? next : [BLANK_ROW()];
-    });
+  const deleteRow = (i) => {
+    setRows(prev => prev.filter((_, idx) => idx !== i));
+    setTotal(prev => Math.max(0, prev - 1));
+  };
 
   const addRow = () => setRows(prev => [...prev, BLANK_ROW()]);
+
+  const handleSizeChange = (newTake) => {
+    setSkip(0);
+    setTake(newTake);
+  };
 
   if (loading) return <div className="text-sm text-gray-400 py-4">Loading addresses...</div>;
   if (error)   return <div className="text-sm text-red-500 py-4">{error}</div>;
@@ -235,39 +298,43 @@ const AddressGrid = ({ subscriberId }) => {
     <div className="flex flex-col gap-3">
       <div className="flex justify-end">
         <button
-          onClick={openAdd}
+          onClick={addRow}
           className="px-4 py-1.5 rounded-lg text-sm font-medium text-white"
           style={{ background: 'var(--color-primary)' }}
         >
           + Add Address
         </button>
       </div>
-      <div className="flex justify-end">
-        <button
-          onClick={openAdd}
-          className="px-4 py-1.5 rounded-lg text-sm font-medium text-white"
-          style={{ background: 'var(--color-primary)' }}
-        >
-          + Add Address
-        </button>
-      </div>
-      <div className="overflow-x-auto">
+
+      <div className="relative overflow-x-auto">
+        {fetching && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50 rounded">
+            <span className="text-gray-500 text-sm">Loading...</span>
+          </div>
+        )}
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr style={{ background: 'var(--color-primary)' }}>
-              {['Type', 'Use', 'Street 1', 'Street 2', 'City', 'St', 'Zip', ''].map(h => (
+              {['Type', 'Use', 'Street 1 / PO Box', 'Street 2', 'City', 'St', 'Zip', ''].map(h => (
                 <th key={h} className="text-left px-2 py-1.5 text-xs font-semibold text-white whitespace-nowrap">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, i) => (
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="text-center text-gray-400 py-6 text-sm">
+                  No addresses yet. Click "+ Add Address" to get started.
+                </td>
+              </tr>
+            ) : rows.map((row, i) => (
               <AddressRow
                 key={row.id ?? row._tempId}
                 row={row}
                 isEven={i % 2 === 0}
                 subscriberId={subscriberId}
                 onChange={(updated) => updateRow(i, updated)}
+                onSaved={fetchData}
                 onDelete={() => deleteRow(i)}
               />
             ))}
@@ -275,13 +342,13 @@ const AddressGrid = ({ subscriberId }) => {
         </table>
       </div>
 
-      <button
-        onClick={addRow}
-        className="self-start px-4 py-1.5 rounded-lg text-sm font-medium text-white"
-        style={{ background: 'var(--color-primary)' }}
-      >
-        + Add Address
-      </button>
+      <Pagination
+        skip={skip}
+        take={take}
+        total={total}
+        onPageChange={setSkip}
+        onSizeChange={handleSizeChange}
+      />
     </div>
   );
 };
