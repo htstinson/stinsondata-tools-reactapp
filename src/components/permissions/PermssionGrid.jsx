@@ -36,7 +36,7 @@ const PermissionGrid = () => {
         url += `?${params.toString()}`;
       }
   
-      console.log("url", url)
+      //console.log("url", url)
 
       const response = await fetch(url, {
         headers: {
@@ -90,8 +90,8 @@ const PermissionGrid = () => {
         ? `https://thousandhillsdigital.net/api/v1/permissions/${permission.id}`
         : 'https://thousandhillsdigital.net/api/v1/permissions';
 
-      console.log("method", method)
-      console.log("url", url)
+      //console.log("method", method)
+      //console.log("url", url)
       
         const response = await fetch(url, {
         method,

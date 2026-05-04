@@ -80,12 +80,12 @@ const UserSubscriberGrid = () => {
 
   // Handle row selection via row click
   const handleRowClick = (e) => {
-    console.log('Row clicked:', e.dataItem);
+    //console.log('Row clicked:', e.dataItem);
     
     if (e.dataItem && e.dataItem.id) {
       const selectedId = String(e.dataItem.id); // Convert to string as requested
       selectUserSubscriber(selectedId);
-      console.log('Selected User-Subscriber ID:', selectedId);
+      //console.log('Selected User-Subscriber ID:', selectedId);
       
       // Update selected rows for visual feedback
       setSelectedRows([e.dataItem]);
@@ -110,10 +110,10 @@ const UserSubscriberGrid = () => {
         ? `https://thousandhillsdigital.net/api/v1/usersubscriber/${editUserSubscriber.id}`
         : 'https://thousandhillsdigital.net/api/v1/usersubscriber';
 
-      console.log("Submitting user-subscriber data:");
-      console.log("id:", usersubscriber.id || "New");
-      console.log("user_id:", usersubscriber.user_id);
-      console.log("subscriber_id:", usersubscriber.subscriber_id);
+      //console.log("Submitting user-subscriber data:");
+      //console.log("id:", usersubscriber.id || "New");
+      //console.log("user_id:", usersubscriber.user_id);
+      //console.log("subscriber_id:", usersubscriber.subscriber_id);
 
       const response = await fetch(url, {
         method,
@@ -179,7 +179,7 @@ const UserSubscriberGrid = () => {
         }
         
         const customersData = await response.json();
-        console.log('Customers data:', customersData);
+        //console.log('Customers data:', customersData);
         
       } catch (err) {
         setError(err.message);

@@ -85,13 +85,13 @@ const RoleGrid = () => {
       const token = localStorage.getItem('token');
       const method = role.id ? 'PUT' : 'POST';
 
-      console.log("method", method)
+      //console.log("method", method)
       
       const url = role.id 
         ? `https://thousandhillsdigital.net/api/v1/roles/${role.id}`
         : 'https://thousandhillsdigital.net/api/v1/roles';
 
-      console.log("url", url)
+      //console.log("url", url)
 
       const response = await fetch(url, {
         method,
@@ -102,7 +102,7 @@ const RoleGrid = () => {
         body: JSON.stringify(role)
       });
 
-      console.log("status", response.status)
+      //console.log("status", response.status)
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

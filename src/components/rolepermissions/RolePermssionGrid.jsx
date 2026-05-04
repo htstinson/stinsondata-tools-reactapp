@@ -36,7 +36,7 @@ const RolePermissionGrid = () => {
         url += `?${params.toString()}`;
       }
   
-      console.log("url", url)
+      //console.log("url", url)
 
       const response = await fetch(url, {
         headers: {
@@ -55,7 +55,7 @@ const RolePermissionGrid = () => {
       }
       
       const jsonData = await response.json();
-      console.log(jsonData);
+      //console.log(jsonData);
       setData(jsonData);
     } catch (err) {
       setError(err.message);
@@ -91,8 +91,8 @@ const RolePermissionGrid = () => {
         ? `https://thousandhillsdigital.net/api/v1/rolepermissions/${permission.id}`
         : 'https://thousandhillsdigital.net/api/v1/rolepermissions';
 
-      console.log("method", method)
-      console.log("url", url)
+      //console.log("method", method)
+      //console.log("url", url)
       
         const response = await fetch(url, {
         method,

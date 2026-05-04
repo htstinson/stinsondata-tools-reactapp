@@ -64,7 +64,7 @@ const SubscriberItemGrid = ({ selectedSubscription, onSubscriptionSelect }) => {
         throw new Error('No authentication token found');
       }
   
-      console.log('Fetching items for subscription:', selectedSubscription.subscriber_id);
+      //console.log('Fetching items for subscription:', selectedSubscription.subscriber_id);
 
       let url = `https://thousandhillsdigital.net/api/v1/subscriber/items/${selectedSubscription.subscriber_id}`;
       
@@ -96,7 +96,7 @@ const SubscriberItemGrid = ({ selectedSubscription, onSubscriptionSelect }) => {
       }
       
       const jsonData = await response.json();
-      console.log('Subscriber items loaded:', jsonData);
+      //console.log('Subscriber items loaded:', jsonData);
       setData(jsonData);
     } catch (err) {
       setError(err.message);
@@ -133,10 +133,10 @@ const SubscriberItemGrid = ({ selectedSubscription, onSubscriptionSelect }) => {
 
       const url = 'https://thousandhillsdigital.net/api/v1/subscriber/item';
 
-      console.log('Submitting subscriber item:', JSON.stringify(subscriberItem));
+      //console.log('Submitting subscriber item:', JSON.stringify(subscriberItem));
 
-      console.log(url)
-      console.log(method)
+      //console.log(url)
+      //console.log(method)
 
       const response = await fetch(url, {
         method,
@@ -164,7 +164,7 @@ const SubscriberItemGrid = ({ selectedSubscription, onSubscriptionSelect }) => {
   };
 
   const handleDelete = async (item) => {
-  console.log(`https://thousandhillsdigital.net/api/v1/subscriber/item/${item.id}`);
+ //console.log(`https://thousandhillsdigital.net/api/v1/subscriber/item/${item.id}`);
 
   if (window.confirm('Are you sure you want to delete this subscriber_item?')) {
     try {

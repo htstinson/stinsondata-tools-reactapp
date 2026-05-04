@@ -86,8 +86,8 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange })
       const newSelectedState = event.select || {};
       setSelectedState(newSelectedState);
       
-      console.log('Selection event:', event);
-      console.log('Selected state:', newSelectedState);
+      //console.log('Selection event:', event);
+     //console.log('Selected state:', newSelectedState);
       
       const selectedId = Object.keys(newSelectedState).find(key => newSelectedState[key]);
       
@@ -99,8 +99,8 @@ const SearchDefinitionEngineGrid = ({ selectedSubscription, onSelectionChange })
         });
       }
       
-      console.log('Selected ID:', selectedId);
-      console.log('Selected item:', selectedItem);
+      //console.log('Selected ID:', selectedId);
+      //console.log('Selected item:', selectedItem);
       
       // Notify parent component
       if (onSelectionChange) {

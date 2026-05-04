@@ -54,7 +54,7 @@ const SearchResultsGrid = ({ selectedSearchDefinitionEngine, selectedSubscriptio
       const jsonData = await response.json();
       
       // Debug log to see what we're receiving
-      console.log('API Response:', jsonData, 'Type:', typeof jsonData, 'Is Array:', Array.isArray(jsonData));
+      //console.log('API Response:', jsonData, 'Type:', typeof jsonData, 'Is Array:', Array.isArray(jsonData));
       
       // Handle different response formats
       if (Array.isArray(jsonData)) {

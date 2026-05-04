@@ -257,10 +257,7 @@ const AddressGrid = ({ subscriberId }) => {
       if (order) params.append('order', order);
 
       // POST body carries subscriber id; query params carry pagination
-      const json = await api.post(
-        `/api/v1/subscriber/addresses?${params}`,
-        { id: subscriberId },
-      );
+      const json = await api.post(`/api/v1/subscriber/addresses?${params}`,{ id: subscriberId });
 
       const data = json?.data ?? json ?? [];
       setRows(data.length ? data : []);

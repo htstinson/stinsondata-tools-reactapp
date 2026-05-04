@@ -38,7 +38,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
         }
         
         const data = await response.json();
-        console.log('User_Subscriber data from API:', data);
+        //console.log('User_Subscriber data from API:', data);
         
         // Adjust mapping based on actual API response structure
         const formattedUserSubscribers = Array.isArray(data) 
@@ -51,7 +51,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
             }))
           : [];
         
-        console.log('Formatted user subscribers:', formattedUserSubscribers);
+        //console.log('Formatted user subscribers:', formattedUserSubscribers);
         setUserSubscribers(formattedUserSubscribers);
         
         // Set selected user subscriber after data has loaded
@@ -60,7 +60,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
             us => us.id.toString() === usersubscriber.user_subscriber_id?.toString()
           );
           
-          console.log('Found existing user subscriber:', existingUserSubscriber);
+          //console.log('Found existing user subscriber:', existingUserSubscriber);
           if (existingUserSubscriber) {
             setSelectedUserSubscriber(existingUserSubscriber);
           }
@@ -102,7 +102,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
         }
         
         const data = await response.json();
-        console.log('Role data from API:', data);
+        //console.log('Role data from API:', data);
         
         // Adjust mapping based on actual API response structure
         const formattedRoles = Array.isArray(data) 
@@ -113,7 +113,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
             }))
           : [];
         
-        console.log('Formatted roles:', formattedRoles);
+        //('Formatted roles:', formattedRoles);
         setRoles(formattedRoles);
         
         // Set selected role after data has loaded
@@ -122,7 +122,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
             r => r.id.toString() === usersubscriber.role_id.toString()
           );
           
-          console.log('Found existing role:', existingRole);
+          //console.log('Found existing role:', existingRole);
           if (existingRole) {
             setSelectedRole(existingRole);
           }
@@ -140,19 +140,19 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
 
   // Log state changes for debugging
   useEffect(() => {
-    console.log('Current user subscribers state:', usersubscribers);
+    //console.log('Current user subscribers state:', usersubscribers);
   }, [usersubscribers]);
 
   useEffect(() => {
-    console.log('Current roles state:', roles);
+    //console.log('Current roles state:', roles);
   }, [roles]);
 
   useEffect(() => {
-    console.log('Current selectedUserSubscriber state:', selectedUserSubscriber);
+    //console.log('Current selectedUserSubscriber state:', selectedUserSubscriber);
   }, [selectedUserSubscriber]);
 
   useEffect(() => {
-    console.log('Current selectedRole state:', selectedRole);
+    //console.log('Current selectedRole state:', selectedRole);
   }, [selectedRole]);
 
   const onFormSubmit = (e) => {
@@ -190,7 +190,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
                   dataItemKey="id"
                   value={selectedUserSubscriber}
                   onChange={(e) => {
-                    console.log("User subscriber selected:", e.value);
+                    //console.log("User subscriber selected:", e.value);
                     setSelectedUserSubscriber(e.value);
                   }}
                   placeholder="Select a user subscriber..."
@@ -223,7 +223,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
                   dataItemKey="id"
                   value={selectedRole}
                   onChange={(e) => {
-                    console.log("Role selected:", e.value);
+                    //console.log("Role selected:", e.value);
                     setSelectedRole(e.value);
                   }}
                   placeholder="Select a role..."

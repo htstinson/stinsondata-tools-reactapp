@@ -8,10 +8,11 @@ const CDN = import.meta.env.VITE_CDN_BASE_URL;
  * handles 401 redirects, and throws on non-OK responses.
  */
 const apiFetch = async (path, options = {}) => {
+  console.log(`11 api call: ${BASE_URL}${path}`)
   const token = localStorage.getItem('token');
   
   if (!token) throw new Error('No authentication token found');
-
+  console.log('15')
   const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
     headers: {
@@ -31,6 +32,11 @@ const apiFetch = async (path, options = {}) => {
       
       if (response.status === 409) {
           alert('Cannot delete.');
+          return;
+      }
+
+      if (response.status === 500) {
+          alert('Server error');
           return;
       }
       throw new Error(`HTTP error! status: ${response.status}`);

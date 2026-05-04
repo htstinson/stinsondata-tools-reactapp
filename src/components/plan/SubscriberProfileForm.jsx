@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../api';
 import AddressGrid from './AddressGrid.jsx';
+import BackgroundGrid from './BackgroundGrid.jsx';
 
 // ── Reusable field components ─────────────────────────────────────────────────
 
@@ -104,7 +105,6 @@ const US_STATES = [
   { value: 'GU', label: 'GU' }, { value: 'MP', label: 'MP' },
   { value: 'PR', label: 'PR' }, { value: 'VI', label: 'VI' },
 ];
-
 const BLANK_ADDRESS = {
   address_type: 'street', address_use: 'headquarters',
   street1: '', street2: '', po_box: '', city: '', state: '', zip: '',
@@ -261,26 +261,34 @@ const TABS = [
   { id: 'contact',     label: 'Contact'     },
   { id: 'socials',     label: 'Socials'     },
   { id: 'directories', label: 'Directories' },
+  { id: 'background', label: 'Background' },
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────────
-const SubscriberProfileForm = ({ profile }) => {
+const SubscriberProfileForm = ({ profile, subscriberId }) => {
   const [activeTab, setActiveTab] = useState('identity');
   const [visitedTabs, setVisitedTabs] = useState(new Set(['identity']));
   const [form, setForm] = useState({
-    name: '', id: '', parentid: '', created_at: '', modified_at: '', legal_name: '',
+    name: '', id: '', subscriber_id: '', created_at: '', modified_at: '', legal_name: '',
     addresses: [],
-    phone: '', fax: '', website: '', email: '',
+    phone: '', fax: '', email: '', website: '',
     linkedin: '', facebook: '', instagram: '', x: '',
-    youtube: '', tiktok: '', pinterest: '',
-    googlebusiness: '', yelp: '', glassdoor: '', github: '', nextdoor: '',
+    youtube: '', pinterest: '',
+    google_business: '', yelp: '', glassdoor: '', github: '', nextdoor: '',
   });
   const [saving, setSaving]   = useState(false);
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
-    if (profile) setForm(prev => ({ ...prev, ...profile }));
-  }, [profile]);
+    if (profile) {
+      setForm(prev => ({
+        ...prev,
+        ...profile,
+        // Use the API value if present, otherwise fall back to the prop
+        subscriber_id: profile.subscriber_id || subscriberId || prev.subscriber_id,
+      }));
+    }
+  }, [profile, subscriberId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -338,7 +346,7 @@ const SubscriberProfileForm = ({ profile }) => {
           <div className="flex flex-col gap-2">
             <TextField    label="Legal Name"  name="legal_name" value={form.legal_name} onChange={handleChange} />
             <DisplayField label="Id"          value={form.id} />
-            <DisplayField label="Parent Id"   value={form.parentid} />
+            <DisplayField label="Parent Id"   value={form.subscriber_id} />
             <DisplayField label="Created At"  value={form.created_at} />
             <DisplayField label="Modified At" value={form.modified_at} />
           </div>
@@ -347,7 +355,8 @@ const SubscriberProfileForm = ({ profile }) => {
         {/* Address */}
         {visitedTabs.has('address') && (
           <div className={activeTab === 'address' ? 'block' : 'hidden'}>
-            <AddressGrid subscriberId={form.parentid} />
+            {console.log('subscriber.id at address render:', form.subscriber_id)}
+            <AddressGrid subscriberId={form.subscriber_id} />
           </div>
         )}
 
@@ -369,7 +378,6 @@ const SubscriberProfileForm = ({ profile }) => {
             <TextField label="Instagram" name="instagram" value={form.instagram} onChange={handleChange} />
             <TextField label="X"         name="x"         value={form.x}         onChange={handleChange} />
             <TextField label="YouTube"   name="youtube"   value={form.youtube}   onChange={handleChange} />
-            <TextField label="TikTok"    name="tiktok"    value={form.tiktok}    onChange={handleChange} />
             <TextField label="Pinterest" name="pinterest" value={form.pinterest} onChange={handleChange} />
           </div>
         )}
@@ -377,12 +385,20 @@ const SubscriberProfileForm = ({ profile }) => {
         {/* Directories */}
         {activeTab === 'directories' && (
           <div className="flex flex-col gap-2">
-            <TextField label="Google Business" name="googlebusiness" value={form.googlebusiness} onChange={handleChange} />
+            <TextField label="Google Business" name="google_business" value={form.google_business} onChange={handleChange} />
             <TextField label="Yelp"            name="yelp"           value={form.yelp}           onChange={handleChange} />
             <TextField label="Glassdoor"       name="glassdoor"      value={form.glassdoor}      onChange={handleChange} />
             <TextField label="GitHub"          name="github"         value={form.github}         onChange={handleChange} />
             <TextField label="Nextdoor"        name="nextdoor"       value={form.nextdoor}       onChange={handleChange} />
             <TextField label="Bizapedia"        name="bizapedia"     value={form.bizapedia}      onChange={handleChange} />
+          </div>
+        )}
+
+        {/* Background */}
+        {visitedTabs.has('background') && (
+          <div className={activeTab === 'background' ? 'block' : 'hidden'}>
+            {console.log('subscriber.id at render:', form.subscriber_id)}
+            <BackgroundGrid subscriberId={form.subscriber_id} />  
           </div>
         )}
 
@@ -392,7 +408,7 @@ const SubscriberProfileForm = ({ profile }) => {
           </p>
         )}
 
-        {activeTab !== 'address' && (
+        {activeTab !== 'address' && activeTab !== 'background' && (
           <button
             onClick={handleSubmit}
             disabled={saving}

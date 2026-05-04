@@ -106,7 +106,7 @@ const BlockedGrid = () => {
     // you're fetching sorted data from the server based on the sort state
     // The useEffect will trigger a new fetch with the updated sort parameters
     
-    console.log('Sort changed to:', e.sort);
+    //console.log('Sort changed to:', e.sort);
   };
 
   // Add page change handler

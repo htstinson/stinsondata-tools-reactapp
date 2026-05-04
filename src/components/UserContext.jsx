@@ -49,7 +49,7 @@ export const UserProvider = ({ children }) => {
   const login = (token) => {
     localStorage.setItem('token', token);
     const decodedToken = jwtDecode.jwtDecode(token);
-    console.log('ip_address', decodedToken.ip_address);
+    //console.log('ip_address', decodedToken.ip_address);
     setCurrentUser(decodedToken);
   };
 

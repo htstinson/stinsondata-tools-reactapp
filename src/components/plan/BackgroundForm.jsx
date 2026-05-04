@@ -76,10 +76,14 @@ const BackgroundForm = ({ subscriberId }) => {
 
   // ── Fetch existing background items ───────────────────────────────────────
   useEffect(() => {
-    if (!subscriberId) return;
+    console.log(`79 ${subscriberId}`) 
+    if (!subscriberId) return; 
     const fetch = async () => {
       try {
-        const data = await api.post('/api/v1/subscriber/background', { id: subscriberId });
+        const data = await api.post('/api/v1/subscriber/backgrounds', { id: subscriberId });
+        const result = JSON.stringify(data)
+        console.log(`85 ${subscriberId} ${result}`)
+
         if (data?.length) {
           setTabs(data.map(d => ({ ...d, _id: d.id ?? crypto.randomUUID() })));
           setActiveTab(0);
@@ -121,6 +125,7 @@ const BackgroundForm = ({ subscriberId }) => {
         items: tabs.map(({ _id, ...rest }) => rest), // strip client-only _id
       });
       setMessage({ type: 'success', text: 'Background saved.' });
+      
     } catch (err) {
       setMessage({ type: 'error', text: 'Failed to save background.' });
     } finally {

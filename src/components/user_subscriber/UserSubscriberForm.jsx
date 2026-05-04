@@ -37,7 +37,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
         }
 
         const data = await response.json();
-        console.log('Subscriber data from API:', data);
+        //console.log('Subscriber data from API:', data);
 
         const formattedSubscribers = Array.isArray(data)
           ? data.map(subscriber => ({
@@ -47,14 +47,14 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
             }))
           : [];
 
-        console.log('Formatted subscribers:', formattedSubscribers);
+        //console.log('Formatted subscribers:', formattedSubscribers);
         setSubscribers(formattedSubscribers);
 
         if (usersubscriber?.subscriber_id && formattedSubscribers.length > 0) {
           const existingSubscriber = formattedSubscribers.find(
             c => c.id.toString() === usersubscriber.subscriber_id.toString()
           );
-          console.log('Found existing subscriber:', existingSubscriber);
+          //console.log('Found existing subscriber:', existingSubscriber);
           if (existingSubscriber) {
             setSelectedSubscriber(existingSubscriber);
           }
@@ -95,7 +95,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
         }
 
         const data = await response.json();
-        console.log('User data from API:', data);
+        //console.log('User data from API:', data);
 
         const userArray = Array.isArray(data) ? data : (data.data ?? []);
 
@@ -105,14 +105,14 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
           text: user.username
         }));
 
-        console.log('Formatted users:', formattedUsers);
+        //console.log('Formatted users:', formattedUsers);
         setUsers(formattedUsers);
 
         if (usersubscriber?.user_id && formattedUsers.length > 0) {
           const existingUser = formattedUsers.find(
             u => u.id.toString() === usersubscriber.user_id.toString()
           );
-          console.log('Found existing user:', existingUser);
+          //console.log('Found existing user:', existingUser);
           if (existingUser) {
             setSelectedUser(existingUser);
           }
@@ -130,19 +130,19 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
 
   // Log state changes for debugging
   useEffect(() => {
-    console.log('Current subscribers state:', subscribers);
+    //console.log('Current subscribers state:', subscribers);
   }, [subscribers]);
 
   useEffect(() => {
-    console.log('Current users state:', users);
+    //console.log('Current users state:', users);
   }, [users]);
 
   useEffect(() => {
-    console.log('Current selectedSubscriber state:', selectedSubscriber);
+    //console.log('Current selectedSubscriber state:', selectedSubscriber);
   }, [selectedSubscriber]);
 
   useEffect(() => {
-    console.log('Current selectedUser state:', selectedUser);
+    //console.log('Current selectedUser state:', selectedUser);
   }, [selectedUser]);
 
   const onFormSubmit = (e) => {
@@ -181,7 +181,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
                   dataItemKey="id"
                   value={selectedSubscriber}
                   onChange={(e) => {
-                    console.log("Subscriber selected:", e.value);
+                    //console.log("Subscriber selected:", e.value);
                     setSelectedSubscriber(e.value);
                   }}
                   placeholder="Select a subscriber..."
@@ -214,7 +214,7 @@ export const UserSubscriberForm = ({ usersubscriber, onSubmit, onCancel }) => {
                   dataItemKey="id"
                   value={selectedUser}
                   onChange={(e) => {
-                    console.log("User selected:", e.value);
+                    //console.log("User selected:", e.value);
                     setSelectedUser(e.value);
                   }}
                   placeholder="Select a user..."

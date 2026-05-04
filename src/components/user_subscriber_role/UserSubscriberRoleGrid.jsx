@@ -47,7 +47,7 @@ const UserSubscriberRolesGrid = () => {
         userSubscriber: selectedUserSubscriberId || null
       };
 
-      console.log('Fetching UserSubscriberRoles with body:', JSON.stringify(requestBody));
+      //console.log('Fetching UserSubscriberRoles with body:', JSON.stringify(requestBody));
   
       const response = await fetch(url, {
         method: 'POST',
@@ -104,7 +104,7 @@ const UserSubscriberRolesGrid = () => {
 
   const handleSubmit = async (usersubscriber) => {
     try {
-      console.log("Received from form:", usersubscriber);
+      //console.log("Received from form:", usersubscriber);
       
       const token = localStorage.getItem('token');
       const method = usersubscriber.id ? 'PUT' : 'POST';
@@ -112,12 +112,12 @@ const UserSubscriberRolesGrid = () => {
         ? `https://thousandhillsdigital.net/api/v1/usersubscriberrole/${usersubscriber.id}`
         : 'https://thousandhillsdigital.net/api/v1/usersubscriberrole';
 
-      console.log("Submitting user-subscriber-role data:");
-      console.log("id:", usersubscriber.id || "New");
-      console.log("user_subscriber_id:", usersubscriber.user_subscriber_id);
-      console.log("user_id:", usersubscriber.user_id);
-      console.log("subscriber_id:", usersubscriber.subscriber_id);
-      console.log("role_id:", usersubscriber.role_id);
+      //console.log("Submitting user-subscriber-role data:");
+      //console.log("id:", usersubscriber.id || "New");
+      //console.log("user_subscriber_id:", usersubscriber.user_subscriber_id);
+      //console.log("user_id:", usersubscriber.user_id);
+      //console.log("subscriber_id:", usersubscriber.subscriber_id);
+      //console.log("role_id:", usersubscriber.role_id);
 
       const response = await fetch(url, {
         method,

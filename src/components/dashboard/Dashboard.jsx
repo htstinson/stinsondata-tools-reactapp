@@ -13,7 +13,6 @@ import { useSubscription } from '../../components/Navbar.jsx';
 import PageLayout from '../PageLayout.jsx';
 import { api } from '../../api';
 import SubscriberProfileForm from '../plan/SubscriberProfileForm.jsx';
-import BackgroundForm from '../plan/BackgroundForm.jsx';
 
 const IMG2 = api.cdn('/bg2.jpeg');
 
@@ -22,7 +21,7 @@ const load = (key, fallback) => {
   try {
     const val = localStorage.getItem(key);
     const result = val !== null ? JSON.parse(val) : fallback;
-    console.log(`[UI] load "${key}":`, result);
+    //console.log(`[UI] load "${key}":`, result);
     return result;
   } catch (e) {
     console.warn(`[UI] load "${key}" failed:`, e);
@@ -33,7 +32,7 @@ const load = (key, fallback) => {
 const save = (key, val) => {
   try {
     localStorage.setItem(key, JSON.stringify(val));
-    console.log(`[UI] save "${key}":`, val);
+    //console.log(`[UI] save "${key}":`, val);
   } catch (e) {
     console.warn(`[UI] save "${key}" failed:`, e);
   }
@@ -79,7 +78,6 @@ const INITIAL_SECTIONS = [
         },
       },
       { id: 'subscriber-items', label: 'Services',    icon: '📦' },
-      { id: 'plan-background',  label: 'Background',  icon: '🖼️' },
       { id: 'plan-campaigns',   label: 'Campaigns',   icon: '🎯' },
       { id: 'plan-initiatives', label: 'Initiatives', icon: '🚀' },
       { id: 'plan-strategies',  label: 'Strategies',  icon: '♟️' },
@@ -424,11 +422,10 @@ const Dashboard = () => {
         }}
       >
         <div className={`w-full ${activeSection === 'plan-profile' ? 'block' : 'hidden'}`}>
-          <SubscriberProfileForm profile={profileData} />
-        </div>
-
-        <div className={`w-full ${activeSection === 'plan-background' ? 'block' : 'hidden'}`}>
-          <BackgroundForm subscriberId={selectedSubscription?.subscriber_id} />
+          <SubscriberProfileForm 
+            profile={profileData} 
+            subscriberId={selectedSubscription?.subscriber_id}
+          />
         </div>
 
         <div className={`w-full ${activeSection === 'customers' ? 'block' : 'hidden'}`}

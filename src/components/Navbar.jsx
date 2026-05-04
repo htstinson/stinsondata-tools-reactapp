@@ -29,7 +29,7 @@ export const UserIpProvider = ({ children }) => {
       setError(null);
       
       try {
-        console.log("Fetching IP address...");
+        //console.log("Fetching IP address...");
         const response = await fetch('https://api.ipify.org?format=json');
         
         if (!response.ok) {
@@ -37,21 +37,21 @@ export const UserIpProvider = ({ children }) => {
         }
         
         const data = await response.json();
-        console.log("IP fetched successfully:", data.ip);
+        //console.log("IP fetched successfully:", data.ip);
         setUserIp(data.ip);
       } catch (err) {
         console.error('Error fetching IP:', err);
         
         // Fallback method if the first one fails
         try {
-          console.log("Trying alternative IP API...");
+          //console.log("Trying alternative IP API...");
           const response = await fetch('https://api64.ipify.org?format=json');
           if (!response.ok) {
             throw new Error('Failed to fetch IP address from backup API');
           }
           
           const data = await response.json();
-          console.log("IP fetched successfully from backup API:", data.ip);
+          //console.log("IP fetched successfully from backup API:", data.ip);
           setUserIp(data.ip);
         } catch (fallbackErr) {
           setError('Could not retrieve IP address');
@@ -131,7 +131,7 @@ const SubscriptionsDropdown = ({ isMobile = false }) => {
       subscriber_name: subscription.name
     });
     
-    console.log('Subscription selected:', subscription);
+    //console.log('Subscription selected:', subscription);
     
     // Navigate to dashboard
     window.location.href = '/dashboard';
@@ -169,7 +169,7 @@ const SubscriptionsDropdown = ({ isMobile = false }) => {
         }
 
         const data = await response.json();
-        console.log('Subscriptions loaded:', data);
+        //console.log('Subscriptions loaded:', data);
         
         // Transform the data to match the dropdown format
         const subscriptionLinks = data.map(sub => ({
@@ -565,20 +565,20 @@ const Navbar = () => {
     } else {
       // Log the IP address for debugging
       
-      console.log("[1] currentUser = ", currentUser);
+      //console.log("[1] currentUser = ", currentUser);
 
       if (currentUser.subscribed === null) {
         console.log ("current user subscribed is null")
       } else {
         currentUser.subscribed.forEach(subscription => {
-        console.log(subscription.subscriber_name);
+        //console.log(subscription.subscriber_name);
       })
       }
       
       if (currentUser.ip_address) {
-        console.log("navbar user context ip address", currentUser.ip_address);
+        //console.log("navbar user context ip address", currentUser.ip_address);
       }
-      console.log("[2] userIp from context:", userIp);
+      //console.log("[2] userIp from context:", userIp);
       
       // Special case for 'Admin' item - it requires IP address verification
       if (item.name === 'Admin') {

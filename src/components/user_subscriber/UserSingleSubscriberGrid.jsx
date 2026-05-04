@@ -75,7 +75,7 @@ const UserSingleSubscriberGrid = ({ onSubscriptionSelect }) => {  // Add this pr
     // Update selected rows for visual feedback
     setSelectedRows([subscription]);
     
-    console.log('Subscription selected:', subscription);
+    //console.log('Subscription selected:', subscription);
     
     // Call parent callback
     if (onSubscriptionSelect) {

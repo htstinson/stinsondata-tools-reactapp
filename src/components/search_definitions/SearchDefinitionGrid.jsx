@@ -145,7 +145,7 @@ const SearchDefinitionGrid = ({ selectedSubscription }) => {
   const handleSearch = async (item) => {
     try {
       alert('Search Started.')
-      console.log('test', JSON.stringify({ id: item.id }));
+      //console.log('test', JSON.stringify({ id: item.id }));
       const token = localStorage.getItem('token');
       const method = 'POST';
       const url = `https://thousandhillsdigital.net/api/v1/search`       
