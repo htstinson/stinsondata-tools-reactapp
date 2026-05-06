@@ -183,13 +183,13 @@ const AddressRow = ({ row, isEven, subscriberId, onChange, onSaved, onDelete }) 
       </Cell>
       <Cell>
         <div className="flex flex-row gap-2 items-center">
-          <button
-            onClick={save} disabled={!dirty || saving}
-            className="text-xs px-2 py-0.5 rounded text-white transition-opacity"
-            style={{ background: 'var(--color-primary)', opacity: (!dirty || saving) ? 0.4 : 1 }}
-          >
-            {saving ? '...' : row.id === null ? 'Create' : 'Save'}
-          </button>
+        <button
+          onClick={save} disabled={!dirty || saving}
+          className="text-xs px-2 py-0.5 rounded border transition-opacity"
+          style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)', opacity: (!dirty || saving) ? 0.4 : 1 }}
+        >
+          {saving ? '...' : row.id === null ? 'Create' : 'Save'}
+        </button>
           <button onClick={remove} className="text-xs text-red-400 hover:text-red-600">
             Delete
           </button>
@@ -293,14 +293,14 @@ const AddressGrid = ({ subscriberId }) => {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex justify-end">
-        <button
-          onClick={addRow}
-          className="px-4 py-1.5 rounded-lg text-sm font-medium text-white"
-          style={{ background: 'var(--color-primary)' }}
-        >
-          + Add Address
-        </button>
+      <div className="flex justify-start">
+      <button
+        onClick={addRow}
+        className="px-3 py-1 rounded-lg text-xs font-medium border"
+        style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}
+      >
+        + Add Address
+      </button>
       </div>
 
       <div className="relative overflow-x-auto">

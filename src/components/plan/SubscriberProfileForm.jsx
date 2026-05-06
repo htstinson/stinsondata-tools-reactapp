@@ -7,6 +7,7 @@ import BackgroundGrid from './BackgroundGrid.jsx';
 
 // ── Reusable field components ─────────────────────────────────────────────────
 
+
 const DisplayField = ({ label, value }) => (
   <div className="flex items-center gap-4 py-0">
     <label className="text-sm font-bold text-gray-600 w-32 shrink-0">{label}</label>
@@ -26,6 +27,49 @@ const TextField = ({ label, name, value, onChange }) => (
     />
   </div>
 );
+
+const UrlField = ({ label, name, value, onChange }) => (
+  <div className="flex items-center gap-4 py-1">
+    <label className="text-sm font-bold w-32 shrink-0">
+      {value ? (
+        <a 
+          href={value.startsWith('http') ? value : `https://${value} `}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:underline" style={{ color: 'var(--color-primary)' }}
+          >{label}
+        </a>
+      ) : (
+        <span className="text-gray-600">{label}</span>
+      )}
+    </label>
+    <input
+      type="text"
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="flex-1 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+    />
+  </div>
+);
+
+const DisplayUrlField = ({ label, value }) => {
+  if (!value) return null;
+  return (
+    <div className="flex items-center gap-4 py-0">
+      <label className="text-sm font-bold text-gray-600 w-32 shrink-0">{label}</label>
+      <a
+        href={value.startsWith('http') ? value : `https://${value} `}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sm px-3 py-0.5"
+        style={{ color: 'var(--color-primary)' }}
+      >{label}
+      </a>
+    </div>
+  );
+};
+
 
 const SelectField = ({ label, name, value, onChange, options, width }) => (
   <div className="flex items-center gap-4 py-1">
@@ -278,6 +322,11 @@ const SubscriberProfileForm = ({ profile, subscriberId }) => {
   });
   const [saving, setSaving]   = useState(false);
   const [message, setMessage] = useState(null);
+  const [dirEditMode, setDirEditMode] = useState(false);
+
+  const [socialsEditMode, setSocialsEditMode] = useState(false);
+  const [contactEditMode, setContactEditMode] = useState(false);
+  const [identityEditMode, setIdentityEditMode] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -289,6 +338,10 @@ const SubscriberProfileForm = ({ profile, subscriberId }) => {
       }));
     }
   }, [profile, subscriberId]);
+
+  useEffect(() => {
+    setMessage(null);
+  }, [activeTab]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -341,56 +394,186 @@ const SubscriberProfileForm = ({ profile, subscriberId }) => {
       {/* ── Card ── */}
       <div className="p-6 rounded-b-xl rounded-tr-xl shadow" style={{ background: 'var(--color-card-bg, white)' }}>
 
-        {/* Identity */}
-        {activeTab === 'identity' && (
-          <div className="flex flex-col gap-2">
-            <TextField    label="Legal Name"  name="legal_name" value={form.legal_name} onChange={handleChange} />
-            <DisplayField label="Id"          value={form.id} />
-            <DisplayField label="Parent Id"   value={form.subscriber_id} />
-            <DisplayField label="Created At"  value={form.created_at} />
-            <DisplayField label="Modified At" value={form.modified_at} />
+      {/* Identity */}
+      {activeTab === 'identity' && (
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-start mb-1">
+            <button
+              onClick={() => setIdentityEditMode(prev => !prev)}
+              className="px-3 py-1 rounded-lg text-xs font-medium border"
+              style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}
+            >
+              {identityEditMode ? 'Done' : 'Edit'}
+            </button>
           </div>
-        )}
 
-        {/* Address */}
-        {visitedTabs.has('address') && (
-          <div className={activeTab === 'address' ? 'block' : 'hidden'}>
-            {console.log('subscriber.id at address render:', form.subscriber_id)}
-            <AddressGrid subscriberId={form.subscriber_id} />
-          </div>
-        )}
+          {identityEditMode && (
+          <button
+            onClick={handleSubmit}
+            disabled={saving}
+            className="self-start px-3 py-1 rounded-lg text-xs font-medium border transition-opacity"
+            style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)', opacity: saving ? 0.6 : 1 }}
+          >
+            {saving ? 'Saving...' : 'Save'}
+          </button>
+          )}
 
-        {/* Contact */}
-        {activeTab === 'contact' && (
-          <div className="flex flex-col gap-2">
-            <TextField label="Phone"   name="phone"   value={form.phone}   onChange={handleChange} />
-            <TextField label="Fax"     name="fax"     value={form.fax}     onChange={handleChange} />
-            <TextField label="Website" name="website" value={form.website} onChange={handleChange} />
-            <TextField label="Email"   name="email"   value={form.email}   onChange={handleChange} />
-          </div>
-        )}
+          {identityEditMode ? (
+            <>
+              <TextField    label="Legal Name"  name="legal_name" value={form.legal_name} onChange={handleChange} />
+              <DisplayField label="Created At"  value={form.created_at} />
+              <DisplayField label="Modified At" value={form.modified_at} />
+            </>
+          ) : (
+            <>
+              <DisplayField label="Legal Name"  value={form.legal_name} />
+              <DisplayField label="Created At"  value={form.created_at} />
+              <DisplayField label="Modified At" value={form.modified_at} />
+            </>
+          )}
+        </div>
+      )}
 
-        {/* Socials */}
+      {/* Address */}
+      {visitedTabs.has('address') && (
+        <div className={activeTab === 'address' ? 'block' : 'hidden'}>
+          {console.log('subscriber.id at address render:', form.subscriber_id)}
+          <AddressGrid subscriberId={form.subscriber_id} />
+        </div>
+      )}
+
+      {/* Contact */}
+      {activeTab === 'contact' && (
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-start mb-1">
+        <button
+          onClick={() => setContactEditMode(prev => !prev)}
+          className="px-3 py-1 rounded-lg text-xs font-medium border"
+          style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}
+        >
+        {contactEditMode ? 'Done' : 'Edit'}
+        </button>
+      </div>
+
+      {contactEditMode && (
+        <button
+          onClick={handleSubmit}
+          disabled={saving}
+          className="self-start px-3 py-1 rounded-lg text-xs font-medium border transition-opacity"
+          style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)', opacity: saving ? 0.6 : 1 }}
+        >
+          {saving ? 'Saving...' : 'Save'}
+        </button>
+      )}
+
+      {contactEditMode ? (
+        <>
+          <TextField label="Phone"   name="phone"   value={form.phone}   onChange={handleChange} />
+          <TextField label="Fax"     name="fax"     value={form.fax}     onChange={handleChange} />
+          <UrlField  label="Website" name="website" value={form.website} onChange={handleChange} />
+          <TextField label="Email"   name="email"   value={form.email}   onChange={handleChange} />
+        </>
+      ) : (
+        <>
+          <DisplayField    label="Phone"   value={form.phone}   />
+          <DisplayField    label="Fax"     value={form.fax}     />
+          <DisplayUrlField label="Website" value={form.website} />
+          <DisplayField    label="Email"   value={form.email}   />
+        </>
+      )}
+    </div>
+  )}
+
         {activeTab === 'socials' && (
           <div className="flex flex-col gap-2">
-            <TextField label="LinkedIn"  name="linkedin"  value={form.linkedin}  onChange={handleChange} />
-            <TextField label="Facebook"  name="facebook"  value={form.facebook}  onChange={handleChange} />
-            <TextField label="Instagram" name="instagram" value={form.instagram} onChange={handleChange} />
-            <TextField label="X"         name="x"         value={form.x}         onChange={handleChange} />
-            <TextField label="YouTube"   name="youtube"   value={form.youtube}   onChange={handleChange} />
-            <TextField label="Pinterest" name="pinterest" value={form.pinterest} onChange={handleChange} />
+            <div className="flex justify-start mb-1">
+              <button
+                onClick={() => setSocialsEditMode(prev => !prev)}
+                className="px-3 py-1 rounded-lg text-xs font-medium border"
+                style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}
+              >
+                {socialsEditMode ? 'Done' : 'Edit'}
+              </button>
+            </div>
+
+            {socialsEditMode && (
+              <button
+                onClick={handleSubmit}
+                disabled={saving}
+                className="self-start px-3 py-1 rounded-lg text-xs font-medium border transition-opacity"
+                style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)', opacity: saving ? 0.6 : 1 }}
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+            )}
+
+            {socialsEditMode ? (
+              <>
+                <UrlField label="LinkedIn"  name="linkedin"  value={form.linkedin}  onChange={handleChange} />
+                <UrlField label="Facebook"  name="facebook"  value={form.facebook}  onChange={handleChange} />
+                <UrlField label="Instagram" name="instagram" value={form.instagram} onChange={handleChange} />
+                <UrlField label="X"         name="x"         value={form.x}         onChange={handleChange} />
+                <UrlField label="YouTube"   name="youtube"   value={form.youtube}   onChange={handleChange} />
+                <UrlField label="Pinterest" name="pinterest" value={form.pinterest} onChange={handleChange} />
+              </>
+            ) : (
+              <>
+                <DisplayUrlField label="LinkedIn"  value={form.linkedin}  />
+                <DisplayUrlField label="Facebook"  value={form.facebook}  />
+                <DisplayUrlField label="Instagram" value={form.instagram} />
+                <DisplayUrlField label="X"         value={form.x}         />
+                <DisplayUrlField label="YouTube"   value={form.youtube}   />
+                <DisplayUrlField label="Pinterest" value={form.pinterest} />
+              </>
+            )}
           </div>
         )}
 
         {/* Directories */}
-        {activeTab === 'directories' && (
+          {activeTab === 'directories' && (
           <div className="flex flex-col gap-2">
-            <TextField label="Google Business" name="google_business" value={form.google_business} onChange={handleChange} />
-            <TextField label="Yelp"            name="yelp"           value={form.yelp}           onChange={handleChange} />
-            <TextField label="Glassdoor"       name="glassdoor"      value={form.glassdoor}      onChange={handleChange} />
-            <TextField label="GitHub"          name="github"         value={form.github}         onChange={handleChange} />
-            <TextField label="Nextdoor"        name="nextdoor"       value={form.nextdoor}       onChange={handleChange} />
-            <TextField label="Bizapedia"        name="bizapedia"     value={form.bizapedia}      onChange={handleChange} />
+            <div className="flex justify-start mb-1">
+              <button
+                onClick={() => setDirEditMode(prev => !prev)}
+                className="px-3 py-1 rounded-lg text-xs font-medium border"
+                style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}
+              >
+                {dirEditMode ? 'Done' : 'Edit'}
+              </button>
+            </div>
+
+            {dirEditMode && (
+              <button
+                onClick={handleSubmit}
+                disabled={saving}
+                className="self-start px-5 py-2 rounded-lg text-sm font-medium text-white"
+                style={{ background: 'var(--color-primary)', opacity: saving ? 0.6 : 1 }}
+              >
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+            )}
+
+            {dirEditMode ? (
+              <>
+                <UrlField label="Google Business" name="google_business" value={form.google_business} onChange={handleChange} />
+                <UrlField label="Yelp"            name="yelp"            value={form.yelp}            onChange={handleChange} />
+                <UrlField label="Glassdoor"       name="glassdoor"       value={form.glassdoor}       onChange={handleChange} />
+                <UrlField label="GitHub"          name="github"          value={form.github}          onChange={handleChange} />
+                <UrlField label="Nextdoor"        name="nextdoor"        value={form.nextdoor}        onChange={handleChange} />
+                <UrlField label="Bizapedia"       name="bizapedia"       value={form.bizapedia}       onChange={handleChange} />
+              </>
+            ) : (
+              <>
+                <DisplayUrlField label="Google Business" value={form.google_business} />
+                <DisplayUrlField label="Yelp"            value={form.yelp}            />
+                <DisplayUrlField label="Glassdoor"       value={form.glassdoor}       />
+                <DisplayUrlField label="GitHub"          value={form.github}          />
+                <DisplayUrlField label="Nextdoor"        value={form.nextdoor}        />
+                <DisplayUrlField label="Bizapedia"       value={form.bizapedia}       />
+              </>
+            )}
+
+
           </div>
         )}
 
@@ -407,8 +590,7 @@ const SubscriberProfileForm = ({ profile, subscriberId }) => {
             {message.text}
           </p>
         )}
-
-        {activeTab !== 'address' && activeTab !== 'background' && (
+          {activeTab !== 'address' && activeTab !== 'background' && activeTab !== 'directories' && activeTab !== 'socials' && activeTab !== 'contact' && activeTab !== 'identity' && (
           <button
             onClick={handleSubmit}
             disabled={saving}

@@ -97,6 +97,7 @@ const INITIAL_SECTIONS = [
     items: [
       { id: 'optimize-schedule', label: 'Schedule', icon: '📅' },
       { id: 'optimize-measure',  label: 'Measure',  icon: '📊' },
+      { id: 'optimize-competition', label: 'Competition', icon: '🏆' },
     ],
   },
   {

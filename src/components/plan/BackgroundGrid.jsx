@@ -46,7 +46,8 @@ const BackgroundGrid = ({ subscriberId }) => {
     setError(null);
     try {
       const res = await api.post('/api/v1/subscriber/backgrounds', { id: subscriberId });
-      setRows(res?.data ?? res ?? []);
+      const result = res?.data ?? res ?? [];
+      setRows(Array.isArray(result) ? result : []);
     } catch {
       setError('Failed to load background records.');
     } finally {
@@ -114,6 +115,13 @@ const BackgroundGrid = ({ subscriberId }) => {
       )}
 
       {/* Grid */}
+      <button
+        onClick={openAdd}
+        className="self-start px-3 py-1 rounded-lg text-xs font-medium border"
+        style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}
+      >
+        + Add Background
+      </button>
       <div className="overflow-x-auto rounded-lg border border-gray-200">
         <table className="w-full text-sm border-collapse">
           <thead>
@@ -164,14 +172,6 @@ const BackgroundGrid = ({ subscriberId }) => {
         </table>
       </div>
 
-      <button
-        onClick={openAdd}
-        className="self-start px-4 py-1.5 rounded-lg text-sm font-medium text-white"
-        style={{ background: 'var(--color-primary)' }}
-      >
-        + Add Background
-      </button>
-
       {/* Inline add / edit form */}
       {editIndex !== null && (
         <div
@@ -187,14 +187,14 @@ const BackgroundGrid = ({ subscriberId }) => {
           <TextField label="Details" name="details" value={draft.details ?? ''} onChange={handleDraftChange} multiline />
 
           <div className="flex gap-2 mt-2">
-            <button
-              onClick={save}
-              disabled={saving}
-              className="px-4 py-1.5 rounded-lg text-sm font-medium text-white transition-opacity"
-              style={{ background: 'var(--color-primary)', opacity: saving ? 0.6 : 1 }}
-            >
-              {saving ? 'Saving…' : 'Save'}
-            </button>
+          <button
+            onClick={save}
+            disabled={saving}
+            className="px-3 py-1 rounded-lg text-xs font-medium border transition-opacity"
+            style={{ color: 'var(--color-primary)', borderColor: 'var(--color-primary)', opacity: saving ? 0.6 : 1 }}
+          >
+            {saving ? 'Saving…' : 'Save'}
+          </button>
             <button
               onClick={cancel}
               className="px-4 py-1.5 rounded-lg text-sm font-medium text-gray-600 border"
